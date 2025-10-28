@@ -1,6 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
 import {
   RegisterRequest,
   LoginRequest,
@@ -10,6 +9,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
 } from 'proto/auth.pb';
+import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
 @Injectable()
 export class AuthService {
@@ -25,23 +25,18 @@ export class AuthService {
   }
 
   async handleRegister(req: RegisterRequest) {
-    this.logger.debug('Body nhận được: ' + JSON.stringify(req));
-    return await firstValueFrom(this.authGrpcService.register(req));
+    return grpcCall(this.authGrpcService.register(req));
   }
 
   async handleLogin(req: LoginRequest) {
-    this.logger.log('🔹 Đang xử lý đăng nhập cho user: ' + req.username);
-    const res = await lastValueFrom(this.authGrpcService.login(req));
-    return res;
+    return grpcCall(this.authGrpcService.login(req), true);
   }
 
   async handleVerifyOtp(req: VerifyOtpRequest) {
-    this.logger.log('🔐 Xác thực OTP cho session: ' + req.sessionId);
-    return await lastValueFrom(this.authGrpcService.verifyOtp(req));
+    return grpcCall(this.authGrpcService.verifyOtp(req), true);
   }
 
   async handleRefresh(req: RefreshRequest) {
-    this.logger.log('🔁 Refresh token...');
-    return await firstValueFrom(this.authGrpcService.refresh(req));
+    return grpcCall(this.authGrpcService.refresh(req));
   }
 }
