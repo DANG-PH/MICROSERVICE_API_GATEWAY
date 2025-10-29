@@ -66,6 +66,12 @@ export class RefreshResponse {
     description: 'Access Token mới'
   })
   access_token: string;
+
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5c...',
+    description: 'Refresh Token mới'
+  })
+  refresh_token: string;
 }
 
 // ===== VERIFY OTP =====
@@ -99,6 +105,12 @@ export class VerifyOtpResponseDto {
     description: 'Refresh Token dài hạn'
   })
   refresh_token: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'Auth ID trả về để người dùng truy cập được API bên user'
+  })
+  auth_id: number;
 }
 
 // ===== USER METHODS =====

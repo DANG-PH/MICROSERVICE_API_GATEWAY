@@ -14,6 +14,9 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   UnbanUserResponseDto,RequestResetPasswordRequestDto, RequestResetPasswordResponseDto } from 'dto/auth.dto';
 import { JwtAuthGuard } from 'src/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
+import { Roles } from 'src/decorators/role.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/guard/role.guard';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -84,7 +87,8 @@ export class AuthController {
 
   @Post('change-role')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Thay đổi role của user (ADMIN only)' })
   @ApiBody({ type: ChangeRoleRequestDto })
   async changeRole(@Body() body: ChangeRoleRequestDto): Promise<ChangeRoleResponseDto> {
@@ -93,7 +97,8 @@ export class AuthController {
 
   @Post('ban-user')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Ban user (ADMIN only)' })
   @ApiBody({ type: BanUserRequestDto })
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
@@ -102,7 +107,8 @@ export class AuthController {
 
   @Post('unban-user')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Unban user (ADMIN only)' })
   @ApiBody({ type: UnbanUserRequestDto })
   async unbanUser(@Body() body: UnbanUserRequestDto): Promise<UnbanUserResponseDto> {

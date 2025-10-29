@@ -40,6 +40,7 @@ export interface VerifyOtpRequest {
 export interface VerifyOtpResponse {
   access_token: string;
   refresh_token: string;
+  auth_id: number;
 }
 
 export interface RefreshRequest {
@@ -48,6 +49,7 @@ export interface RefreshRequest {
 
 export interface RefreshResponse {
   access_token: string;
+  refresh_token: string;
 }
 
 /** --- User methods --- */

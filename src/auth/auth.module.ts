@@ -5,6 +5,7 @@ import { AUTH_PACKAGE_NAME } from 'proto/auth.pb';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from 'src/JWT/jwt.strategy';
+import { RolesGuard } from 'src/guard/role.guard';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { JwtStrategy } from 'src/JWT/jwt.strategy';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService,JwtStrategy]
+  providers: [AuthService,JwtStrategy,RolesGuard]
 })
 export class AuthModule {}
