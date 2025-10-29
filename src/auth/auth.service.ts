@@ -5,9 +5,16 @@ import {
   LoginRequest,
   RefreshRequest,
   VerifyOtpRequest,
+  ChangePasswordRequest,
+  ResetPasswordRequest,
+  ChangeEmailRequest,
+  ChangeRoleRequest,
+  BanUserRequest,
+  UnbanUserRequest,
   AUTH_PACKAGE_NAME,
   AUTH_SERVICE_NAME,
   AuthServiceClient,
+  RequestResetPasswordRequest,
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -38,5 +45,32 @@ export class AuthService {
 
   async handleRefresh(req: RefreshRequest) {
     return grpcCall(this.authGrpcService.refresh(req));
+  }
+
+  async handleChangePassword(req: ChangePasswordRequest) {
+    return grpcCall(this.authGrpcService.changePassword(req));
+  }
+
+  async handleResetPassword(req: ResetPasswordRequest) {
+    return grpcCall(this.authGrpcService.resetPassword(req));
+  }
+
+  async handleChangeEmail(req: ChangeEmailRequest) {
+    return grpcCall(this.authGrpcService.changeEmail(req));
+  }
+
+  async handleChangeRole(req: ChangeRoleRequest) {
+    return grpcCall(this.authGrpcService.changeRole(req));
+  }
+
+  async handleBanUser(req: BanUserRequest) {
+    return grpcCall(this.authGrpcService.banUser(req));
+  }
+
+  async handleUnbanUser(req: UnbanUserRequest) {
+    return grpcCall(this.authGrpcService.unbanUser(req));
+  }
+  async handleRequestResetPassword(req: RequestResetPasswordRequest) {
+    return grpcCall(this.authGrpcService.requestResetPassword(req));
   }
 }

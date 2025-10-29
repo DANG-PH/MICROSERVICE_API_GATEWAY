@@ -100,3 +100,127 @@ export class VerifyOtpResponseDto {
   })
   refresh_token: string;
 }
+
+// ===== USER METHODS =====
+
+// Change Password
+export class ChangePasswordRequestDto {
+  @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
+  @IsString()
+  @IsNotEmpty()
+  sessionId: string;
+
+  @ApiProperty({ example: 'oldPass123', description: 'Mật khẩu cũ' })
+  @IsString()
+  @MinLength(6)
+  oldPassword: string;
+
+  @ApiProperty({ example: 'newPass456', description: 'Mật khẩu mới' })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
+export class ChangePasswordResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// Reset Password (quên mật khẩu)
+export class ResetPasswordRequestDto {
+  @ApiProperty({ example: 'dang123', description: 'Tên đăng nhập' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ example: '123456', description: 'OTP gửi về email' })
+  @IsString()
+  @Length(6, 6)
+  otp: string;
+
+  @ApiProperty({ example: 'newPass456', description: 'Mật khẩu mới' })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
+export class ResetPasswordResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// Change Email
+export class ChangeEmailRequestDto {
+  @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
+  @IsString()
+  @IsNotEmpty()
+  sessionId: string;
+
+  @ApiProperty({ example: 'newemail@gmail.com', description: 'Email mới' })
+  @IsEmail()
+  newEmail: string;
+}
+
+export class ChangeEmailResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// ===== ADMIN METHODS =====
+
+// Change Role
+export class ChangeRoleRequestDto {
+  @ApiProperty({ example: 'dang123', description: 'Tên user cần thay đổi role' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ example: 'ADMIN', description: 'Role mới' })
+  @IsString()
+  @IsNotEmpty()
+  newRole: string;
+}
+
+export class ChangeRoleResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// Ban User
+export class BanUserRequestDto {
+  @ApiProperty({ example: 'dang123', description: 'Tên user cần ban' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+}
+
+export class BanUserResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// Unban User
+export class UnbanUserRequestDto {
+  @ApiProperty({ example: 'dang123', description: 'Tên user cần unban' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+}
+
+export class UnbanUserResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+// ===== REQUEST RESET PASSWORD OTP =====
+export class RequestResetPasswordRequestDto {
+  @ApiProperty({ example: 'dang123', description: 'Tên đăng nhập cần reset password' })
+  @IsString()
+  @IsNotEmpty({ message: 'Username không được để trống' })
+  username: string;
+}
+
+export class RequestResetPasswordResponseDto {
+  @ApiProperty({ example: true, description: 'Trạng thái gửi OTP thành công' })
+  success: boolean;
+}

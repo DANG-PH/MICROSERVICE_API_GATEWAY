@@ -11,6 +11,7 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
+/** --- Register/Login/OTP/Refresh  --- */
 export interface RegisterRequest {
   username: string;
   password: string;
@@ -49,11 +50,79 @@ export interface RefreshResponse {
   access_token: string;
 }
 
+/** --- User methods --- */
+export interface ChangePasswordRequest {
+  sessionId: string;
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  success: boolean;
+}
+
+export interface ResetPasswordRequest {
+  username: string;
+  otp: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+}
+
+export interface ChangeEmailRequest {
+  sessionId: string;
+  newEmail: string;
+}
+
+export interface ChangeEmailResponse {
+  success: boolean;
+}
+
+/** --- Admin methods --- */
+export interface ChangeRoleRequest {
+  /** user target */
+  username: string;
+  newRole: string;
+}
+
+export interface ChangeRoleResponse {
+  success: boolean;
+}
+
+export interface BanUserRequest {
+  username: string;
+}
+
+export interface BanUserResponse {
+  success: boolean;
+}
+
+export interface UnbanUserRequest {
+  username: string;
+}
+
+export interface UnbanUserResponse {
+  success: boolean;
+}
+
+/** --- Request OTP reset password --- */
+export interface RequestResetPasswordRequest {
+  username: string;
+}
+
+export interface RequestResetPasswordResponse {
+  success: boolean;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
 
 export interface AuthServiceClient {
+  /** user actions */
+
   register(request: RegisterRequest, metadata?: Metadata): Observable<RegisterResponse>;
 
   login(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
@@ -61,11 +130,32 @@ export interface AuthServiceClient {
   verifyOtp(request: VerifyOtpRequest, metadata?: Metadata): Observable<VerifyOtpResponse>;
 
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
+
+  changePassword(request: ChangePasswordRequest, metadata?: Metadata): Observable<ChangePasswordResponse>;
+
+  resetPassword(request: ResetPasswordRequest, metadata?: Metadata): Observable<ResetPasswordResponse>;
+
+  requestResetPassword(
+    request: RequestResetPasswordRequest,
+    metadata?: Metadata,
+  ): Observable<RequestResetPasswordResponse>;
+
+  changeEmail(request: ChangeEmailRequest, metadata?: Metadata): Observable<ChangeEmailResponse>;
+
+  /** admin actions */
+
+  changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
+
+  banUser(request: BanUserRequest, metadata?: Metadata): Observable<BanUserResponse>;
+
+  unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
 
 export interface AuthServiceController {
+  /** user actions */
+
   register(request: RegisterRequest, metadata?: Metadata): Observable<RegisterResponse>;
 
   login(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
@@ -73,11 +163,42 @@ export interface AuthServiceController {
   verifyOtp(request: VerifyOtpRequest, metadata?: Metadata): Observable<VerifyOtpResponse>;
 
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
+
+  changePassword(request: ChangePasswordRequest, metadata?: Metadata): Observable<ChangePasswordResponse>;
+
+  resetPassword(request: ResetPasswordRequest, metadata?: Metadata): Observable<ResetPasswordResponse>;
+
+  requestResetPassword(
+    request: RequestResetPasswordRequest,
+    metadata?: Metadata,
+  ): Observable<RequestResetPasswordResponse>;
+
+  changeEmail(request: ChangeEmailRequest, metadata?: Metadata): Observable<ChangeEmailResponse>;
+
+  /** admin actions */
+
+  changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
+
+  banUser(request: BanUserRequest, metadata?: Metadata): Observable<BanUserResponse>;
+
+  unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
 }
 
 export function AuthServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["register", "login", "verifyOtp", "refresh"];
+    const grpcMethods: string[] = [
+      "register",
+      "login",
+      "verifyOtp",
+      "refresh",
+      "changePassword",
+      "resetPassword",
+      "requestResetPassword",
+      "changeEmail",
+      "changeRole",
+      "banUser",
+      "unbanUser",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("AuthService", method)(constructor.prototype[method], method, descriptor);
