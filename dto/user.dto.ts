@@ -55,7 +55,7 @@ export class UserDto {
   @ApiProperty({ example: 123 })
   @IsOptional()
   @IsInt()
-  auth_id?: number;
+  auth_id: number;
 }
 
 // ===== REGISTER =====

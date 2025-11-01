@@ -39,4 +39,16 @@ export class UserService {
   async handleRegister(req: RegisterRequest) {
     return grpcCall(this.userGrpcService.register(req));
   }
+
+  async handleProfile(req: GetUserRequest) {
+    return grpcCall(this.userGrpcService.getProfile(req));
+  }
+
+  async handleSaveGame(req: SaveGameRequest) {
+    return grpcCall(this.userGrpcService.saveGame(req));
+  }
+
+  async handleGetBalanceWeb(req: UsernameRequest ) {
+    return grpcCall(this.userGrpcService.getBalance(req));
+  }
 }

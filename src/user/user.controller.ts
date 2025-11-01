@@ -18,4 +18,32 @@ export class UserController {
   async register(@Body() body: RegisterRequestDto) {
     return this.userService.handleRegister(body);
   }
+
+  @Post('profile')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó' })
+  @ApiBody({ type:  GetUserRequestDto })
+  async profile(@Body() body: GetUserRequestDto) {
+    return this.userService.handleProfile(body);
+  }
+
+  @Post('save-game')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lưu thông tin của 1 user bất kì vào database' })
+  @ApiBody({ type:  SaveGameRequestDto })
+  async saveGame(@Body() body: SaveGameRequestDto) {
+    return this.userService.handleSaveGame(body);
+  }
+
+  @Post('get-balance-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user' })
+  @ApiBody({ type:  UsernameRequestDto })
+  async getBalanceWeb(@Body() body: UsernameRequestDto) {
+    return this.userService.handleGetBalanceWeb(body);
+  }
+
 }

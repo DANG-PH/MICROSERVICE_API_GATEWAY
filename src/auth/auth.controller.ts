@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
 import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,ChangePasswordRequestDto,
   ChangePasswordResponseDto,
@@ -68,7 +68,7 @@ export class AuthController {
     return this.authService.handleRefresh(body);
   }
 
-  @Post('change-password')
+  @Patch('change-password')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Thay đổi mật khẩu' })
@@ -77,7 +77,7 @@ export class AuthController {
     return this.authService.handleChangePassword(body);
   }
 
-  @Post('change-email')
+  @Patch('change-email')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Thay đổi email' })
@@ -102,7 +102,7 @@ export class AuthController {
     return this.authService.handleResetPassword(body);
   }
 
-  @Post('change-role')
+  @Patch('change-role')
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -112,20 +112,20 @@ export class AuthController {
     return this.authService.handleChangeRole(body);
   }
 
-  @Post('ban-user')
+  @Patch('ban-user')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Ban user (ADMIN only)' })
   @ApiBody({ type: BanUserRequestDto })
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
     return this.authService.handleBanUser(body);
   }
 
-  @Post('unban-user')
+  @Patch('unban-user')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Unban user (ADMIN only)' })
   @ApiBody({ type: UnbanUserRequestDto })
   async unbanUser(@Body() body: UnbanUserRequestDto): Promise<UnbanUserResponseDto> {
