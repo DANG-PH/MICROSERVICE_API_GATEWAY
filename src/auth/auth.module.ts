@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from 'src/JWT/jwt.strategy';
 import { RolesGuard } from 'src/guard/role.guard';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -16,10 +17,16 @@ import { RolesGuard } from 'src/guard/role.guard';
         options: {
           package: AUTH_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/auth.proto'),
-          url: "localhost:50051"
+          url: "localhost:50051",
+          loader: {
+            keepCase: true,
+            objects: true,
+            arrays: true,
+          },
         },
       },
     ]),
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [AuthService,JwtStrategy,RolesGuard]

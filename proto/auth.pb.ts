@@ -21,6 +21,7 @@ export interface RegisterRequest {
 
 export interface RegisterResponse {
   success: boolean;
+  auth_id: number;
 }
 
 export interface LoginRequest {

@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package user;
+
+// ===== SERVICE DEFINITION =====
+service UserService {
+  rpc Register (RegisterRequest) returns (RegisterResponse) {};
+  rpc GetProfile (GetUserRequest) returns (UserResponse) {};
+  rpc SaveGame (SaveGameRequest) returns (SaveGameResponse) {};
+  rpc GetBalance (UsernameRequest) returns (BalanceResponse) {};
+  rpc UseVangNapTuWeb (UseBalanceRequest) returns (BalanceResponse) {};
+  rpc UseNgocNapTuWeb (UseBalanceRequest) returns (BalanceResponse) {};
+  rpc UpdateBalance (UpdateBalanceRequest) returns (BalanceResponse) {};
+  rpc AddVangNapTuWeb (AddBalanceRequest) returns (BalanceResponse) {};
+  rpc AddNgocNapTuWeb (AddBalanceRequest) returns (BalanceResponse) {};
+  rpc GetTop10BySucManh (Empty) returns (UserListResponse) {};
+  rpc GetTop10ByVang (Empty) returns (UserListResponse) {};
+  rpc AddItemWeb (AddItemRequest) returns (MessageResponse) {};
+  rpc GetItemsWeb (UsernameRequest) returns (ItemListResponse) {};
+  rpc UseItemWeb (UseItemRequest) returns (MessageResponse) {};
+}
+
+// ===== MESSAGES =====
+
+message Empty {}
+
+message User {
+  int32 id = 1;
+  int64 vang = 2;
+  int64 ngoc = 3;
+  int64 sucManh = 4;
+  int64 vangNapTuWeb = 5;
+  int64 ngocNapTuWeb = 6;
+  int32 x = 7;
+  int32 y = 8;
+  string mapHienTai = 9;
+  bool daVaoTaiKhoanLanDau = 10;
+  bool coDeTu = 11;
+  repeated int32 danhSachVatPhamWeb = 12;
+  int32 auth_id = 13;
+}
+
+message RegisterRequest {
+  int32 id = 1;
+}
+
+message RegisterResponse {
+  bool success = 1;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+}
+
+message UserResponse {
+  User user = 1;
+}
+
+message SaveGameRequest {
+  User user = 1;
+  int64 sucManhDeTu = 2;
+}
+
+message SaveGameResponse {
+  string message = 1;
+}
+
+message UsernameRequest {
+  int32 id = 1;
+}
+
+message BalanceResponse {
+  uint64 vangNapTuWeb = 1;
+  uint64 ngocNapTuWeb = 2;
+}
+
+message UseBalanceRequest {
+  int32 id = 1;
+  uint64 amount = 2;
+}
+
+message UpdateBalanceRequest {
+  int32 id = 1;
+  string type = 2;
+  int64 amount = 3;
+}
+
+message AddBalanceRequest {
+  int32 id = 1;
+  int64 amount = 2;
+}
+
+message UserListResponse {
+  repeated User users = 1;
+}
+
+message AddItemRequest {
+  int32 id = 1;
+  int32 itemId = 2;
+}
+
+message ItemListResponse {
+  repeated int32 itemIds = 1;
+}
+
+message UseItemRequest {
+  int32 id = 1;
+  int32 itemId = 2;
+}
+
+message MessageResponse {
+  string message = 1;
+}

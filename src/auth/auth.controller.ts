@@ -17,17 +17,34 @@ import { AuthService } from './auth.service';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/guard/role.guard';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService,private readonly userService: UserService) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản user (qua gRPC)' })
   @ApiBody({ type:  RegisterRequest })
   async register(@Body() body: RegisterRequest) {
-    return this.authService.handleRegister(body);
+    const authResult = await this.authService.handleRegister(body); 
+    if (!authResult.success) {
+      return { success: false, message: 'Đăng ký auth thất bại' };
+    }
+    console.log(authResult)
+    const userRequest = {
+      id: authResult.auth_id, 
+    };
+
+    const userResult = await this.userService.handleRegister(userRequest);
+
+    console.log(userRequest)
+
+    return {
+      auth: authResult,
+      user: userResult,
+    };
   }
 
   @Post('login')

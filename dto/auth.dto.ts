@@ -26,6 +26,12 @@ export class RegisterRequest {
 export class RegisterResponse {
   @ApiProperty({ example: true })
   success: boolean;
+  
+  @ApiProperty({
+    example: '1',
+    description: 'Auth ID trả về để người dùng truy cập được API bên user'
+  })
+  auth_id: number;
 }
 
 // ===== LOGIN =====

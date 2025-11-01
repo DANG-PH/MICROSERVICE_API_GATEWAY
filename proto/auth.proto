@@ -33,6 +33,7 @@ message RegisterRequest {
 
 message RegisterResponse {
   bool success = 1;
+  int32 auth_id = 2;
 }
 
 message LoginRequest {
