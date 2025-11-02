@@ -123,7 +123,7 @@ export class UseBalanceRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 50 })
+  @ApiProperty({ example: 10000 })
   @IsNumber()
   amount: number;
 }
@@ -133,7 +133,7 @@ export class UpdateBalanceRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 'vang', description: 'vang | ngoc' })
+  @ApiProperty({ example: 'vangNapTuWeb', description: 'vangNapTuWeb | ngocNapTuWeb' })
   @IsString()
   type: string;
 
@@ -147,7 +147,7 @@ export class AddBalanceRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 50 })
+  @ApiProperty({ example: 10000 })
   @IsNumber()
   amount: number;
 }
@@ -164,13 +164,13 @@ export class AddItemRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 101 })
+  @ApiProperty({ example: 1 })
   @IsInt()
   itemId: number;
 }
 
 export class ItemListResponseDto {
-  @ApiProperty({ example: [101, 102, 103] })
+  @ApiProperty({ example: [1, 2, 3] })
   @IsArray()
   @IsInt({ each: true })
   itemIds: number[];
@@ -181,7 +181,7 @@ export class UseItemRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 101 })
+  @ApiProperty({ example: 1 })
   @IsInt()
   itemId: number;
 }

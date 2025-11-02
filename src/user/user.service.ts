@@ -19,7 +19,8 @@ import {
   UpdateBalanceRequest,
   UserServiceClient,
   USER_PACKAGE_NAME,
-  USER_SERVICE_NAME
+  USER_SERVICE_NAME,
+  Empty
 } from 'proto/user.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -66,5 +67,29 @@ export class UserService {
 
   async handleAddNgocWeb(req: AddBalanceRequest ) {
     return grpcCall(this.userGrpcService.addNgocNapTuWeb(req));
+  }
+
+  async handleUpdateBalance(req: UpdateBalanceRequest ) {
+    return grpcCall(this.userGrpcService.updateBalance(req));
+  }
+
+  async handleAddItemWeb(req: AddItemRequest ) {
+    return grpcCall(this.userGrpcService.addItemWeb(req));
+  }
+
+  async handleUseItemWeb(req: UseItemRequest ) {
+    return grpcCall(this.userGrpcService.useItemWeb(req));
+  }
+
+  async handleGetItemWeb(req: UsernameRequest ) {
+    return grpcCall(this.userGrpcService.getItemsWeb(req));
+  }
+
+  async handleGetTop10SucManh(req: Empty ) {
+    return grpcCall(this.userGrpcService.getTop10BySucManh(req));
+  }
+
+  async handleGetTop10Vang(req: Empty ) {
+    return grpcCall(this.userGrpcService.getTop10ByVang(req));
   }
 }

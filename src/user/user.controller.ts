@@ -27,7 +27,7 @@ export class UserController {
     return this.userService.handleProfile(param);
   }
 
-  @Patch('save-game')
+  @Put('save-game')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lưu thông tin của 1 user bất kì vào database' })
@@ -78,5 +78,44 @@ export class UserController {
   @ApiBody({ type:  UseBalanceRequestDto })  
   async useNgocWeb(@Body() body: UseBalanceRequestDto) {
     return this.userService.handleUseNgocWeb(body);
+  }
+
+  @Patch('update-balance')
+  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user' })
+  @ApiBody({ type:  UpdateBalanceRequestDto })  
+  async updateBalance(@Body() body: UpdateBalanceRequestDto) {
+    return this.userService.handleUpdateBalance(body);
+  }
+
+  @Post('add-item-web')
+  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì' })
+  @ApiBody({ type:  AddItemRequestDto })  
+  async addItemWeb(@Body() body: AddItemRequestDto) {
+    return this.userService.handleAddItemWeb(body);
+  }
+
+  @Delete('use-item-web')
+  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì' })
+  @ApiBody({ type:  UseItemRequestDto })  
+  async useItemWeb(@Body() body: UseItemRequestDto) {
+    return this.userService.handleUseItemWeb(body);
+  }
+
+  @Get('item-web')
+  @ApiOperation({ summary: 'lấy item web của 1 user bất kì' })
+  async getItemWeb(@Query() query: UsernameRequestDto) {
+    return this.userService.handleGetItemWeb(query);
+  }
+
+  @Get('top10-suc-manh')
+  @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất' })
+  async getTop10SucManh(@Query() query: EmptyDto) {
+    return this.userService.handleGetTop10SucManh(query);
+  }
+
+  @Get('top10-vang')
+  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất' })
+  async getTop10Vang(@Query() query: EmptyDto) {
+    return this.userService.handleGetTop10Vang(query);
   }
 }
