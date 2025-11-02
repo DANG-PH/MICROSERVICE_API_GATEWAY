@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsString, IsNotEmpty, IsInt, IsNumber, IsOptional, Min, Max, IsBoolean, IsArray } from 'class-validator';
 
 // ===== USER =====
@@ -73,6 +74,7 @@ export class RegisterResponseDto {
 // ===== GET PROFILE =====
 export class GetUserRequestDto {
   @ApiProperty({ example: 1 })
+  @Type(() => Number) // biến string từ query sang number trước khi thực thi lệnh
   @IsInt()
   id: number;
 }
@@ -87,7 +89,7 @@ export class SaveGameRequestDto {
   @ApiProperty({ type: UserDto })
   user: UserDto;
 
-  @ApiProperty({ example: 50, description: 'Sức mạnh để tự' })
+  @ApiProperty({ example: 50, description: 'Sức mạnh để tử' })
   @IsNumber()
   sucManhDeTu: number;
 }
@@ -101,6 +103,7 @@ export class SaveGameResponseDto {
 // ===== BALANCE =====
 export class UsernameRequestDto {
   @ApiProperty({ example: 1 })
+  @Type(() => Number)
   @IsInt()
   id: number;
 }

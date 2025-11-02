@@ -51,4 +51,20 @@ export class UserService {
   async handleGetBalanceWeb(req: UsernameRequest ) {
     return grpcCall(this.userGrpcService.getBalance(req));
   }
+
+  async handleUseVangWeb(req: UseBalanceRequest ) {
+    return grpcCall(this.userGrpcService.useVangNapTuWeb(req));
+  }
+
+  async handleUseNgocWeb(req: UseBalanceRequest ) {
+    return grpcCall(this.userGrpcService.useNgocNapTuWeb(req));
+  }
+
+  async handleAddVangWeb(req: AddBalanceRequest ) {
+    return grpcCall(this.userGrpcService.addVangNapTuWeb(req));
+  }
+
+  async handleAddNgocWeb(req: AddBalanceRequest ) {
+    return grpcCall(this.userGrpcService.addNgocNapTuWeb(req));
+  }
 }

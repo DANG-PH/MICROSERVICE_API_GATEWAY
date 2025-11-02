@@ -3,8 +3,8 @@ import { UserService } from './user.service';
 import { Roles } from 'src/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/guard/role.guard';
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
 import {UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
 
 @Controller('user')
@@ -19,16 +19,15 @@ export class UserController {
     return this.userService.handleRegister(body);
   }
 
-  @Post('profile')
+  @Get('profile/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó' })
-  @ApiBody({ type:  GetUserRequestDto })
-  async profile(@Body() body: GetUserRequestDto) {
-    return this.userService.handleProfile(body);
+  async profile(@Param() param: UsernameRequestDto) {
+    return this.userService.handleProfile(param);
   }
 
-  @Post('save-game')
+  @Patch('save-game')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lưu thông tin của 1 user bất kì vào database' })
@@ -37,13 +36,47 @@ export class UserController {
     return this.userService.handleSaveGame(body);
   }
 
-  @Post('get-balance-web')
+  @Get('balance-web') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user' })
-  @ApiBody({ type:  UsernameRequestDto })
-  async getBalanceWeb(@Body() body: UsernameRequestDto) {
-    return this.userService.handleGetBalanceWeb(body);
+  async getBalanceWeb(@Query() query: UsernameRequestDto) {
+    return this.userService.handleGetBalanceWeb(query);
   }
 
+  @Patch('add-vang-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) của 1 user bất kì' })
+  @ApiBody({ type:  AddBalanceRequestDto })
+  async addVangWeb(@Body() body: AddBalanceRequestDto) {
+    return this.userService.handleAddVangWeb(body);
+  }
+
+  @Patch('add-ngoc-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) của 1 user bất kì' })
+  @ApiBody({ type:  AddBalanceRequestDto })  
+  async addNgocWeb(@Body() body: AddBalanceRequestDto) {
+    return this.userService.handleAddNgocWeb(body);
+  }
+
+  @Patch('use-vang-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Sử dụng vàng ( nạp trên web ) của 1 user bất kì' })
+  @ApiBody({ type:  UseBalanceRequestDto })
+  async useVangWeb(@Body() body: UseBalanceRequestDto) {
+    return this.userService.handleUseVangWeb(body);
+  }
+
+  @Patch('use-ngoc-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Sử dụng ngọc ( nạp trên web ) của 1 user bất kì' })
+  @ApiBody({ type:  UseBalanceRequestDto })  
+  async useNgocWeb(@Body() body: UseBalanceRequestDto) {
+    return this.userService.handleUseNgocWeb(body);
+  }
 }
