@@ -38,58 +38,58 @@ export class UserService {
   }
 
   async handleRegister(req: RegisterRequest) {
-    return grpcCall(this.userGrpcService.register(req));
+    return grpcCall(UserService.name,this.userGrpcService.register(req));
   }
 
   async handleProfile(req: GetUserRequest) {
-    return grpcCall(this.userGrpcService.getProfile(req));
+    return grpcCall(UserService.name,this.userGrpcService.getProfile(req));
   }
 
   async handleSaveGame(req: SaveGameRequest) {
-    return grpcCall(this.userGrpcService.saveGame(req));
+    return grpcCall(UserService.name,this.userGrpcService.saveGame(req));
   }
 
   async handleGetBalanceWeb(req: UsernameRequest ) {
-    return grpcCall(this.userGrpcService.getBalance(req));
+    return grpcCall(UserService.name,this.userGrpcService.getBalance(req));
   }
 
   async handleUseVangWeb(req: UseBalanceRequest ) {
-    return grpcCall(this.userGrpcService.useVangNapTuWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.useVangNapTuWeb(req));
   }
 
   async handleUseNgocWeb(req: UseBalanceRequest ) {
-    return grpcCall(this.userGrpcService.useNgocNapTuWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.useNgocNapTuWeb(req));
   }
 
   async handleAddVangWeb(req: AddBalanceRequest ) {
-    return grpcCall(this.userGrpcService.addVangNapTuWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.addVangNapTuWeb(req));
   }
 
   async handleAddNgocWeb(req: AddBalanceRequest ) {
-    return grpcCall(this.userGrpcService.addNgocNapTuWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.addNgocNapTuWeb(req));
   }
 
   async handleUpdateBalance(req: UpdateBalanceRequest ) {
-    return grpcCall(this.userGrpcService.updateBalance(req));
+    return grpcCall(UserService.name,this.userGrpcService.updateBalance(req));
   }
 
   async handleAddItemWeb(req: AddItemRequest ) {
-    return grpcCall(this.userGrpcService.addItemWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.addItemWeb(req));
   }
 
   async handleUseItemWeb(req: UseItemRequest ) {
-    return grpcCall(this.userGrpcService.useItemWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.useItemWeb(req));
   }
 
   async handleGetItemWeb(req: UsernameRequest ) {
-    return grpcCall(this.userGrpcService.getItemsWeb(req));
+    return grpcCall(UserService.name,this.userGrpcService.getItemsWeb(req));
   }
 
   async handleGetTop10SucManh(req: Empty ) {
-    return grpcCall(this.userGrpcService.getTop10BySucManh(req));
+    return grpcCall(UserService.name,this.userGrpcService.getTop10BySucManh(req));
   }
 
   async handleGetTop10Vang(req: Empty ) {
-    return grpcCall(this.userGrpcService.getTop10ByVang(req));
+    return grpcCall(UserService.name,this.userGrpcService.getTop10ByVang(req));
   }
 }

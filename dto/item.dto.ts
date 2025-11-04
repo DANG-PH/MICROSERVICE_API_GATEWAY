@@ -75,7 +75,7 @@ export class ItemDto {
 }
 
 // ===== ADD ITEM REQUEST =====
-export class AddItemRequestDto {
+export class AddUserItemRequestDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   user_id: number;

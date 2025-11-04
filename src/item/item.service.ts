@@ -32,22 +32,22 @@ export class ItemService {
   }
 
   async handleGetItemByUser(req: UserIdRequest): Promise<ItemsResponse> {
-    return grpcCall(this.itemGrpcService.getItemsByUser(req));
+    return grpcCall(ItemService.name,this.itemGrpcService.getItemsByUser(req));
   }
 
   async handleAddItem(req: AddItemRequest): Promise<ItemResponse> {
-    return grpcCall(this.itemGrpcService.addItem(req));
+    return grpcCall(ItemService.name,this.itemGrpcService.addItem(req));
   }
   
   async handleUpdateItem(req: Item): Promise<ItemResponse> {
-    return grpcCall(this.itemGrpcService.updateItem(req));
+    return grpcCall(ItemService.name,this.itemGrpcService.updateItem(req));
   }
 
   async handleDeleteItem(req: ItemIdRequest): Promise<MessageResponse> {
-    return grpcCall(this.itemGrpcService.deleteItem(req));
+    return grpcCall(ItemService.name,this.itemGrpcService.deleteItem(req));
   }
 
   async handleAddMultiItem(req: AddMultipleItemsRequest): Promise<ItemsResponse> {
-    return grpcCall(this.itemGrpcService.addMultipleItems(req));
+    return grpcCall(ItemService.name,this.itemGrpcService.addMultipleItems(req));
   }
 }

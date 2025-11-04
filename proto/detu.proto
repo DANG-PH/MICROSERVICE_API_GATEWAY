@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package detu;
+
+// ===== SERVICE DEFINITION =====
+service DeTuService {
+  rpc SaveGameDeTu (SaveGameDeTuRequest) returns (SaveGameDeTuResponse);
+  rpc CreateDeTu (CreateDeTuRequest) returns (CreateDeTuResponse);
+  rpc GetDeTuByUserId (GetDeTuRequest) returns (DeTuResponse);
+}
+
+// ===== MESSAGES =====
+
+// Đệ tử (bản rút gọn)
+message DeTu {
+  int32 id = 1;             
+  int32 userId = 2;         
+  int64 sucManh = 3;        
+}
+
+// ===== REQUEST & RESPONSE =====
+
+// --- SAVE GAME DE TU ---
+message SaveGameDeTuRequest {
+  int32 userId = 1;     
+  int64 sucManh = 2;        
+}
+
+message SaveGameDeTuResponse {
+  string message = 1;       
+}
+
+// --- CREATE DE TU ---
+message CreateDeTuRequest {
+  int32 userId = 1;      
+  int64 sucManh = 2;        
+}
+
+message CreateDeTuResponse {
+  string message = 1;       
+}
+
+// --- GET DE TU ---
+message GetDeTuRequest {
+  int32 userId = 1;
+}
+
+message DeTuResponse {
+  DeTu detu = 1;
+}

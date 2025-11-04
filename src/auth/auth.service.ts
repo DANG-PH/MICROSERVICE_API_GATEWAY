@@ -32,45 +32,45 @@ export class AuthService {
   }
 
   async handleRegister(req: RegisterRequest) {
-    return grpcCall(this.authGrpcService.register(req));
+    return grpcCall(AuthService.name,this.authGrpcService.register(req));
   }
 
   async handleLogin(req: LoginRequest) {
-    return grpcCall(this.authGrpcService.login(req), true);
+    return grpcCall(AuthService.name,this.authGrpcService.login(req), true);
   }
 
   async handleVerifyOtp(req: VerifyOtpRequest) {
-    return grpcCall(this.authGrpcService.verifyOtp(req), true);
+    return grpcCall(AuthService.name,this.authGrpcService.verifyOtp(req), true);
   }
 
   async handleRefresh(req: RefreshRequest) {
-    return grpcCall(this.authGrpcService.refresh(req));
+    return grpcCall(AuthService.name,this.authGrpcService.refresh(req));
   }
 
   async handleChangePassword(req: ChangePasswordRequest) {
-    return grpcCall(this.authGrpcService.changePassword(req));
+    return grpcCall(AuthService.name,this.authGrpcService.changePassword(req));
   }
 
   async handleResetPassword(req: ResetPasswordRequest) {
-    return grpcCall(this.authGrpcService.resetPassword(req));
+    return grpcCall(AuthService.name,this.authGrpcService.resetPassword(req));
   }
 
   async handleChangeEmail(req: ChangeEmailRequest) {
-    return grpcCall(this.authGrpcService.changeEmail(req));
+    return grpcCall(AuthService.name,this.authGrpcService.changeEmail(req));
   }
 
   async handleChangeRole(req: ChangeRoleRequest) {
-    return grpcCall(this.authGrpcService.changeRole(req));
+    return grpcCall(AuthService.name,this.authGrpcService.changeRole(req));
   }
 
   async handleBanUser(req: BanUserRequest) {
-    return grpcCall(this.authGrpcService.banUser(req));
+    return grpcCall(AuthService.name,this.authGrpcService.banUser(req));
   }
 
   async handleUnbanUser(req: UnbanUserRequest) {
-    return grpcCall(this.authGrpcService.unbanUser(req));
+    return grpcCall(AuthService.name,this.authGrpcService.unbanUser(req));
   }
   async handleRequestResetPassword(req: RequestResetPasswordRequest) {
-    return grpcCall(this.authGrpcService.requestResetPassword(req));
+    return grpcCall(AuthService.name,this.authGrpcService.requestResetPassword(req));
   }
 }

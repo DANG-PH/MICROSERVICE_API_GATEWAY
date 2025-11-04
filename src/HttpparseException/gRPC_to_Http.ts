@@ -2,6 +2,7 @@ import { HttpException } from '@nestjs/common';
 import { catchError, throwError } from 'rxjs';
 import { status as grpcStatus } from '@grpc/grpc-js';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
+import { winstonLogger } from 'src/logger/logger.config'; 
 
 export function grpcToHttp(code: number | null) {
   switch (code) {
@@ -31,11 +32,16 @@ export function parseGrpcError(err: any) {
   }
 }
 
-export async function grpcCall<T>(obs: Observable<T>, useLastValue = false): Promise<T> {
+export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable<T>, useLastValue = false,): Promise<T> {
   const wrapped = obs.pipe(
     catchError(err => {
       const parsed = parseGrpcError(err);
       const httpStatus = grpcToHttp(parsed.code);
+
+      const message = `🆘 Error → HTTP ${httpStatus}: ${parsed.message}`;
+      if (httpStatus >= 400) {
+        winstonLogger.error({ message, service: serviceName, admin: process.env.ADMIN_TEST });
+      }
       return throwError(() => new HttpException(parsed.message, httpStatus));
     })
   );
