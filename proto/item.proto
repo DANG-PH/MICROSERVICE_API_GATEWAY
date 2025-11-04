@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package item;
+
+// Item message
+message Item {
+  int32 id = 1;
+  string maItem = 2;
+  string ten = 3;
+  string loai = 4;
+  string moTa = 5;
+  int32 soLuong = 6;
+  string hanhTinh = 7;
+  string setKichHoat = 8;
+  int32 soSaoPhaLe = 9;
+  int32 soSaoPhaLeCuongHoa = 10;
+  int32 soCap = 11;
+  int64 hanSuDung = 12;
+  string sucManhYeuCau = 13;
+  string linkTexture = 14;
+  string viTri = 15;
+  string chiso = 16; 
+  int32 userId = 17;
+}
+
+// Request messages
+message UserIdRequest {
+  int32 user_id = 1;
+}
+
+message ItemIdRequest {
+  int32 id = 1;
+}
+
+message AddItemRequest {
+  int32 user_id = 1;
+  Item item = 2;
+}
+
+message AddMultipleItemsRequest {
+  int32 user_id = 1;
+  repeated Item items = 2;
+}
+
+message Empty {}
+
+// Response messages
+message ItemsResponse {
+  repeated Item items = 1;
+}
+
+message ItemResponse {
+  Item item = 1;
+}
+
+message MessageResponse {
+  string message = 1;
+}
+
+// ===== SERVICE DEFINITION =====
+service ItemService {
+  rpc GetItemsByUser (UserIdRequest) returns (ItemsResponse);
+  rpc AddItem (AddItemRequest) returns (ItemResponse);
+  rpc UpdateItem (Item) returns (ItemResponse);
+  rpc DeleteItem (ItemIdRequest) returns (MessageResponse);
+  rpc AddMultipleItems (AddMultipleItemsRequest) returns (ItemsResponse);
+}

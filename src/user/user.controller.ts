@@ -1,8 +1,5 @@
 import { JwtAuthGuard } from 'src/JWT/jwt-auth.guard';
 import { UserService } from './user.service';
-import { Roles } from 'src/decorators/role.decorator';
-import { Role } from 'src/enums/role.enum';
-import { RolesGuard } from 'src/guard/role.guard';
 import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
 import {UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
@@ -81,6 +78,8 @@ export class UserController {
   }
 
   @Patch('update-balance')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user' })
   @ApiBody({ type:  UpdateBalanceRequestDto })  
   async updateBalance(@Body() body: UpdateBalanceRequestDto) {
@@ -88,6 +87,8 @@ export class UserController {
   }
 
   @Post('add-item-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì' })
   @ApiBody({ type:  AddItemRequestDto })  
   async addItemWeb(@Body() body: AddItemRequestDto) {
@@ -95,6 +96,8 @@ export class UserController {
   }
 
   @Delete('use-item-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì' })
   @ApiBody({ type:  UseItemRequestDto })  
   async useItemWeb(@Body() body: UseItemRequestDto) {
@@ -102,6 +105,8 @@ export class UserController {
   }
 
   @Get('item-web')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'lấy item web của 1 user bất kì' })
   async getItemWeb(@Query() query: UsernameRequestDto) {
     return this.userService.handleGetItemWeb(query);

@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { ItemModule } from './item/item.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { UserModule } from './user/user.module';
       envFilePath: '.env',     
     }),
     AuthModule,
-    UserModule
+    UserModule,
+    ItemModule,
   ],
   controllers: [],
   providers: [],

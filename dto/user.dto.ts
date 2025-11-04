@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsString, IsNotEmpty, IsInt, IsNumber, IsOptional, Min, Max, IsBoolean, IsArray } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, IsNumber, IsOptional, Min, Max, IsBoolean, IsArray,ValidateNested } from 'class-validator';
 
 // ===== USER =====
 export class UserDto {
@@ -87,6 +87,8 @@ export class UserResponseDto {
 // ===== SAVE GAME =====
 export class SaveGameRequestDto {
   @ApiProperty({ type: UserDto })
+  @ValidateNested()     //Báo cho class-validator rằng trường này là object con cần validate theo class của nó.Nếu thiếu, object sẽ bị coi là một property bình thường → ValidationPipe sẽ loại bỏ vì trong kia k có field nào tên user.
+  @Type(() => UserDto)    
   user: UserDto;
 
   @ApiProperty({ example: 50, description: 'Sức mạnh để tử' })
