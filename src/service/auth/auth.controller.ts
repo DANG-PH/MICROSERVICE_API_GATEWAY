@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Req, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
 import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,ChangePasswordRequestDto,
   ChangePasswordResponseDto,
@@ -12,17 +12,25 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   BanUserResponseDto,
   UnbanUserRequestDto,
   UnbanUserResponseDto,RequestResetPasswordRequestDto, RequestResetPasswordResponseDto } from 'dto/auth.dto';
-import { JwtAuthGuard } from 'src/JWT/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
-import { Roles } from 'src/decorators/role.decorator';
+import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
-import { RolesGuard } from 'src/guard/role.guard';
-import { UserService } from 'src/user/user.service';
+import { RolesGuard } from 'src/security/guard/role.guard';
+import { UserService } from 'src/service/user/user.service';
+import type { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Request } from 'express';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
 export class AuthController {
-  constructor(private readonly authService: AuthService,private readonly userService: UserService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản user (qua gRPC)' })
@@ -50,7 +58,24 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Đăng nhập tài khoản user (qua gRPC)' })
   @ApiBody({ type:  LoginRequest })
-  async login(@Body() body: LoginRequest) {
+  async login(@Body() body: LoginRequest, @Req() req: Request) {
+    const ip = req.ip;
+    const key = `login_rate_limit_${ip}`;
+    const limit = 8;  // 3 lần
+    const ttl = 60;   // trong 60 giây
+
+    let count = (await this.cacheManager.get<number>(key)) || 0;
+    count++;
+
+    if (count > limit) {
+      throw new HttpException(
+        'Bạn đăng nhập quá nhiều lần, vui lòng thử lại sau 1 phút.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    await this.cacheManager.set(key, count, ttl * 1000);
+    
     return this.authService.handleLogin(body);
   }
   

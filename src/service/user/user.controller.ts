@@ -1,4 +1,4 @@
-import { JwtAuthGuard } from 'src/JWT/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { UserService } from './user.service';
 import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';

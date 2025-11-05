@@ -1,11 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './service/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './user/user.module';
-import { ItemModule } from './item/item.module';
-import { DeTuModule } from './detu/detu.module';
+import { UserModule } from './service/user/user.module';
+import { ItemModule } from './service/item/item.module';
+import { DeTuModule } from './service/detu/detu.module';
+import { RedisModule } from './redis/redis.module';
+import { LoggerMiddleware } from './logger/logger.middleware';
+import { NestModule,MiddlewareConsumer } from '@nestjs/common';
+import { RateLimitMiddleware } from './security/rate_limit/rate_limit.middleware';
 
 @Module({
   imports: [
@@ -16,9 +20,14 @@ import { DeTuModule } from './detu/detu.module';
     AuthModule,
     UserModule,
     ItemModule,
-    DeTuModule
+    DeTuModule,
+    RedisModule
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware, RateLimitMiddleware).forRoutes('*');
+  }
+}

@@ -17,6 +17,7 @@ import {
   RequestResetPasswordRequest,
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { winstonLogger } from 'src/logger/logger.config'; 
 
 @Injectable()
 export class AuthService {
@@ -36,7 +37,13 @@ export class AuthService {
   }
 
   async handleLogin(req: LoginRequest) {
-    return grpcCall(AuthService.name,this.authGrpcService.login(req), true);
+    const result = await grpcCall(AuthService.name,this.authGrpcService.login(req), true);
+    if (result.sessionId) {
+      // gửi mail cho admin để biết ai login
+      const username = Buffer.from(result.sessionId, 'base64').toString('ascii');
+      winstonLogger.log({ nhiemVu: 'thongBaoLoginUser', username: username })
+    }
+    return result;
   }
 
   async handleVerifyOtp(req: VerifyOtpRequest) {

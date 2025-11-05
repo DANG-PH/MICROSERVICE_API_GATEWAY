@@ -4,8 +4,8 @@ import { join } from 'path';
 import { DETU_PACKAGE_NAME } from 'proto/detu.pb';
 import { DeTuController } from './detu.controller';
 import { DeTuService } from './detu.service';
-import { JwtStrategy } from 'src/JWT/jwt.strategy';
-import { RolesGuard } from 'src/guard/role.guard';
+import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
+import { RolesGuard } from 'src/security/guard/role.guard';
 
 @Module({
   imports: [

@@ -39,7 +39,7 @@ export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable
       const httpStatus = grpcToHttp(parsed.code);
 
       const message = `🆘 Error → HTTP ${httpStatus}: ${parsed.message}`;
-      if (httpStatus >= 400) {
+      if (httpStatus >= 500) {
         winstonLogger.error({ message, service: serviceName, admin: process.env.ADMIN_TEST });
       }
       return throwError(() => new HttpException(parsed.message, httpStatus));

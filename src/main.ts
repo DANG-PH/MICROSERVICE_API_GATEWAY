@@ -7,6 +7,7 @@ import * as bodyParser from 'body-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet'; 
+import { LoggingInterceptor } from './logger/logger.interceptors';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -19,6 +20,9 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
+
+  // interceptor logging
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()

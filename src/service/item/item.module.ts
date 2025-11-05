@@ -4,8 +4,8 @@ import { join } from 'path';
 import { ITEM_PACKAGE_NAME } from 'proto/item.pb';
 import { ItemService } from './item.service';
 import { ItemController } from './item.controller';
-import { JwtStrategy } from 'src/JWT/jwt.strategy';
-import { RolesGuard } from 'src/guard/role.guard';
+import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
+import { RolesGuard } from 'src/security/guard/role.guard';
 
 @Module({
   imports: [

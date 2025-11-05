@@ -4,9 +4,9 @@ import { join } from 'path';
 import { AUTH_PACKAGE_NAME } from 'proto/auth.pb';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from 'src/JWT/jwt.strategy';
-import { RolesGuard } from 'src/guard/role.guard';
-import { UserModule } from 'src/user/user.module';
+import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
+import { RolesGuard } from 'src/security/guard/role.guard';
+import { UserModule } from 'src/service/user/user.module';
 
 @Module({
   imports: [

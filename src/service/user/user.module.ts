@@ -4,8 +4,8 @@ import { join } from 'path';
 import { USER_PACKAGE_NAME } from 'proto/user.pb';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { JwtStrategy } from 'src/JWT/jwt.strategy';
-import { RolesGuard } from 'src/guard/role.guard';
+import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
+import { RolesGuard } from 'src/security/guard/role.guard';
 
 @Module({
   imports: [
