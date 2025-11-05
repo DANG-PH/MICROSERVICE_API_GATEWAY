@@ -14,6 +14,7 @@ import {
     Pay
 } from 'proto/pay.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { winstonLogger } from 'src/logger/logger.config';
 
 @Injectable()
 export class PayService {
@@ -45,6 +46,10 @@ export class PayService {
   }
 
   async getQr(req: CreatePayOrderRequest): Promise<QrResponse> {
-    return grpcCall(PayService.name,this.payGrpcService.createPayOrder(req));
+    const result = await grpcCall(PayService.name,this.payGrpcService.createPayOrder(req));
+    if (result.qr) {
+        winstonLogger.log({ nhiemVu: 'thongBaoNapTien', username: result.username })
+    }
+    return result;
   }
 }

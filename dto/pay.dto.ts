@@ -93,4 +93,8 @@ export class QrResponseDto {
   @ApiProperty({ example: 'https://fake.qr' })
   @IsString()
   qr: string;
+
+  @ApiProperty({ example: 'dang123' })
+  @IsString()
+  username: string;
 }

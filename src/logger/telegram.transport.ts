@@ -49,6 +49,21 @@ export class TelegramTransport extends TransportStream {
           console.error('Failed to send Telegram message:', error.message);
         }
       }
+      if (info.nhiemVu === 'thongBaoNapTien') {
+        const message = `✅ Có user gửi yêu cầu nạp tiền\n\n` +
+          `*Username:* ${info.username || 'Unknown'}\n\n` +
+          `*Thời gian:*  ${new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} \n\n`;
+
+        try {
+          await axios.post(`https://api.telegram.org/bot${this.botToken}/sendMessage`, {
+            chat_id: this.chatId,
+            text: message,
+            parse_mode: 'Markdown',
+          });
+        } catch (error) {
+          console.error('Failed to send Telegram message:', error.message);
+        }
+      }
     }
 
     callback();

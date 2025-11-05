@@ -60,6 +60,7 @@ export interface PayResponse {
 
 export interface QrResponse {
   qr: string;
+  username: string;
 }
 
 export const PAY_PACKAGE_NAME = "pay";

@@ -49,6 +49,7 @@ message PayResponse {
 
 message QrResponse {
   string qr = 1;
+  string username = 2;
 }
 
 // ---- Service Definition ----
