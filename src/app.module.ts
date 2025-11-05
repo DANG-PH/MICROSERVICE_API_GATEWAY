@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './service/user/user.module';
 import { ItemModule } from './service/item/item.module';
 import { DeTuModule } from './service/detu/detu.module';
+import { PayModule } from './service/pay/pay.module';
 import { RedisModule } from './redis/redis.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { NestModule,MiddlewareConsumer } from '@nestjs/common';
@@ -21,7 +22,8 @@ import { RateLimitMiddleware } from './security/rate_limit/rate_limit.middleware
     UserModule,
     ItemModule,
     DeTuModule,
-    RedisModule
+    RedisModule,
+    PayModule
   ],
   controllers: [],
   providers: [],

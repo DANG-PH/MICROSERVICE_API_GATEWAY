@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package pay;
+
+// ---- Message Definitions ----
+
+// Thông tin ví Pay
+message Pay {
+  int32 id = 1;
+  int32 userId = 2;
+  string tien = 3;     // số tiền
+  string status = 4;   // "open" hoặc "locked"
+  string updatedAt = 5;
+}
+
+// Request để lấy ví theo userId
+message GetPayByUserIdRequest {
+  int32 userId = 1;
+}
+
+// Request cộng/trừ tiền
+message UpdateMoneyRequest {
+  int32 userId = 1;
+  int64 amount = 2;    // số tiền thay đổi, có thể âm hoặc dương
+}
+
+// Request thay đổi trạng thái tài khoản (lock/unlock)
+message UpdateStatusRequest {
+  int32 userId = 1;
+  string status = 2;   // "open" hoặc "locked"
+}
+
+// Request khởi tạo ví mới khi tạo user
+message CreatePayRequest {
+  int32 userId = 1;
+}
+
+message CreatePayOrderRequest {
+  int32 userId = 1;
+  int64 amount = 2; 
+  string username = 3;
+}
+
+// Response chung
+message PayResponse {
+  Pay pay = 1;
+  string message = 2;
+}
+
+message QrResponse {
+  string qr = 1;
+}
+
+// ---- Service Definition ----
+
+service PayService {
+  // Các RPC nội bộ
+  rpc GetPayByUserId (GetPayByUserIdRequest) returns (PayResponse);
+  rpc UpdateMoney (UpdateMoneyRequest) returns (PayResponse);
+  rpc UpdateStatus (UpdateStatusRequest) returns (PayResponse);
+  rpc CreatePay (CreatePayRequest) returns (PayResponse);
+  rpc CreatePayOrder (CreatePayOrderRequest) returns (QrResponse);
+}
