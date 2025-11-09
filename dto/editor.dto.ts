@@ -1,11 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  CreatePostRequest,
+  GetPostByIdRequest,
+  UpdatePostRequest,
+  DeletePostRequest,
+  UpdatePostStatusRequest,
+  GetPostsByEditorRequest,
+  PostResponse,
+  ListPostResponse,
+  Empty,
+  EditorServiceClient,
+} from 'proto/admin.pb';
 
 // ===== EMPTY =====
 export class EmptyDto {}
 
 // ===== ENTITY =====
-export class PostResponseDto {
+export class PostDto {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -29,6 +41,10 @@ export class PostResponseDto {
 
   @ApiProperty({ example: '2025-11-08T12:30:00Z' })
   update_at: string;
+}
+
+export class PostResponseDto implements PostResponse {
+  post: PostDto | undefined;
 }
 
 // ===== CREATE =====
@@ -61,7 +77,7 @@ export class GetPostByIdRequestDto {
 }
 
 // ===== UPDATE =====
-export class UpdatePostRequestDto {
+export class UpdatePostRequestDto implements UpdatePostRequest {
   @ApiProperty({ example: 1 })
   @IsInt()
   id: number;
@@ -69,12 +85,12 @@ export class UpdatePostRequestDto {
   @ApiProperty({ example: 'Sự kiện cập nhật 2025', required: false })
   @IsOptional()
   @IsString()
-  title?: string;
+  title: string;
 
   @ApiProperty({ example: 'https://wallpaper.dog/large/20552811.jpg', required: false })
   @IsOptional()
   @IsString()
-  url_anh?: string;
+  url_anh: string;
 }
 
 // ===== DELETE =====
@@ -98,13 +114,7 @@ export class GetPostsByEditorRequestDto {
   editor_id: number;
 }
 
-// ===== RESPONSES =====
-export class PostWrapperResponseDto {
-  @ApiProperty({ type: PostResponseDto })
-  post: PostResponseDto;
-}
-
 export class ListPostResponseDto {
-  @ApiProperty({ type: [PostResponseDto] })
-  posts: PostResponseDto[];
+  @ApiProperty({ type: [PostDto] })
+  posts: PostDto[];
 }
