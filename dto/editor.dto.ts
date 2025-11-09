@@ -1,0 +1,110 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+// ===== EMPTY =====
+export class EmptyDto {}
+
+// ===== ENTITY =====
+export class PostResponseDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'Cập nhật sự kiện mới' })
+  title: string;
+
+  @ApiProperty({ example: 'https://wallpaper.dog/large/20552811.jpg' })
+  url_anh: string;
+
+  @ApiProperty({ example: 1 })
+  editor_id: number;
+
+  @ApiProperty({ example: 'Hải Đăng' })
+  editor_realname: string;
+
+  @ApiProperty({ example: 'ACTIVE', description: 'Trạng thái bài viết (ACTIVE / INACTIVE)' })
+  status: string;
+
+  @ApiProperty({ example: '2025-11-08T12:00:00Z' })
+  create_at: string;
+
+  @ApiProperty({ example: '2025-11-08T12:30:00Z' })
+  update_at: string;
+}
+
+// ===== CREATE =====
+export class CreatePostRequestDto {
+  @ApiProperty({ example: 'Cập nhật sự kiện mới', description: 'Tiêu đề bài viết' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({ example: 'https://wallpaper.dog/large/20552811.jpg', description: 'URL ảnh thumbnail' })
+  @IsString()
+  @IsNotEmpty()
+  url_anh: string;
+
+  @ApiProperty({ example: 1, description: 'ID của Editor tạo bài' })
+  @IsInt()
+  editor_id: number;
+
+  @ApiProperty({ example: 'Hải Đăng', description: 'Tên thật của Editor' })
+  @IsString()
+  @IsNotEmpty()
+  editor_realname: string;
+}
+
+// ===== GET BY ID =====
+export class GetPostByIdRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+}
+
+// ===== UPDATE =====
+export class UpdatePostRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ example: 'Sự kiện cập nhật 2025', required: false })
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @ApiProperty({ example: 'https://wallpaper.dog/large/20552811.jpg', required: false })
+  @IsOptional()
+  @IsString()
+  url_anh?: string;
+}
+
+// ===== DELETE =====
+export class DeletePostRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+}
+
+// ===== LOCK / UNLOCK =====
+export class UpdatePostStatusRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+}
+
+// ===== GET BY EDITOR =====
+export class GetPostsByEditorRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  editor_id: number;
+}
+
+// ===== RESPONSES =====
+export class PostWrapperResponseDto {
+  @ApiProperty({ type: PostResponseDto })
+  post: PostResponseDto;
+}
+
+export class ListPostResponseDto {
+  @ApiProperty({ type: [PostResponseDto] })
+  posts: PostResponseDto[];
+}

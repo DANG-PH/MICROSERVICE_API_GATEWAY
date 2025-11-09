@@ -1,0 +1,78 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+
+// ===== ENTITY =====
+export class FinanceResponseDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 2, description: 'ID người dùng thực hiện giao dịch' })
+  user_id: number;
+
+  @ApiProperty({
+    example: 'NAP',
+    description: 'Loại giao dịch: NAP (nạp tiền) hoặc RUT (rút tiền)',
+  })
+  type: string;
+
+  @ApiProperty({ example: 10000, description: 'Số tiền giao dịch (VNĐ)' })
+  amount: number;
+
+  @ApiProperty({ example: '2025-11-08T12:00:00Z', description: 'Thời điểm tạo giao dịch' })
+  create_at: string;
+}
+
+// ===== CREATE REQUEST =====
+export class CreateFinanceRequestDto {
+  @ApiProperty({ example: 2, description: 'ID người dùng thực hiện giao dịch' })
+  @IsInt()
+  user_id: number;
+
+  @ApiProperty({
+    example: 'NAP',
+    description: 'Loại giao dịch: NAP (nạp tiền) hoặc RUT (rút tiền)',
+  })
+  @IsString()
+  @IsNotEmpty()
+  type: string;
+
+  @ApiProperty({ example: 10000, description: 'Số tiền giao dịch (VNĐ)' })
+  @IsNumber()
+  @Min(10000)
+  amount: number;
+}
+
+// ===== GET BY USER =====
+export class GetFinanceByUserRequestDto {
+  @ApiProperty({ example: 2, description: 'ID người dùng cần xem lịch sử giao dịch' })
+  @IsInt()
+  user_id: number;
+}
+
+// ===== EMPTY =====
+export class EmptyDto {}
+
+// ===== RESPONSES =====
+export class FinanceWrapperResponseDto {
+  @ApiProperty({ type: FinanceResponseDto })
+  finance: FinanceResponseDto;
+}
+
+export class ListFinanceResponseDto {
+  @ApiProperty({ type: [FinanceResponseDto] })
+  finances: FinanceResponseDto[];
+}
+
+export class FinanceSummaryResponseDto {
+  @ApiProperty({ example: 10000000, description: 'Tổng số tiền đã nạp (VNĐ)' })
+  total_nap: number;
+
+  @ApiProperty({ example: 4000000, description: 'Tổng số tiền đã rút (VNĐ)' })
+  total_rut: number;
+
+  @ApiProperty({
+    example: 6000000,
+    description: 'Số dư (balance = total_nap - total_rut)',
+  })
+  balance: number;
+}

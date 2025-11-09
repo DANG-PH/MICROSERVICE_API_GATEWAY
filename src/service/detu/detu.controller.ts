@@ -10,6 +10,8 @@ export class DeTuController {
   constructor(private readonly deTuService: DeTuService) {}
 
   @Put('save-de-tu')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lưu thông tin đệ tử của user ( ghi đè toàn bộ ) ' })
   @ApiBody({ type: SaveGameDeTuRequestDto })
   async getUserItem(@Body() body: SaveGameDeTuRequestDto) {
@@ -17,6 +19,8 @@ export class DeTuController {
   }
 
   @Post('create-de-tu')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Tạo đệ tử cho 1 user bất kì ( tạm thời logic client chưa dùng tới )' })
   @ApiBody({ type: CreateDeTuRequestDto })
   async createDeTu(@Body() body: CreateDeTuRequestDto) {
@@ -24,6 +28,8 @@ export class DeTuController {
   }
 
   @Get('de-tu')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy đệ tử của user bất kì' })
   async getDeTu(@Query() query: GetDeTuRequestDto) {
     return this.deTuService.handleGetDeTu(query);

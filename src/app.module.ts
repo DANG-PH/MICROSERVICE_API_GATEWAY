@@ -11,6 +11,10 @@ import { RedisModule } from './redis/redis.module';
 import { LoggerMiddleware } from './logger/logger.middleware';
 import { NestModule,MiddlewareConsumer } from '@nestjs/common';
 import { RateLimitMiddleware } from './security/rate_limit/rate_limit.middleware';
+import { CashierModule } from './service/admin/cashier/cashier.module';
+import { EditorModule } from './service/admin/editor/editor.module';
+import { FinanceModule } from './service/admin/finance/finance.module';
+import { PartnerModule } from './service/admin/partner/partner.module';
 
 @Module({
   imports: [
@@ -23,7 +27,11 @@ import { RateLimitMiddleware } from './security/rate_limit/rate_limit.middleware
     ItemModule,
     DeTuModule,
     RedisModule,
-    PayModule
+    PayModule,
+    CashierModule,
+    FinanceModule,
+    EditorModule,
+    PartnerModule
   ],
   controllers: [],
   providers: [],

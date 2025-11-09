@@ -1,0 +1,145 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+
+// ===== ENTITY =====
+export class AccountSellResponseDto {
+  @ApiProperty({ example: 1 })
+  id: number;
+
+  @ApiProperty({ example: 'accgame1', description: 'Tên tài khoản game được rao bán' })
+  username: string;
+
+  @ApiProperty({ example: '123456', description: 'Mật khẩu tài khoản game' })
+  password: string;
+
+  @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', description: 'URL ảnh minh họa hoặc link acc' })
+  url: string;
+
+  @ApiProperty({ example: 'Acc sơ sinh có đệ tử', description: 'Mô tả chi tiết tài khoản' })
+  description: string;
+
+  @ApiProperty({ example: 20000, description: 'Giá bán tài khoản (VNĐ)' })
+  price: number;
+
+  @ApiProperty({
+    example: 'ACTIVE',
+    description: 'Trạng thái: ACTIVE (đang bán) hoặc SOLD (đã bán)',
+  })
+  status: string;
+
+  @ApiProperty({
+    example: 1,
+    description: 'ID của Partner (người bán)',
+  })
+  partner_id: number;
+
+  @ApiProperty({ example: '2025-11-08T12:00:00Z', description: 'Thời điểm tạo bài đăng' })
+  createdAt: string;
+}
+
+// ===== CREATE REQUEST =====
+export class CreateAccountSellRequestDto {
+  @ApiProperty({ example: 'accgame1', description: 'Tên tài khoản game' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ example: '123456', description: 'Mật khẩu tài khoản game' })
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', description: 'URL ảnh minh họa' })
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @ApiProperty({ example: 'Acc sơ sinh có đệ tử', description: 'Mô tả chi tiết' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @ApiProperty({ example: 20000, description: 'Giá bán (VNĐ)' })
+  @IsNumber()
+  @Min(1)
+  price: number;
+
+  @ApiProperty({ example: 1, description: 'ID Partner (người bán)' })
+  @IsNumber()
+  @IsNotEmpty()
+  partner_id: number;
+}
+
+// ===== UPDATE REQUEST =====
+export class UpdateAccountSellRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', required: false })
+  @IsOptional()
+  @IsString()
+  url?: string;
+
+  @ApiProperty({ example: 'Acc update thêm item mới', required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ example: 30000, required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  price?: number;
+}
+
+// ===== DELETE REQUEST =====
+export class DeleteAccountSellRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+}
+
+// ===== GET BY PARTNER =====
+export class GetAccountsByPartnerRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  @IsNotEmpty()
+  partner_id: number;
+}
+
+// ===== GET BY ID =====
+export class GetAccountByIdRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+}
+
+// ===== UPDATE STATUS =====
+export class UpdateAccountStatusRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({
+    example: 'SOLD',
+    description: 'Trạng thái mới của tài khoản (SOLD hoặc ACTIVE)',
+  })
+  @IsString()
+  @IsNotEmpty()
+  status: string;
+}
+
+// ===== EMPTY =====
+export class EmptyDto {}
+
+// ===== RESPONSES =====
+export class AccountWrapperResponseDto {
+  @ApiProperty({ type: AccountSellResponseDto })
+  account: AccountSellResponseDto;
+}
+
+export class ListAccountSellResponseDto {
+  @ApiProperty({ type: [AccountSellResponseDto] })
+  accounts: AccountSellResponseDto[];
+}

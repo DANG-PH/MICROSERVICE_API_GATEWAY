@@ -1,0 +1,274 @@
+syntax = "proto3";
+
+package admin;
+
+// ===== SERVICE DEFINITION =====
+service EditorService {
+  // Cho role Editor
+  rpc CreatePost (CreatePostRequest) returns (PostResponse);
+  rpc GetAllPosts (Empty) returns (ListPostResponse);
+  rpc GetPostById (GetPostByIdRequest) returns (PostResponse);
+  rpc UpdatePost (UpdatePostRequest) returns (PostResponse);
+  rpc DeletePost (DeletePostRequest) returns (PostResponse);
+  rpc LockPost (UpdatePostStatusRequest) returns (PostResponse);
+  rpc UnlockPost (UpdatePostStatusRequest) returns (PostResponse);
+  rpc GetPostsByEditor (GetPostsByEditorRequest) returns (ListPostResponse);
+}
+
+// ===== MESSAGES =====
+
+message Empty {}
+
+message Post {
+  int32 id = 1;
+  string title = 2;
+  string url_anh = 3;
+  int32 editor_id = 4;
+  string editor_realname = 5;
+  string status = 6;
+  string create_at = 7;
+  string update_at = 8;
+}
+
+// --- REQUESTS ---
+
+message CreatePostRequest {
+  string title = 1;
+  string url_anh = 2;
+  int32 editor_id = 3;
+  string editor_realname = 4;
+}
+
+message GetPostByIdRequest {
+  int32 id = 1;
+}
+
+message UpdatePostRequest {
+  int32 id = 1;
+  string title = 2;
+  string url_anh = 3;
+}
+
+message DeletePostRequest {
+  int32 id = 1;
+}
+
+message UpdatePostStatusRequest {
+  int32 id = 1;
+}
+
+message GetPostsByEditorRequest {
+  int32 editor_id = 1;
+}
+
+// --- RESPONSES ---
+
+message PostResponse {
+  Post post = 1;
+}
+
+message ListPostResponse {
+  repeated Post posts = 1;
+}
+
+// ===== SERVICE DEFINITION =====
+service CashierService {
+  // Người dùng gửi yêu cầu rút tiền
+  rpc CreateWithdrawRequest (CreateWithdrawRequestt) returns (WithdrawResponse);
+
+  // Người dùng xem lịch sử rút tiền
+  rpc GetWithdrawsByUser (GetWithdrawsByUserRequest) returns (ListWithdrawResponse);
+
+  // Admin xem tất cả yêu cầu rút tiền
+  rpc GetAllWithdrawRequests (Empty) returns (ListWithdrawResponse);
+
+  // Admin duyệt yêu cầu rút tiền
+  rpc ApproveWithdraw (UpdateWithdrawStatusRequest) returns (WithdrawResponse);
+
+  // Admin từ chối (lỗi giao dịch, thông tin sai, ...)
+  rpc RejectWithdraw (UpdateWithdrawStatusRequest) returns (WithdrawResponse);
+}
+
+// ===== MESSAGES =====
+
+message Withdraw {
+  int32 id = 1;
+  int32 user_id = 2;
+  double amount = 3;
+  string bank_name = 4;
+  string bank_number = 5;
+  string bank_owner = 6;
+  string status = 7; // PENDING, SUCCESS, ERROR
+  int32 finance_id = 8; // ai duyệt
+  string request_at = 9;
+  string success_at = 10;
+}
+
+// --- REQUESTS ---
+
+message CreateWithdrawRequestt {
+  int32 user_id = 1;
+  double amount = 2;
+  string bank_name = 3;
+  string bank_number = 4;
+  string bank_owner = 5;
+}
+
+message GetWithdrawsByUserRequest {
+  int32 user_id = 1;
+}
+
+message UpdateWithdrawStatusRequest {
+  int32 id = 1;           // id của yêu cầu rút
+  int32 finance_id = 2;   // id admin duyệt
+  string status = 3;      // SUCCESS hoặc ERROR
+}
+
+// --- RESPONSES ---
+
+message WithdrawResponse {
+  Withdraw withdraw = 1;
+}
+
+message ListWithdrawResponse {
+  repeated Withdraw withdraws = 1;
+}
+
+// ===== SERVICE DEFINITION =====
+service FinanceService {
+  // Khi nạp/rút thành công, ghi lại dòng tiền
+  rpc CreateFinanceRecord (CreateFinanceRequest) returns (FinanceResponse);
+
+  // Lấy danh sách giao dịch của 1 user
+  rpc GetFinanceByUser (GetFinanceByUserRequest) returns (ListFinanceResponse);
+
+  // Lấy tất cả giao dịch (cho admin)
+  rpc GetAllFinance (Empty) returns (ListFinanceResponse);
+
+  // Thống kê tổng nạp và tổng rút
+  rpc GetFinanceSummary (Empty) returns (FinanceSummaryResponse);
+}
+
+// ===== MESSAGES =====
+
+message Finance {
+  int32 id = 1;
+  int32 user_id = 2;
+  string type = 3;   // NAP hoặc RUT
+  double amount = 4;
+  string create_at = 5;
+}
+
+// --- REQUESTS ---
+
+message CreateFinanceRequest {
+  int32 user_id = 1;
+  string type = 2;   // NAP hoặc RUT
+  double amount = 3;
+}
+
+message GetFinanceByUserRequest {
+  int32 user_id = 1;
+}
+
+// --- RESPONSES ---
+
+message FinanceResponse {
+  Finance finance = 1;
+}
+
+message ListFinanceResponse {
+  repeated Finance finances = 1;
+}
+
+message FinanceSummaryResponse {
+  double total_nap = 1;
+  double total_rut = 2;
+  double balance = 3; // tổng nạp - tổng rút
+}
+
+// ===== SERVICE DEFINITION =====
+service PartnerService {
+  // Partner đăng acc bán
+  rpc CreateAccountSell (CreateAccountSellRequest) returns (AccountSellResponse);
+
+  // Partner cập nhật thông tin acc
+  rpc UpdateAccountSell (UpdateAccountSellRequest) returns (AccountSellResponse);
+
+  // Partner xoá acc đã đăng
+  rpc DeleteAccountSell (DeleteAccountSellRequest) returns (AccountSellResponse);
+
+  // Lấy danh sách tất cả acc đang bán (user xem)
+  rpc GetAllActiveAccounts (Empty) returns (ListAccountSellResponse);
+
+  // Lấy danh sách acc theo partner (người bán xem)
+  rpc GetAccountsByPartner (GetAccountsByPartnerRequest) returns (ListAccountSellResponse);
+
+  // Lấy chi tiết 1 acc
+  rpc GetAccountById (GetAccountByIdRequest) returns (AccountSellResponse);
+
+  // Đánh dấu acc đã bán
+  rpc MarkAccountAsSold (UpdateAccountStatusRequest) returns (AccountSellResponse);
+}
+
+// ===== MESSAGES =====
+
+message AccountSell {
+  int32 id = 1;
+  string username = 2;
+  string password = 3;
+  string url = 4;
+  string description = 5;
+  double price = 6;
+  string status = 7; // ACTIVE hoặc SOLD
+  int32 partner_id = 8;
+  string createdAt = 9;
+}
+
+// --- REQUESTS ---
+
+message CreateAccountSellRequest {
+  string username = 1;
+  string password = 2;
+  string url = 3;
+  string description = 4;
+  double price = 5;
+  int32 partner_id = 6;
+}
+
+message UpdateAccountSellRequest {
+  int32 id = 1;
+  string url = 2;
+  string description = 3;
+  double price = 4;
+}
+
+message DeleteAccountSellRequest {
+  int32 id = 1;
+}
+
+message GetAccountsByPartnerRequest {
+  int32 partner_id = 1;
+}
+
+message GetAccountByIdRequest {
+  int32 id = 1;
+}
+
+message UpdateAccountStatusRequest {
+  int32 id = 1;
+  string status = 2; // SOLD hoặc ACTIVE
+}
+
+// --- RESPONSES ---
+
+message AccountSellResponse {
+  AccountSell account = 1;
+}
+
+message ListAccountSellResponse {
+  repeated AccountSell accounts = 1;
+}
+
+
+

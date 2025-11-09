@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         options: {
           package: PAY_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/pay.proto'),
-          url: "localhost:50055",
+          url: "gondola.proxy.rlwy.net:14172",
           loader: {
                 keepCase: true,
                 objects: true,
