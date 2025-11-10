@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 // ===== ENTITY =====
-export class AccountSellResponseDto {
+export class AccountSellDto {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -57,7 +57,7 @@ export class CreateAccountSellRequestDto {
   @ApiProperty({ example: 'Acc sơ sinh có đệ tử', description: 'Mô tả chi tiết' })
   @IsString()
   @IsOptional()
-  description?: string;
+  description: string;
 
   @ApiProperty({ example: 20000, description: 'Giá bán (VNĐ)' })
   @IsNumber()
@@ -79,18 +79,18 @@ export class UpdateAccountSellRequestDto {
   @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', required: false })
   @IsOptional()
   @IsString()
-  url?: string;
+  url: string;
 
   @ApiProperty({ example: 'Acc update thêm item mới', required: false })
   @IsOptional()
   @IsString()
-  description?: string;
+  description: string;
 
   @ApiProperty({ example: 30000, required: false })
   @IsOptional()
   @IsNumber()
   @Min(1)
-  price?: number;
+  price: number;
 }
 
 // ===== DELETE REQUEST =====
@@ -134,12 +134,12 @@ export class UpdateAccountStatusRequestDto {
 export class EmptyDto {}
 
 // ===== RESPONSES =====
-export class AccountWrapperResponseDto {
-  @ApiProperty({ type: AccountSellResponseDto })
-  account: AccountSellResponseDto;
+export class AccountResponseDto {
+  @ApiProperty({ type: AccountSellDto })
+  account?: AccountSellDto;
 }
 
 export class ListAccountSellResponseDto {
-  @ApiProperty({ type: [AccountSellResponseDto] })
-  accounts: AccountSellResponseDto[];
+  @ApiProperty({ type: [AccountSellDto] })
+  accounts: AccountSellDto[];
 }

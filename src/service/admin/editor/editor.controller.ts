@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get, Query, Param } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get, Query, Param, Delete } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
 import {
   CreatePostRequestDto,
@@ -69,7 +69,7 @@ export class EditorController {
   }
 
   // ====== DELETE ======
-  @Patch('delete-post')
+  @Delete('delete-post')
   @ApiBearerAuth()
   @Roles(Role.EDITOR, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)

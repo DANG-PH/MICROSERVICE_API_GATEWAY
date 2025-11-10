@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get, Query, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
-import { WithdrawResponseDto, EmptyDto, ListWithdrawResponseDto, CreateWithdrawRequestDto, WithdrawWrapperResponseDto, GetWithdrawsByUserRequestDto, UpdateWithdrawStatusRequestDto } from 'dto/cashier.dto';
+import { WithdrawResponseDto, EmptyDto, ListWithdrawResponseDto, CreateWithdrawRequestDto, GetWithdrawsByUserRequestDto, UpdateWithdrawStatusRequestDto } from 'dto/cashier.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
@@ -18,7 +18,7 @@ export class CashierController {
 
   @Post('create-withdraw')
   @ApiBearerAuth()
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Người dùng gửi yêu cầu rút tiền vào hệ thống' })
   @ApiBody({ type: CreateWithdrawRequestDto })
@@ -28,10 +28,9 @@ export class CashierController {
 
   @Get('user-withdraw')
   @ApiBearerAuth()
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Người dùng xem lịch sử rút tiền của bản thân' })
-  @ApiBody({ type: GetWithdrawsByUserRequestDto })
   async getWithdrawsByUser(@Query() query: GetWithdrawsByUserRequestDto): Promise<ListWithdrawResponseDto> {
     return this.cashierService.handleGetWithdrawsByUser(query);
   }
@@ -41,7 +40,6 @@ export class CashierController {
   @Roles(Role.ADMIN, Role.CASHIER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Admin/Cashier xem tất cả yêu cầu rút tiền trong hệ thống' })
-  @ApiBody({ type: EmptyDto })
   async getAllWithdrawRequests(@Query() query: EmptyDto): Promise<ListWithdrawResponseDto> {
     return this.cashierService.handleGetAllWithdrawRequests(query);
   }

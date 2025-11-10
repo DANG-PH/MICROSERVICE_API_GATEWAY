@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Withdraw } from 'proto/admin.pb';
+import { Type } from 'class-transformer';
 import {
   CreateWithdrawRequestt,
   GetWithdrawsByUserRequest,
@@ -17,6 +18,7 @@ export class WithdrawDto implements Withdraw {
   id: number;
 
   @ApiProperty({ example: 2, description: 'ID người dùng yêu cầu rút tiền' })
+  @Type(() => Number)
   user_id: number;
 
   @ApiProperty({ example: 10000, description: 'Số tiền rút (VNĐ)' })
@@ -56,12 +58,10 @@ export class WithdrawDto implements Withdraw {
 }
 
 // ===== CREATE REQUEST =====
-export class WithdrawResponseDto implements WithdrawResponse {
-  withdraw: WithdrawDto | undefined;
-}
 
 export class CreateWithdrawRequestDto {
   @ApiProperty({ example: 2, description: 'ID người dùng gửi yêu cầu rút tiền' })
+  @Type(() => Number)
   @IsInt()
   user_id: number;
 
@@ -89,6 +89,7 @@ export class CreateWithdrawRequestDto {
 // ===== GET BY USER =====
 export class GetWithdrawsByUserRequestDto {
   @ApiProperty({ example: 2, description: 'ID người dùng cần xem lịch sử rút tiền' })
+  @Type(() => Number)
   @IsInt()
   user_id: number;
 }
@@ -116,9 +117,10 @@ export class UpdateWithdrawStatusRequestDto {
 export class EmptyDto {}
 
 // ===== RESPONSES =====
-export class WithdrawWrapperResponseDto {
+
+export class WithdrawResponseDto implements WithdrawResponse {
   @ApiProperty({ type: WithdrawDto })
-  withdraw: WithdrawDto;
+  withdraw: WithdrawDto | undefined;
 }
 
 export class ListWithdrawResponseDto {

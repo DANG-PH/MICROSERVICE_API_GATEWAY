@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 // ===== ENTITY =====
-export class FinanceResponseDto {
+export class FinanceDto {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -53,14 +53,14 @@ export class GetFinanceByUserRequestDto {
 export class EmptyDto {}
 
 // ===== RESPONSES =====
-export class FinanceWrapperResponseDto {
-  @ApiProperty({ type: FinanceResponseDto })
-  finance: FinanceResponseDto;
+export class FinanceResponseDto {
+  @ApiProperty({ type: FinanceDto })
+  finance?: FinanceDto;
 }
 
 export class ListFinanceResponseDto {
-  @ApiProperty({ type: [FinanceResponseDto] })
-  finances: FinanceResponseDto[];
+  @ApiProperty({ type: [FinanceDto] })
+  finances: FinanceDto[];
 }
 
 export class FinanceSummaryResponseDto {

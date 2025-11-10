@@ -44,6 +44,7 @@ export class PostDto {
 }
 
 export class PostResponseDto implements PostResponse {
+  @ApiProperty({ type: PostDto })
   post: PostDto | undefined;
 }
 
