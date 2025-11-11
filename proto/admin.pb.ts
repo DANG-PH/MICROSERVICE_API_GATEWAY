@@ -18,6 +18,7 @@ export interface Post {
   id: number;
   title: string;
   url_anh: string;
+  content: string;
   editor_id: number;
   editor_realname: string;
   status: string;
@@ -28,6 +29,7 @@ export interface Post {
 export interface CreatePostRequest {
   title: string;
   url_anh: string;
+  content: string;
   editor_id: number;
   editor_realname: string;
 }
@@ -40,6 +42,7 @@ export interface UpdatePostRequest {
   id: number;
   title: string;
   url_anh: string;
+  content: string;
 }
 
 export interface DeletePostRequest {

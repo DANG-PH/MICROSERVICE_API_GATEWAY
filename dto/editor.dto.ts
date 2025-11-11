@@ -27,6 +27,10 @@ export class PostDto {
   @ApiProperty({ example: 'https://wallpaper.dog/large/20552811.jpg' })
   url_anh: string;
 
+  
+  @ApiProperty({ example: 'abcxyz' })
+  content: string;
+
   @ApiProperty({ example: 1 })
   editor_id: number;
 
@@ -60,6 +64,11 @@ export class CreatePostRequestDto {
   @IsNotEmpty()
   url_anh: string;
 
+  @ApiProperty({ example: 'abcxyz', description: 'Content của bài báo' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
   @ApiProperty({ example: 1, description: 'ID của Editor tạo bài' })
   @IsInt()
   editor_id: number;
@@ -92,6 +101,11 @@ export class UpdatePostRequestDto implements UpdatePostRequest {
   @IsOptional()
   @IsString()
   url_anh: string;
+
+  @ApiProperty({ example: 'abcxyz', description: 'Content của bài báo' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 }
 
 // ===== DELETE =====

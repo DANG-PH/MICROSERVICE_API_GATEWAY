@@ -23,11 +23,12 @@ message Post {
   int32 id = 1;
   string title = 2;
   string url_anh = 3;
-  int32 editor_id = 4;
-  string editor_realname = 5;
-  string status = 6;
-  string create_at = 7;
-  string update_at = 8;
+  string content = 4;
+  int32 editor_id = 5;
+  string editor_realname = 6;
+  string status = 7;
+  string create_at = 8;
+  string update_at = 9;
 }
 
 // --- REQUESTS ---
@@ -35,8 +36,9 @@ message Post {
 message CreatePostRequest {
   string title = 1;
   string url_anh = 2;
-  int32 editor_id = 3;
-  string editor_realname = 4;
+  string content = 3;
+  int32 editor_id = 4;
+  string editor_realname = 5;
 }
 
 message GetPostByIdRequest {
@@ -47,6 +49,7 @@ message UpdatePostRequest {
   int32 id = 1;
   string title = 2;
   string url_anh = 3;
+  string content = 4;
 }
 
 message DeletePostRequest {
