@@ -146,8 +146,6 @@ export interface FinanceSummaryResponse {
 
 export interface AccountSell {
   id: number;
-  username: string;
-  password: string;
   url: string;
   description: string;
   price: number;
@@ -191,12 +189,22 @@ export interface UpdateAccountStatusRequest {
   status: string;
 }
 
+export interface BuyAccountRequest {
+  id: number;
+  user_id: number;
+}
+
 export interface AccountSellResponse {
   account: AccountSell | undefined;
 }
 
 export interface ListAccountSellResponse {
   accounts: AccountSell[];
+}
+
+export interface AccountInformationResponse {
+  username: string;
+  password: string;
 }
 
 export const ADMIN_PACKAGE_NAME = "admin";
@@ -429,6 +437,10 @@ export interface PartnerServiceClient {
   /** Đánh dấu acc đã bán */
 
   markAccountAsSold(request: UpdateAccountStatusRequest, metadata?: Metadata): Observable<AccountSellResponse>;
+
+  /** Gọi method này khi user mua acc */
+
+  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -461,6 +473,10 @@ export interface PartnerServiceController {
   /** Đánh dấu acc đã bán */
 
   markAccountAsSold(request: UpdateAccountStatusRequest, metadata?: Metadata): Observable<AccountSellResponse>;
+
+  /** Gọi method này khi user mua acc */
+
+  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
 }
 
 export function PartnerServiceControllerMethods() {
@@ -473,6 +489,7 @@ export function PartnerServiceControllerMethods() {
       "getAccountsByPartner",
       "getAccountById",
       "markAccountAsSold",
+      "buyAccount",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

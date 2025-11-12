@@ -11,6 +11,8 @@ import {
   ListAccountSellResponse,
   Empty,
   PartnerServiceClient,
+  BuyAccountRequest,
+  AccountInformationResponse
 } from '../../../../proto/admin.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
@@ -62,5 +64,10 @@ export class PartnerService {
   /* Đánh dấu acc đã bán hoặc kích hoạt lại */
   async handleMarkAccountAsSold(req: UpdateAccountStatusRequest) {
     return grpcCall(PartnerService.name, this.partnerGrpcService.markAccountAsSold(req));
+  }
+
+  /* User mua acc, trừ tiền */
+  async handleBuyAccount(req: BuyAccountRequest) {
+    return grpcCall(PartnerService.name, this.partnerGrpcService.buyAccount(req));
   }
 }

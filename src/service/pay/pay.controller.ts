@@ -23,8 +23,8 @@ export class PayController {
   ) {}
 
   @Get('pay')
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì' })
   async getPay(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
     return this.payService.getPay(query);

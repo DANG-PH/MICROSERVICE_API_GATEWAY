@@ -212,20 +212,21 @@ service PartnerService {
 
   // Đánh dấu acc đã bán
   rpc MarkAccountAsSold (UpdateAccountStatusRequest) returns (AccountSellResponse);
+
+  // Gọi method này khi user mua acc
+  rpc BuyAccount (BuyAccountRequest) returns (AccountInformationResponse);
 }
 
 // ===== MESSAGES =====
 
 message AccountSell {
   int32 id = 1;
-  string username = 2;
-  string password = 3;
-  string url = 4;
-  string description = 5;
-  double price = 6;
-  string status = 7; // ACTIVE hoặc SOLD
-  int32 partner_id = 8;
-  string createdAt = 9;
+  string url = 2;
+  string description = 3;
+  double price = 4;
+  string status = 5; // ACTIVE hoặc SOLD
+  int32 partner_id = 6;
+  string createdAt = 7;
 }
 
 // --- REQUESTS ---
@@ -263,6 +264,11 @@ message UpdateAccountStatusRequest {
   string status = 2; // SOLD hoặc ACTIVE
 }
 
+message BuyAccountRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+}
+
 // --- RESPONSES ---
 
 message AccountSellResponse {
@@ -271,6 +277,11 @@ message AccountSellResponse {
 
 message ListAccountSellResponse {
   repeated AccountSell accounts = 1;
+}
+
+message AccountInformationResponse {
+  string username = 1;
+  string password = 2;
 }
 
 

@@ -6,12 +6,6 @@ export class AccountSellDto {
   @ApiProperty({ example: 1 })
   id: number;
 
-  @ApiProperty({ example: 'accgame1', description: 'Tên tài khoản game được rao bán' })
-  username: string;
-
-  @ApiProperty({ example: '123456', description: 'Mật khẩu tài khoản game' })
-  password: string;
-
   @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', description: 'URL ảnh minh họa hoặc link acc' })
   url: string;
 
@@ -130,6 +124,18 @@ export class UpdateAccountStatusRequestDto {
   status: string;
 }
 
+export class BuyAccountRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @IsNotEmpty()
+  id: number;
+
+  @ApiProperty({ example: 1, description: 'ID Người mua để check tiền' })
+  @IsNumber()
+  @IsNotEmpty()
+  user_id: number;
+}
+
 // ===== EMPTY =====
 export class EmptyDto {}
 
@@ -142,4 +148,16 @@ export class AccountResponseDto {
 export class ListAccountSellResponseDto {
   @ApiProperty({ type: [AccountSellDto] })
   accounts: AccountSellDto[];
+}
+
+export class AccountInformationResponseDto {
+  @ApiProperty({ example: 'accgame1', description: 'Tên tài khoản game' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ example: '123456', description: 'Mật khẩu tài khoản game' })
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }

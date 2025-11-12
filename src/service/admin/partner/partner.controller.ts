@@ -15,6 +15,8 @@ import {
   EmptyDto,
   AccountResponseDto,
   ListAccountSellResponseDto,
+  BuyAccountRequestDto,
+  AccountInformationResponseDto
 } from 'dto/partner.dto';
 
 @Controller('partner')
@@ -87,5 +89,15 @@ export class PartnerController {
   @ApiBody({ type: UpdateAccountStatusRequestDto })
   async markAccountAsSold(@Body() body: UpdateAccountStatusRequestDto): Promise<AccountResponseDto> {
     return this.partnerService.handleMarkAccountAsSold(body);
+  }
+
+  @Post('buy-account-sell')
+  @ApiBearerAuth()
+  @Roles(Role.PARTNER, Role.ADMIN, Role.USER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'User mua account trong kho tài khoản của hệ thống' })
+  @ApiBody({ type: BuyAccountRequestDto })
+  async buyAccount(@Body() body: BuyAccountRequestDto): Promise<AccountInformationResponseDto> {
+    return this.partnerService.handleBuyAccount(body);
   }
 }
