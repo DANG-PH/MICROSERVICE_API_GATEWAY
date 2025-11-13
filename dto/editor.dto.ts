@@ -69,9 +69,9 @@ export class CreatePostRequestDto {
   @IsNotEmpty()
   content: string;
 
-  @ApiProperty({ example: 1, description: 'ID của Editor tạo bài' })
-  @IsInt()
-  editor_id: number;
+  // @ApiProperty({ example: 1, description: 'ID của Editor tạo bài' })
+  // @IsInt()
+  // editor_id: number;
 
   @ApiProperty({ example: 'Hải Đăng', description: 'Tên thật của Editor' })
   @IsString()

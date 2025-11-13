@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch, Inject, Get, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Inject, Get, Query, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
 import { 
     GetPayByUserIdRequestDto,
@@ -12,6 +12,7 @@ import {
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/security/guard/role.guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { PayService } from './pay.service';
 
@@ -22,18 +23,29 @@ export class PayController {
     private readonly payService: PayService,
   ) {}
 
+  @Get('pay-admin')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN)(WEB)' })
+  async getPayAdmin(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
+    return this.payService.getPay(query);
+  }
+
   @Get('pay')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì' })
-  async getPay(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
-    return this.payService.getPay(query);
+  @ApiOperation({ summary: 'User tự xem thông tin ví của bản thân (USER)(GAME/WEB)' })
+  async getPay(@Req() req: any): Promise<PayResponseDto> {
+    const userId = req.user.userId;
+    return this.payService.getPay({userId: userId});
   }
   
   @Patch('money')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví )' })
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB)' })
   @ApiBody({ type:  UpdateMoneyRequestDto })
   async updateMoney(@Body() body: UpdateMoneyRequestDto): Promise<PayResponseDto> {
     return this.payService.updateMoney(body);
@@ -41,8 +53,9 @@ export class PayController {
 
   @Patch('status')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví' })
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví (ADMIN)(WEB)' })
   @ApiBody({ type:  UpdateStatusRequestDto })
   async updateStatus(@Body() body: UpdateStatusRequestDto): Promise<PayResponseDto> {
     return this.payService.updateStatus(body);
@@ -50,8 +63,9 @@ export class PayController {
 
   @Post('create-pay')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Tạo ví cho user bất kì' })
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Tạo ví cho user bất kì (BACKEND DEV)(SWAGGER)' })
   @ApiBody({ type:  CreatePayRequestDto })
   async createPay(@Body() body: CreatePayRequestDto): Promise<PayResponseDto> {
     return this.payService.createPay(body);
@@ -61,7 +75,14 @@ export class PayController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR )' })
-  async getQr(@Query() query: CreatePayOrderRequestDto): Promise<QrResponseDto> {
-    return this.payService.getQr(query);
+  async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: any): Promise<QrResponseDto> {
+    const userId = req.user.userId;
+    const username = req.user.username;
+    const request = {
+      userId: userId,
+      username: username,
+      ...query
+    }
+    return this.payService.getQr(request);
   }
 }

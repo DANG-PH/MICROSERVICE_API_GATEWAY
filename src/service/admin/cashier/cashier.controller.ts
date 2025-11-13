@@ -20,26 +20,32 @@ export class CashierController {
   @ApiBearerAuth()
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Người dùng gửi yêu cầu rút tiền vào hệ thống' })
+  @ApiOperation({ summary: 'Người dùng gửi yêu cầu rút tiền vào hệ thống (USER)(WEB)' })
   @ApiBody({ type: CreateWithdrawRequestDto })
-  async createWithdrawRequest(@Body() body: CreateWithdrawRequestDto): Promise<WithdrawResponseDto> {
-    return this.cashierService.handleCreateWithdrawRequest(body);
+  async createWithdrawRequest(@Body() body: CreateWithdrawRequestDto, @Req() req: any): Promise<WithdrawResponseDto> {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      user_id: userId
+    }
+    return this.cashierService.handleCreateWithdrawRequest(request);
   }
 
   @Get('user-withdraw')
   @ApiBearerAuth()
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Người dùng xem lịch sử rút tiền của bản thân' })
-  async getWithdrawsByUser(@Query() query: GetWithdrawsByUserRequestDto): Promise<ListWithdrawResponseDto> {
-    return this.cashierService.handleGetWithdrawsByUser(query);
+  @ApiOperation({ summary: 'Người dùng xem lịch sử rút tiền của bản thân (USER)(WEB)' })
+  async getWithdrawsByUser(@Req() req: any): Promise<ListWithdrawResponseDto> {
+    const userId = req.user.userId;
+    return this.cashierService.handleGetWithdrawsByUser(userId);
   }
 
   @Get('all-withdraw')
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.CASHIER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Cashier xem tất cả yêu cầu rút tiền trong hệ thống' })
+  @ApiOperation({ summary: 'Admin/Cashier xem tất cả yêu cầu rút tiền trong hệ thống (ADMIN/CASHIER)(WEB)' })
   async getAllWithdrawRequests(@Query() query: EmptyDto): Promise<ListWithdrawResponseDto> {
     return this.cashierService.handleGetAllWithdrawRequests(query);
   }
@@ -48,7 +54,7 @@ export class CashierController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.CASHIER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Cashier duyệt yêu cầu rút tiền của User sau khi chuyển khoản' })
+  @ApiOperation({ summary: 'Admin/Cashier duyệt yêu cầu rút tiền của User sau khi chuyển khoản (ADMIN/CASHIER)(WEB)' })
   @ApiBody({ type: UpdateWithdrawStatusRequestDto })
   async approveWithdraw(@Body() body: UpdateWithdrawStatusRequestDto): Promise<WithdrawResponseDto> {
     return this.cashierService.handleApproveWithdraw(body);
@@ -58,7 +64,7 @@ export class CashierController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.CASHIER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Cashier từ chối (lỗi giao dịch, thông tin sai, ...)' })
+  @ApiOperation({ summary: 'Admin/Cashier từ chối (lỗi giao dịch, thông tin sai, ...) (ADMIN/CASHIER)(WEB)' })
   @ApiBody({ type: UpdateWithdrawStatusRequestDto })
   async rejectWithdraw(@Body() body: UpdateWithdrawStatusRequestDto): Promise<WithdrawResponseDto> {
     return this.cashierService.handleRejectWithdraw(body);

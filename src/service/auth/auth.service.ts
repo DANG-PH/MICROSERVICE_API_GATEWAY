@@ -15,6 +15,7 @@ import {
   AUTH_SERVICE_NAME,
   AuthServiceClient,
   RequestResetPasswordRequest,
+  ChangeRolePartnerRequest,
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
@@ -77,7 +78,12 @@ export class AuthService {
   async handleUnbanUser(req: UnbanUserRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.unbanUser(req));
   }
+
   async handleRequestResetPassword(req: RequestResetPasswordRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.requestResetPassword(req));
+  }
+
+  async handleChangeRolePartner(req: ChangeRolePartnerRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.changeRolePartner(req));
   }
 }

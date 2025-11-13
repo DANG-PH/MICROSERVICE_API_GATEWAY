@@ -31,10 +31,15 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.EDITOR, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Editor/Admin tạo bài viết mới' })
+  @ApiOperation({ summary: 'Editor/Admin tạo bài viết mới (ADMIN/EDITOR)(WEB)' })
   @ApiBody({ type: CreatePostRequestDto })
-  async createPost(@Body() body: CreatePostRequestDto): Promise<PostResponseDto> {
-    return this.editorService.handleCreatePost(body);
+  async createPost(@Body() body: CreatePostRequestDto, @Req() req: any): Promise<PostResponseDto> {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      editor_id: userId
+    }
+    return this.editorService.handleCreatePost(request);
   }
 
   // ====== GET ALL ======
@@ -42,7 +47,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.EDITOR, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy danh sách tất cả bài viết' })
+  @ApiOperation({ summary: 'Lấy danh sách tất cả bài viết (ALL)(WEB)' })
   async getAllPosts(@Query() query: EmptyDto): Promise<ListPostResponseDto> {
     return this.editorService.handleGetAllPosts(query);
   }
@@ -52,7 +57,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.EDITOR, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin chi tiết 1 bài viết theo ID' })
+  @ApiOperation({ summary: 'Lấy thông tin chi tiết 1 bài viết theo ID (ALL)(WEB)' })
   async getPostById(@Param() params: GetPostByIdRequestDto): Promise<PostResponseDto> {
     return this.editorService.handleGetPostById(params);
   }
@@ -62,7 +67,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.EDITOR, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Editor/Admin cập nhật nội dung bài viết' })
+  @ApiOperation({ summary: 'Editor/Admin cập nhật nội dung bài viết (ADMIN/EDITOR)(WEB)' })
   @ApiBody({ type: UpdatePostRequestDto })
   async updatePost(@Body() body: UpdatePostRequestDto): Promise<PostResponseDto> {
     return this.editorService.handleUpdatePost(body);
@@ -73,7 +78,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.EDITOR, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Editor/Admin xóa bài viết' })
+  @ApiOperation({ summary: 'Editor/Admin xóa bài viết (ADMIN/EDITOR)(WEB)' })
   @ApiBody({ type: DeletePostRequestDto })
   async deletePost(@Body() body: DeletePostRequestDto): Promise<PostResponseDto> {
     return this.editorService.handleDeletePost(body);
@@ -84,7 +89,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin khóa một bài viết (ẩn khỏi người dùng)' })
+  @ApiOperation({ summary: 'Admin khóa một bài viết (ẩn khỏi người dùng) (ADMIN)(WEB)' })
   @ApiBody({ type: UpdatePostStatusRequestDto })
   async lockPost(@Body() body: UpdatePostStatusRequestDto): Promise<PostResponseDto> {
     return this.editorService.handleLockPost(body);
@@ -95,7 +100,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin mở khóa bài viết (hiển thị lại)' })
+  @ApiOperation({ summary: 'Admin mở khóa bài viết (hiển thị lại) (ADMIN)(WEB)' })
   @ApiBody({ type: UpdatePostStatusRequestDto })
   async unlockPost(@Body() body: UpdatePostStatusRequestDto): Promise<PostResponseDto> {
     return this.editorService.handleUnlockPost(body);
@@ -106,7 +111,7 @@ export class EditorController {
   @ApiBearerAuth()
   @Roles(Role.EDITOR, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Editor/Admin xem danh sách bài viết của editor bất kì' })
+  @ApiOperation({ summary: 'Editor/Admin xem danh sách bài viết của editor bất kì (ADMIN/EDITOR)(WEB)' })
   async getPostsByEditor(@Query() query: GetPostsByEditorRequestDto): Promise<ListPostResponseDto> {
     return this.editorService.handleGetPostsByEditor(query);
   }

@@ -59,6 +59,68 @@ export class UserDto {
   auth_id: number;
 }
 
+export class ItemWebDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  itemId: number;
+
+  @ApiProperty({ example: 10000 })
+  @IsInt()
+  price: number;
+}
+
+export class UserDtoNoId {
+  @ApiProperty({ example: 1000 })
+  @IsNumber()
+  vang: number;
+
+  @ApiProperty({ example: 50 })
+  @IsNumber()
+  ngoc: number;
+
+  @ApiProperty({ example: 200 })
+  @IsNumber()
+  sucManh: number;
+
+  @ApiProperty({ example: 500 })
+  @IsNumber()
+  vangNapTuWeb: number;
+
+  @ApiProperty({ example: 100 })
+  @IsNumber()
+  ngocNapTuWeb: number;
+
+  @ApiProperty({ example: 10 })
+  @IsInt()
+  x: number;
+
+  @ApiProperty({ example: 20 })
+  @IsInt()
+  y: number;
+
+  @ApiProperty({ example: 'Map1' })
+  @IsString()
+  mapHienTai: string;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  daVaoTaiKhoanLanDau: boolean;
+
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  coDeTu: boolean;
+
+  @ApiProperty({ example: [1, 2, 3] })
+  @IsArray()
+  @IsInt({ each: true })
+  danhSachVatPhamWeb: number[];
+
+  @ApiProperty({ example: 1 })
+  @IsOptional()
+  @IsInt()
+  auth_id: number;
+}
+
 // ===== REGISTER =====
 export class RegisterRequestDto {
   @ApiProperty({ example: 1 })
@@ -86,14 +148,10 @@ export class UserResponseDto {
 
 // ===== SAVE GAME =====
 export class SaveGameRequestDto {
-  @ApiProperty({ type: UserDto })
+  @ApiProperty({ type: UserDtoNoId })
   @ValidateNested()     //Báo cho class-validator rằng trường này là object con cần validate theo class của nó.Nếu thiếu, object sẽ bị coi là một property bình thường → ValidationPipe sẽ loại bỏ vì trong kia k có field nào tên user.
-  @Type(() => UserDto)    
-  user: UserDto;
-
-  @ApiProperty({ example: 50, description: 'Sức mạnh để tử' })
-  @IsNumber()
-  sucManhDeTu: number;
+  @Type(() => UserDtoNoId)    
+  user: UserDtoNoId;
 }
 
 export class SaveGameResponseDto {
@@ -121,9 +179,9 @@ export class BalanceResponseDto {
 }
 
 export class UseBalanceRequestDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  id: number;
+  // @ApiProperty({ example: 1 })
+  // @IsInt()
+  // id: number;
 
   @ApiProperty({ example: 10000 })
   @IsNumber()
@@ -145,9 +203,9 @@ export class UpdateBalanceRequestDto {
 }
 
 export class AddBalanceRequestDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  id: number;
+  // @ApiProperty({ example: 1 })
+  // @IsInt()
+  // id: number;
 
   @ApiProperty({ example: 10000 })
   @IsNumber()
@@ -161,7 +219,7 @@ export class UserListResponseDto {
 }
 
 // ===== ITEM =====
-export class AddItemRequestDto {
+export class AddItemAdminRequestDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   id: number;
@@ -171,14 +229,32 @@ export class AddItemRequestDto {
   itemId: number;
 }
 
+export class AddItemRequestDto {
+  // @ApiProperty({ example: 1 })
+  // @IsInt()
+  // id: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  itemId: number;
+}
+
 export class ItemListResponseDto {
-  @ApiProperty({ example: [1, 2, 3] })
-  @IsArray()
-  @IsInt({ each: true })
-  itemIds: number[];
+  @ApiProperty({ type: [ItemWebDto] })
+  itemWebs: ItemWebDto[];
 }
 
 export class UseItemRequestDto {
+  // @ApiProperty({ example: 1 })
+  // @IsInt()
+  // id: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  itemId: number;
+}
+
+export class UseItemAdminRequestDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   id: number;

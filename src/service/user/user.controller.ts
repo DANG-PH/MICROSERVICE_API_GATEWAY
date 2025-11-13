@@ -1,8 +1,11 @@
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { UserService } from './user.service';
-import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
-import {UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
+import {UseItemAdminRequestDto,AddItemAdminRequestDto,UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
+import { Roles } from 'src/security/decorators/role.decorator';
+import { Role } from 'src/enums/role.enum';
+import { RolesGuard } from 'src/security/guard/role.guard';
 
 @Controller('user')
 @ApiTags('Api User') 
@@ -10,116 +13,204 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Đăng ký tài khoản user (qua gRPC, Sau khi auth đăng kí sẽ call cái này, "API này chỉ để test")' })
+  @ApiOperation({ summary: 'Đăng ký tài khoản user, Sau khi auth đăng kí sẽ call cái này (BACKEND DEV)(SWAGGER)' })
   @ApiBody({ type:  RegisterRequestDto })
   async register(@Body() body: RegisterRequestDto) {
     return this.userService.handleRegister(body);
   }
 
+  @Get('profile-admin/:id')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN)(WEB)' })
+  async profileadmin(@Param() param: UsernameRequestDto) {
+    return this.userService.handleProfile(param);
+  }
+
   @Get('profile/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó' })
-  async profile(@Param() param: UsernameRequestDto) {
-    return this.userService.handleProfile(param);
+  @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB)' })
+  async profile(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.userService.handleProfile({id: userId});
   }
 
   @Put('save-game')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lưu thông tin của 1 user bất kì vào database' })
+  @ApiOperation({ summary: 'User tự lưu thông tin của mình vào database (USER)(GAME)' })
   @ApiBody({ type:  SaveGameRequestDto })
-  async saveGame(@Body() body: SaveGameRequestDto) {
-    return this.userService.handleSaveGame(body);
+  async saveGame(@Body() body: SaveGameRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      user: {
+        ...body.user,
+        id: userId
+      }
+    }
+    return this.userService.handleSaveGame(request);
   }
 
-  @Get('balance-web') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
+  @Get('balance-web-admin') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN)(WEB)' })
+  async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
+    return this.userService.handleGetBalanceWeb(query);
+  }
+
+  @Get('balance-web') 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user' })
-  async getBalanceWeb(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetBalanceWeb(query);
+  @ApiOperation({ summary: 'User lấy thông tin vàng nạp từ web và ngọc nạp từ web của bản thân (USER)(GAME/WEB)' })
+  async getBalanceWeb(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.userService.handleGetBalanceWeb({id: userId});
   }
 
   @Patch('add-vang-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) của 1 user bất kì' })
+  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) (USER)(WEB)' })
   @ApiBody({ type:  AddBalanceRequestDto })
-  async addVangWeb(@Body() body: AddBalanceRequestDto) {
-    return this.userService.handleAddVangWeb(body);
+  async addVangWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleAddVangWeb(request);
   }
 
   @Patch('add-ngoc-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) của 1 user bất kì' })
+  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) (USER)(WEB)' })
   @ApiBody({ type:  AddBalanceRequestDto })  
-  async addNgocWeb(@Body() body: AddBalanceRequestDto) {
-    return this.userService.handleAddNgocWeb(body);
+  async addNgocWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleAddNgocWeb(request);
   }
 
   @Patch('use-vang-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Sử dụng vàng ( nạp trên web ) của 1 user bất kì' })
+  @ApiOperation({ summary: 'Sử dụng vàng ( nạp trên web ) (USER)(GAME)' })
   @ApiBody({ type:  UseBalanceRequestDto })
-  async useVangWeb(@Body() body: UseBalanceRequestDto) {
-    return this.userService.handleUseVangWeb(body);
+  async useVangWeb(@Body() body: UseBalanceRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleUseVangWeb(request);
   }
 
   @Patch('use-ngoc-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Sử dụng ngọc ( nạp trên web ) của 1 user bất kì' })
+  @ApiOperation({ summary: 'Sử dụng ngọc ( nạp trên web ) (USER)(GAME)' })
   @ApiBody({ type:  UseBalanceRequestDto })  
-  async useNgocWeb(@Body() body: UseBalanceRequestDto) {
-    return this.userService.handleUseNgocWeb(body);
+  async useNgocWeb(@Body() body: UseBalanceRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleUseNgocWeb(request);
   }
 
   @Patch('update-balance')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user' })
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user (ADMIN)(WEB)' })
   @ApiBody({ type:  UpdateBalanceRequestDto })  
   async updateBalance(@Body() body: UpdateBalanceRequestDto) {
     return this.userService.handleUpdateBalance(body);
   }
 
+  @Post('add-item-web-admin')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
+  @ApiBody({ type:  AddItemAdminRequestDto })  
+  async addItemWebAdmin(@Body() body: AddItemAdminRequestDto) {
+    return this.userService.handleAddItemWeb(body);
+  }
+
   @Post('add-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì' })
+  @ApiOperation({ summary: 'User add item web ( id đồ ) cho bản thân (USER)(WEB)' })
   @ApiBody({ type:  AddItemRequestDto })  
-  async addItemWeb(@Body() body: AddItemRequestDto) {
-    return this.userService.handleAddItemWeb(body);
+  async addItemWeb(@Body() body: AddItemRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleAddItemWeb(request);
+  }
+
+  @Delete('use-item-web-admin')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
+  @ApiBody({ type:  UseItemAdminRequestDto })  
+  async useItemWebAdmin(@Body() body: UseItemAdminRequestDto) {
+    return this.userService.handleUseItemWeb(body);
   }
 
   @Delete('use-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì' })
+  @ApiOperation({ summary: 'User sử dụng item web ( id đồ ) cho bản thân (USER)(GAME)' })
   @ApiBody({ type:  UseItemRequestDto })  
-  async useItemWeb(@Body() body: UseItemRequestDto) {
-    return this.userService.handleUseItemWeb(body);
+  async useItemWeb(@Body() body: UseItemRequestDto, @Req() req: any) {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      id: userId
+    }
+    return this.userService.handleUseItemWeb(request);
+  }
+
+  @Get('item-web-admin')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN)(WEB)' })
+  async getItemWebAdmin(@Query() query: UsernameRequestDto) {
+    return this.userService.handleGetItemWeb(query);
   }
 
   @Get('item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'lấy item web của 1 user bất kì' })
-  async getItemWeb(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetItemWeb(query);
+  @ApiOperation({ summary: 'User lấy item web của bản thân (USER)(GAME/WEB)' })
+  async getItemWeb(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.userService.handleGetItemWeb(userId);
   }
 
   @Get('top10-suc-manh')
-  @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất' })
+  @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất (ALL)(WEB)' })
   async getTop10SucManh(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10SucManh(query);
   }
 
   @Get('top10-vang')
-  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất' })
+  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất (ALL)(WEB)' })
   async getTop10Vang(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10Vang(query);
   }

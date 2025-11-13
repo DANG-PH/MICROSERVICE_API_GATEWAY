@@ -65,19 +65,19 @@ export class CreatePayRequestDto {
 }
 
 export class CreatePayOrderRequestDto {
-  @ApiProperty({ example: 1, description: 'ID của người dùng' })
-  @Type(() => Number)
-  @IsInt()
-  userId: number;
+  // @ApiProperty({ example: 1, description: 'ID của người dùng' })
+  // @Type(() => Number)
+  // @IsInt()
+  // userId: number;
 
   @ApiProperty({ example: 50000, description: 'Số tiền cần thanh toán' })
   @Type(() => Number)
   @IsNumber()
   amount: number;
 
-  @ApiProperty({ example: 'dang123', description: 'Tên tài khoản người dùng' })
-  @IsString()
-  username: string;
+  // @ApiProperty({ example: 'dang123', description: 'Tên tài khoản người dùng' })
+  // @IsString()
+  // username: string;
 }
 
 export class PayResponseDto {

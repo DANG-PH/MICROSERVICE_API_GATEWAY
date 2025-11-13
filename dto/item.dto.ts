@@ -88,9 +88,9 @@ export class AddUserItemRequestDto {
 
 // ===== ADD MULTIPLE ITEMS REQUEST =====
 export class AddMultipleItemsRequestDto {
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  user_id: number;
+  // @ApiProperty({ example: 1 })
+  // @IsInt()
+  // user_id: number;
 
   @ApiProperty({ type: [ItemDto] })
   @IsArray()

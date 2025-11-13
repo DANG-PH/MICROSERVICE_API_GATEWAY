@@ -60,10 +60,10 @@ export class WithdrawDto implements Withdraw {
 // ===== CREATE REQUEST =====
 
 export class CreateWithdrawRequestDto {
-  @ApiProperty({ example: 2, description: 'ID người dùng gửi yêu cầu rút tiền' })
-  @Type(() => Number)
-  @IsInt()
-  user_id: number;
+  // @ApiProperty({ example: 2, description: 'ID người dùng gửi yêu cầu rút tiền' })
+  // @Type(() => Number)
+  // @IsInt()
+  // user_id: number;
 
   @ApiProperty({ example: 10000, description: 'Số tiền muốn rút (VNĐ)' })
   @IsNumber()

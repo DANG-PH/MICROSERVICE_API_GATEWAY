@@ -119,6 +119,14 @@ export interface RequestResetPasswordResponse {
   success: boolean;
 }
 
+export interface ChangeRolePartnerRequest {
+  username: string;
+}
+
+export interface ChangeRolePartnerResponse {
+  success: boolean;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -144,6 +152,8 @@ export interface AuthServiceClient {
   ): Observable<RequestResetPasswordResponse>;
 
   changeEmail(request: ChangeEmailRequest, metadata?: Metadata): Observable<ChangeEmailResponse>;
+
+  changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
   /** admin actions */
 
@@ -178,6 +188,8 @@ export interface AuthServiceController {
 
   changeEmail(request: ChangeEmailRequest, metadata?: Metadata): Observable<ChangeEmailResponse>;
 
+  changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -198,6 +210,7 @@ export function AuthServiceControllerMethods() {
       "resetPassword",
       "requestResetPassword",
       "changeEmail",
+      "changeRolePartner",
       "changeRole",
       "banUser",
       "unbanUser",

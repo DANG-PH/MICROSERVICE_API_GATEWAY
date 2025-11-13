@@ -14,6 +14,7 @@ service AuthService {
   rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {};
   rpc RequestResetPassword (RequestResetPasswordRequest) returns (RequestResetPasswordResponse) {};
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse) {};
+  rpc ChangeRolePartner (ChangeRolePartnerRequest) returns (ChangeRolePartnerResponse) {};
 
   // admin actions
   rpc ChangeRole (ChangeRoleRequest) returns (ChangeRoleResponse) {};
@@ -127,5 +128,13 @@ message RequestResetPasswordRequest {
 }
 
 message RequestResetPasswordResponse {
+  bool success = 1;
+}
+
+message ChangeRolePartnerRequest {
+  string username = 1;
+}
+
+message ChangeRolePartnerResponse {
   bool success = 1;
 }

@@ -123,10 +123,10 @@ export class VerifyOtpResponseDto {
 
 // Change Password
 export class ChangePasswordRequestDto {
-  @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
-  @IsString()
-  @IsNotEmpty()
-  sessionId: string;
+  // @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
+  // @IsString()
+  // @IsNotEmpty()
+  // sessionId: string;
 
   @ApiProperty({ example: 'oldPass123', description: 'Mật khẩu cũ' })
   @IsString()
@@ -169,10 +169,10 @@ export class ResetPasswordResponseDto {
 
 // Change Email
 export class ChangeEmailRequestDto {
-  @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
-  @IsString()
-  @IsNotEmpty()
-  sessionId: string;
+  // @ApiProperty({ example: 'c2FtcGxlVXNlcg==', description: 'SessionId của user (Base64)' })
+  // @IsString()
+  // @IsNotEmpty()
+  // sessionId: string;
 
   @ApiProperty({ example: 'newemail@gmail.com', description: 'Email mới' })
   @IsEmail()
@@ -240,5 +240,17 @@ export class RequestResetPasswordRequestDto {
 
 export class RequestResetPasswordResponseDto {
   @ApiProperty({ example: true, description: 'Trạng thái gửi OTP thành công' })
+  success: boolean;
+}
+
+export class ChangeRolePartnerRequestDto {
+  // @ApiProperty({ example: 'dang123', description: 'Tên đăng nhập cần reset password' })
+  // @IsString()
+  // @IsNotEmpty({ message: 'Username không được để trống' })
+  // username: string;
+}
+
+export class ChangeRolePartnerResponseDto {
+  @ApiProperty({ example: true, description: 'Trạng thái đổi role' })
   success: boolean;
 }

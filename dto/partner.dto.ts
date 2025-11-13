@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // ===== ENTITY =====
 export class AccountSellDto {
@@ -58,10 +59,10 @@ export class CreateAccountSellRequestDto {
   @Min(1)
   price: number;
 
-  @ApiProperty({ example: 1, description: 'ID Partner (người bán)' })
-  @IsNumber()
-  @IsNotEmpty()
-  partner_id: number;
+  // @ApiProperty({ example: 1, description: 'ID Partner (người bán)' })
+  // @IsNumber()
+  // @IsNotEmpty()
+  // partner_id: number;
 }
 
 // ===== UPDATE REQUEST =====
@@ -97,6 +98,7 @@ export class DeleteAccountSellRequestDto {
 // ===== GET BY PARTNER =====
 export class GetAccountsByPartnerRequestDto {
   @ApiProperty({ example: 1 })
+  @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
   partner_id: number;
@@ -105,6 +107,7 @@ export class GetAccountsByPartnerRequestDto {
 // ===== GET BY ID =====
 export class GetAccountByIdRequestDto {
   @ApiProperty({ example: 1 })
+  @Type(() => Number)
   @IsInt()
   id: number;
 }
@@ -130,10 +133,10 @@ export class BuyAccountRequestDto {
   @IsNotEmpty()
   id: number;
 
-  @ApiProperty({ example: 1, description: 'ID Người mua để check tiền' })
-  @IsNumber()
-  @IsNotEmpty()
-  user_id: number;
+  // @ApiProperty({ example: 1, description: 'ID Người mua để check tiền' })
+  // @IsNumber()
+  // @IsNotEmpty()
+  // user_id: number;
 }
 
 // ===== EMPTY =====

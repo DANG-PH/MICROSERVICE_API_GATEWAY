@@ -17,9 +17,9 @@ export class DeTuDto {
 }
 
 export class SaveGameDeTuRequestDto {
-  @ApiProperty({ example: 1, description: 'ID của user' })
-  @IsInt()
-  userId: number;
+  // @ApiProperty({ example: 1, description: 'ID của user' })
+  // @IsInt()
+  // userId: number;
 
   @ApiProperty({ example: 5000, description: 'Sức mạnh mới của đệ tử' })
   @IsNumber()

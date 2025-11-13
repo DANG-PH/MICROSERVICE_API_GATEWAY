@@ -40,6 +40,11 @@ message User {
   int32 auth_id = 13;
 }
 
+message ItemWeb {
+  int32 itemId = 1;
+  int64 price = 2;
+}
+
 message RegisterRequest {
   int32 id = 1;
 }
@@ -58,7 +63,6 @@ message UserResponse {
 
 message SaveGameRequest {
   User user = 1;
-  int64 sucManhDeTu = 2;
 }
 
 message SaveGameResponse {
@@ -100,7 +104,7 @@ message AddItemRequest {
 }
 
 message ItemListResponse {
-  repeated int32 itemIds = 1;
+  repeated ItemWeb itemWebs = 1;
 }
 
 message UseItemRequest {

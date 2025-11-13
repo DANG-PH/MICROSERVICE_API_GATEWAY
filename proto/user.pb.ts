@@ -30,6 +30,11 @@ export interface User {
   auth_id: number;
 }
 
+export interface ItemWeb {
+  itemId: number;
+  price: number;
+}
+
 export interface RegisterRequest {
   id: number;
 }
@@ -48,7 +53,6 @@ export interface UserResponse {
 
 export interface SaveGameRequest {
   user: User | undefined;
-  sucManhDeTu: number;
 }
 
 export interface SaveGameResponse {
@@ -90,7 +94,7 @@ export interface AddItemRequest {
 }
 
 export interface ItemListResponse {
-  itemIds: number[];
+  itemWebs: ItemWeb[];
 }
 
 export interface UseItemRequest {
