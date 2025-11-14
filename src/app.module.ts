@@ -8,13 +8,16 @@ import { ItemModule } from './service/item/item.module';
 import { DeTuModule } from './service/detu/detu.module';
 import { PayModule } from './service/pay/pay.module';
 import { RedisModule } from './redis/redis.module';
-import { LoggerMiddleware } from './logger/logger.middleware';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 import { NestModule,MiddlewareConsumer } from '@nestjs/common';
 import { RateLimitMiddleware } from './security/rate_limit/rate_limit.middleware';
 import { CashierModule } from './service/admin/cashier/cashier.module';
 import { EditorModule } from './service/admin/editor/editor.module';
 import { FinanceModule } from './service/admin/finance/finance.module';
 import { PartnerModule } from './service/admin/partner/partner.module';
+import { PlayerManagerModule } from './service/admin/player_manager/player_manager.module';
+import { LoggingInterceptor } from './interceptor/logger.interceptors';
+import { OnlineInterceptor } from './interceptor/online.interceptor';
 
 @Module({
   imports: [
@@ -31,10 +34,11 @@ import { PartnerModule } from './service/admin/partner/partner.module';
     CashierModule,
     FinanceModule,
     EditorModule,
-    PartnerModule
+    PartnerModule,
+    PlayerManagerModule
   ],
   controllers: [],
-  providers: [],
+  providers: [OnlineInterceptor, LoggingInterceptor],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

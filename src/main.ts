@@ -7,7 +7,8 @@ import * as bodyParser from 'body-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet'; 
-import { LoggingInterceptor } from './logger/logger.interceptors';
+import { LoggingInterceptor } from './interceptor/logger.interceptors';
+import { OnlineInterceptor } from './interceptor/online.interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -16,13 +17,13 @@ async function bootstrap() {
 
   // Bật CORS cho phép frontend gọi API
   app.enableCors({
-    origin: ['http://localhost:3107','http://localhost:3000',,'http://localhost:3108'], 
+    origin: ['http://localhost:3107','http://localhost:3000','http://localhost:3108'], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
 
   // interceptor logging
-  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalInterceptors(app.get(LoggingInterceptor), app.get(OnlineInterceptor),);
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()

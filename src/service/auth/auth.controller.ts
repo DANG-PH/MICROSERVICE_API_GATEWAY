@@ -24,6 +24,7 @@ import type { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Request } from 'express';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import type { RequestWithUser } from 'src/interface/RequestWithUser.interface';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -37,7 +38,24 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản user (USER)(GAME/WEB)' })
   @ApiBody({ type:  RegisterRequest })
-  async register(@Body() body: RegisterRequest) {
+  async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
+     const ip = req.headers['x-forwarded-for'] || req.ip;
+    const key = `register_rate_limit_${ip}`;
+    const limit = 1;  // 1 lần
+    const ttl = 60;   // trong 60 giây
+
+    let count = (await this.cacheManager.get<number>(key)) || 0;
+    count++;
+
+    if (count > limit) {
+      throw new HttpException(
+        'Bạn đang gửi yêu cầu nạp tiền, vui lòng thử lại sau 1 phút.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    await this.cacheManager.set(key, count, ttl * 1000);
+
     const authResult = await this.authService.handleRegister(body); 
     if (!authResult.success) {
       return { success: false, message: 'Đăng ký auth thất bại' };
@@ -63,7 +81,7 @@ export class AuthController {
   async login(@Body() body: LoginRequest, @Req() req: Request) {
     const ip = req.ip;
     const key = `login_rate_limit_${ip}`;
-    const limit = 8;  // 3 lần
+    const limit = 6;  // 6 lần
     const ttl = 60;   // trong 60 giây
 
     let count = (await this.cacheManager.get<number>(key)) || 0;
@@ -85,7 +103,17 @@ export class AuthController {
   @ApiOperation({ summary: 'Bước 2: Xác thực OTP và nhận access + refresh token (USER)(GAME/WEB)' })
   @ApiBody({ type: VerifyOtpRequestDto })
   async verifyOtp(@Body() body: VerifyOtpRequestDto) {
-    return this.authService.handleVerifyOtp(body);
+    const result = await this.authService.handleVerifyOtp(body);
+    if (result.access_token) {
+        const username = Buffer.from(body.sessionId, 'base64').toString('ascii');
+        let onlineUsers = await this.cacheManager.get<string[]>('online_users') || [];
+        let timeConLai = await this.cacheManager.ttl('online_users'); // trả về time hết hạn
+        if (timeConLai) timeConLai = timeConLai-Date.now();
+        else timeConLai = 60 * 1000;
+        if (!onlineUsers.includes(username)) onlineUsers.push(username);
+        await this.cacheManager.set('online_users', onlineUsers, timeConLai);
+    }
+    return result;
   }
 
   @Post('refresh')

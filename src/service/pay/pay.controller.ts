@@ -15,12 +15,17 @@ import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { PayService } from './pay.service';
+import type { Request } from 'express';
+import { Cache } from '@nestjs/cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { RequestWithUser } from 'src/interface/RequestWithUser.interface';
 
 @Controller('pay')
 @ApiTags('Api Pay') 
 export class PayController {
   constructor(
     private readonly payService: PayService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   @Get('pay-admin')
@@ -75,7 +80,24 @@ export class PayController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR )' })
-  async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: any): Promise<QrResponseDto> {
+  async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: RequestWithUser): Promise<QrResponseDto> {
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    const key = `qr_rate_limit_${ip}`;
+    const limit = 1;  // 1 lần
+    const ttl = 60;   // trong 60 giây
+
+    let count = (await this.cacheManager.get<number>(key)) || 0;
+    count++;
+
+    if (count > limit) {
+      throw new HttpException(
+        'Bạn đang gửi yêu cầu nạp tiền, vui lòng thử lại sau 1 phút.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    await this.cacheManager.set(key, count, ttl * 1000);
+
     const userId = req.user.userId;
     const username = req.user.username;
     const request = {

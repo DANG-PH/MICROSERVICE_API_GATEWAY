@@ -49,7 +49,7 @@ export class LoginRequest {
 
 export class LoginResponse {
   @ApiProperty({
-    example: 'c2FtcGxlVXNlcg==',
+    example: 'ZGFuZzEyMw==',
     description: 'sessionId trả về từ bước LoginStep1 (Base64 hoặc UUID)',
   })
   sessionId: string;
@@ -83,7 +83,7 @@ export class RefreshResponse {
 // ===== VERIFY OTP =====
 export class VerifyOtpRequestDto {
   @ApiProperty({
-    example: 'c2FtcGxlVXNlcg==',
+    example: 'ZGFuZzEyMw==',
     description: 'Mã sessionId trả về từ bước LoginStep1',
   })
   @IsString()
