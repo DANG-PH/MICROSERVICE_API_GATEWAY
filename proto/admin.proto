@@ -215,6 +215,8 @@ service PartnerService {
 
   // Gọi method này khi user mua acc
   rpc BuyAccount (BuyAccountRequest) returns (AccountInformationResponse);
+
+  rpc GetAllAccountByBuyer (GetAllAccountByBuyerRequest) returns (GetAllAccountByBuyerResponse);
 }
 
 // ===== MESSAGES =====
@@ -226,7 +228,8 @@ message AccountSell {
   double price = 4;
   string status = 5; // ACTIVE hoặc SOLD
   int32 partner_id = 6;
-  string createdAt = 7;
+  int32 buyer_id = 7;
+  string createdAt = 8;
 }
 
 // --- REQUESTS ---
@@ -269,6 +272,10 @@ message BuyAccountRequest {
   int32 user_id = 2;
 }
 
+message GetAllAccountByBuyerRequest {
+  int32 buyer_id = 1;
+}
+
 // --- RESPONSES ---
 
 message AccountSellResponse {
@@ -282,6 +289,10 @@ message ListAccountSellResponse {
 message AccountInformationResponse {
   string username = 1;
   string password = 2;
+}
+
+message GetAllAccountByBuyerResponse {
+  repeated AccountInformationResponse accounts = 1;
 }
 
 

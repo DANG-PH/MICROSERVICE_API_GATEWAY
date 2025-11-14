@@ -12,7 +12,9 @@ import {
   Empty,
   PartnerServiceClient,
   BuyAccountRequest,
-  AccountInformationResponse
+  AccountInformationResponse,
+  GetAllAccountByBuyerRequest,
+  GetAllAccountByBuyerResponse
 } from '../../../../proto/admin.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
@@ -69,5 +71,10 @@ export class PartnerService {
   /* User mua acc, trừ tiền */
   async handleBuyAccount(req: BuyAccountRequest) {
     return grpcCall(PartnerService.name, this.partnerGrpcService.buyAccount(req));
+  }
+
+  /* User xem thông tin acc mình đã mua */
+  async handleGetAllAccountBuyer(req: GetAllAccountByBuyerRequest) {
+    return grpcCall(PartnerService.name, this.partnerGrpcService.getAllAccountByBuyer(req));
   }
 }

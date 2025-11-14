@@ -152,6 +152,7 @@ export interface AccountSell {
   /** ACTIVE hoặc SOLD */
   status: string;
   partner_id: number;
+  buyer_id: number;
   createdAt: string;
 }
 
@@ -194,6 +195,10 @@ export interface BuyAccountRequest {
   user_id: number;
 }
 
+export interface GetAllAccountByBuyerRequest {
+  buyer_id: number;
+}
+
 export interface AccountSellResponse {
   account: AccountSell | undefined;
 }
@@ -205,6 +210,10 @@ export interface ListAccountSellResponse {
 export interface AccountInformationResponse {
   username: string;
   password: string;
+}
+
+export interface GetAllAccountByBuyerResponse {
+  accounts: AccountInformationResponse[];
 }
 
 export const ADMIN_PACKAGE_NAME = "admin";
@@ -441,6 +450,11 @@ export interface PartnerServiceClient {
   /** Gọi method này khi user mua acc */
 
   buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
+
+  getAllAccountByBuyer(
+    request: GetAllAccountByBuyerRequest,
+    metadata?: Metadata,
+  ): Observable<GetAllAccountByBuyerResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -477,6 +491,11 @@ export interface PartnerServiceController {
   /** Gọi method này khi user mua acc */
 
   buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
+
+  getAllAccountByBuyer(
+    request: GetAllAccountByBuyerRequest,
+    metadata?: Metadata,
+  ): Observable<GetAllAccountByBuyerResponse>;
 }
 
 export function PartnerServiceControllerMethods() {
@@ -490,6 +509,7 @@ export function PartnerServiceControllerMethods() {
       "getAccountById",
       "markAccountAsSold",
       "buyAccount",
+      "getAllAccountByBuyer",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

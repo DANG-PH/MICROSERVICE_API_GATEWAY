@@ -28,6 +28,12 @@ export class AccountSellDto {
   })
   partner_id: number;
 
+  @ApiProperty({
+    example: 2,
+    description: 'ID của Partner (người bán)',
+  })
+  buyer_id: number;
+
   @ApiProperty({ example: '2025-11-08T12:00:00Z', description: 'Thời điểm tạo bài đăng' })
   createdAt: string;
 }
@@ -163,4 +169,13 @@ export class AccountInformationResponseDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+}
+
+export class GetAllAccountByBuyerRequest {
+
+}
+
+export class GetAllAccountByBuyerResponse {
+  @ApiProperty({ type: [AccountInformationResponseDto] })
+  accounts: AccountInformationResponseDto[]
 }

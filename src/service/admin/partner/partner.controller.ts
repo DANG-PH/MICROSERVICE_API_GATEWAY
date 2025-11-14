@@ -16,7 +16,9 @@ import {
   AccountResponseDto,
   ListAccountSellResponseDto,
   BuyAccountRequestDto,
-  AccountInformationResponseDto
+  AccountInformationResponseDto,
+  GetAllAccountByBuyerRequest,
+  GetAllAccountByBuyerResponse
 } from 'dto/partner.dto';
 
 @Controller('partner')
@@ -109,5 +111,18 @@ export class PartnerController {
       ...body
     }
     return this.partnerService.handleBuyAccount(request);
+  }
+  
+  @Get('all-account-buyer')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'User Xem tất cả acc mình đã mua trong kho acc của hệ thống (USER)(WEB)' })
+  async getAllAccountBuyer(@Query() query: GetAllAccountByBuyerRequest, @Req() req: any): Promise<GetAllAccountByBuyerResponse> {
+    const userId = req.user.userId;
+    const request = {
+      ...query,
+      buyer_id: userId
+    }
+    return this.partnerService.handleGetAllAccountBuyer(request);
   }
 }
