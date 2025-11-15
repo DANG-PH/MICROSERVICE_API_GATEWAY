@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PlayerManagerController } from './player_manager.controller'
+import { AdminController } from './admin.controller';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { AuthModule } from 'src/service/auth/auth.module';
@@ -7,10 +7,11 @@ import { UserModule } from 'src/service/user/user.module';
 import { ItemModule } from 'src/service/item/item.module';
 import { DeTuModule } from 'src/service/detu/detu.module';
 import { PayModule } from 'src/service/pay/pay.module';
+import { PartnerModule } from '../partner/partner.module';
 
 @Module({
-  imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule],
-  controllers: [PlayerManagerController],
+  imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule, PartnerModule],
+  controllers: [AdminController],
   providers: [JwtStrategy,RolesGuard]
 })
-export class PlayerManagerModule {}
+export class AdminModule {}

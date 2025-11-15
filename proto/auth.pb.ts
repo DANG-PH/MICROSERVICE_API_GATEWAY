@@ -127,6 +127,14 @@ export interface ChangeRolePartnerResponse {
   success: boolean;
 }
 
+export interface GetEmailUserRequest {
+  id: number;
+}
+
+export interface GetEmailUserResponse {
+  email: string;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -155,6 +163,8 @@ export interface AuthServiceClient {
 
   changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
+  getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -162,6 +172,10 @@ export interface AuthServiceClient {
   banUser(request: BanUserRequest, metadata?: Metadata): Observable<BanUserResponse>;
 
   unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
+
+  /** admin service gọi khi check account có đủ điều kiện đăng bán không */
+
+  checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -190,6 +204,8 @@ export interface AuthServiceController {
 
   changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
+  getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -197,6 +213,10 @@ export interface AuthServiceController {
   banUser(request: BanUserRequest, metadata?: Metadata): Observable<BanUserResponse>;
 
   unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
+
+  /** admin service gọi khi check account có đủ điều kiện đăng bán không */
+
+  checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
 }
 
 export function AuthServiceControllerMethods() {
@@ -211,9 +231,11 @@ export function AuthServiceControllerMethods() {
       "requestResetPassword",
       "changeEmail",
       "changeRolePartner",
+      "getEmailUser",
       "changeRole",
       "banUser",
       "unbanUser",
+      "checkAccount",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -75,8 +75,9 @@ export class PartnerController {
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN/PARTNER)(WEB)' })
-  async getAccountsByPartner(@Query() query: GetAccountsByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
-    return this.partnerService.handleGetAccountsByPartner(query);
+  async getAccountsByPartner(@Req() req: any): Promise<ListAccountSellResponseDto> {
+    const id = req.user.id;
+    return this.partnerService.handleGetAccountsByPartner({partner_id: id});
   }
 
   @Get('account-sell/:id')

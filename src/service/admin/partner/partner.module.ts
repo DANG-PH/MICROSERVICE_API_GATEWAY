@@ -29,6 +29,7 @@ import { UserModule } from 'src/service/user/user.module';
     UserModule,
   ],
   controllers: [PartnerController],
-  providers: [PartnerService,JwtStrategy,RolesGuard]
+  providers: [PartnerService,JwtStrategy,RolesGuard],
+  exports: [PartnerService]
 })
 export class PartnerModule {}

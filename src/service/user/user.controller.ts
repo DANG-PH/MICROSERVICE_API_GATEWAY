@@ -19,14 +19,14 @@ export class UserController {
     return this.userService.handleRegister(body);
   }
 
-  @Get('profile-admin/:id')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN)(WEB)' })
-  async profileadmin(@Param() param: UsernameRequestDto) {
-    return this.userService.handleProfile(param);
-  }
+  // @Get('profile-admin/:id')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN)(WEB)' })
+  // async profileadmin(@Param() param: UsernameRequestDto) {
+  //   return this.userService.handleProfile(param);
+  // }
 
   @Get('profile/:id')
   @ApiBearerAuth()
@@ -53,14 +53,14 @@ export class UserController {
     return this.userService.handleSaveGame(request);
   }
 
-  @Get('balance-web-admin') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN)(WEB)' })
-  async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetBalanceWeb(query);
-  }
+  // @Get('balance-web-admin') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN)(WEB)' })
+  // async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
+  //   return this.userService.handleGetBalanceWeb(query);
+  // }
 
   @Get('balance-web') 
   @ApiBearerAuth()
@@ -127,25 +127,25 @@ export class UserController {
     return this.userService.handleUseNgocWeb(request);
   }
 
-  @Patch('update-balance')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user (ADMIN)(WEB)' })
-  @ApiBody({ type:  UpdateBalanceRequestDto })  
-  async updateBalance(@Body() body: UpdateBalanceRequestDto) {
-    return this.userService.handleUpdateBalance(body);
-  }
+  // @Patch('update-balance')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user (ADMIN)(WEB)' })
+  // @ApiBody({ type:  UpdateBalanceRequestDto })  
+  // async updateBalance(@Body() body: UpdateBalanceRequestDto) {
+  //   return this.userService.handleUpdateBalance(body);
+  // }
 
-  @Post('add-item-web-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
-  @ApiBody({ type:  AddItemAdminRequestDto })  
-  async addItemWebAdmin(@Body() body: AddItemAdminRequestDto) {
-    return this.userService.handleAddItemWeb(body);
-  }
+  // @Post('add-item-web-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
+  // @ApiBody({ type:  AddItemAdminRequestDto })  
+  // async addItemWebAdmin(@Body() body: AddItemAdminRequestDto) {
+  //   return this.userService.handleAddItemWeb(body);
+  // }
 
   @Post('add-item-web')
   @ApiBearerAuth()
@@ -161,15 +161,15 @@ export class UserController {
     return this.userService.handleAddItemWeb(request);
   }
 
-  @Delete('use-item-web-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
-  @ApiBody({ type:  UseItemAdminRequestDto })  
-  async useItemWebAdmin(@Body() body: UseItemAdminRequestDto) {
-    return this.userService.handleUseItemWeb(body);
-  }
+  // @Delete('use-item-web-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
+  // @ApiBody({ type:  UseItemAdminRequestDto })  
+  // async useItemWebAdmin(@Body() body: UseItemAdminRequestDto) {
+  //   return this.userService.handleUseItemWeb(body);
+  // }
 
   @Delete('use-item-web')
   @ApiBearerAuth()
@@ -185,14 +185,14 @@ export class UserController {
     return this.userService.handleUseItemWeb(request);
   }
 
-  @Get('item-web-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN)(WEB)' })
-  async getItemWebAdmin(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetItemWeb(query);
-  }
+  // @Get('item-web-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN)(WEB)' })
+  // async getItemWebAdmin(@Query() query: UsernameRequestDto) {
+  //   return this.userService.handleGetItemWeb(query);
+  // }
 
   @Get('item-web')
   @ApiBearerAuth()

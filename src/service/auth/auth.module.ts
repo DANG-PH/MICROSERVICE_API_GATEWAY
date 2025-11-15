@@ -29,6 +29,7 @@ import { UserModule } from 'src/service/user/user.module';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService,JwtStrategy,RolesGuard]
+  providers: [AuthService,JwtStrategy,RolesGuard],
+  exports: [AuthService]
 })
 export class AuthModule {}

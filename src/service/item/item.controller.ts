@@ -12,14 +12,14 @@ import { RolesGuard } from 'src/security/guard/role.guard';
 export class ItemController {
   constructor(private readonly itemService: ItemService) {}
 
-  @Get('user-items-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy tất cả thông tin item của 1 user bất kì (ADMIN)(WEB)' })
-  async getUserItemAdmin(@Query() query: UserIdRequestDto) {
-    return this.itemService.handleGetItemByUser(query);
-  }
+  // @Get('user-items-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy tất cả thông tin item của 1 user bất kì (ADMIN)(WEB)' })
+  // async getUserItemAdmin(@Query() query: UserIdRequestDto) {
+  //   return this.itemService.handleGetItemByUser(query);
+  // }
 
   @Get('user-items')
   @ApiBearerAuth()
@@ -30,35 +30,35 @@ export class ItemController {
     return this.itemService.handleGetItemByUser(userId);
   }
 
-  @Post('add-item-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB)' })
-  @ApiBody({ type:  AddUserItemRequestDto })
-  async addItem(@Body() body: AddUserItemRequestDto) {
-    return this.itemService.handleAddItem(body);
-  }
+  // @Post('add-item-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB)' })
+  // @ApiBody({ type:  AddUserItemRequestDto })
+  // async addItem(@Body() body: AddUserItemRequestDto) {
+  //   return this.itemService.handleAddItem(body);
+  // }
 
-  @Put('update-item-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB)' })
-  @ApiBody({ type:  ItemDto })
-  async updateItem(@Body() body: ItemDto) {
-    return this.itemService.handleUpdateItem(body);
-  }
+  // @Put('update-item-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB)' })
+  // @ApiBody({ type:  ItemDto })
+  // async updateItem(@Body() body: ItemDto) {
+  //   return this.itemService.handleUpdateItem(body);
+  // }
 
-  @Delete('delete-item-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB)' })
-  @ApiBody({ type:  ItemIdRequestDto })
-  async deleteItem(@Body() body: ItemIdRequestDto) {
-    return this.itemService.handleDeleteItem(body);
-  }
+  // @Delete('delete-item-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB)' })
+  // @ApiBody({ type:  ItemIdRequestDto })
+  // async deleteItem(@Body() body: ItemIdRequestDto) {
+  //   return this.itemService.handleDeleteItem(body);
+  // }
 
   @Put('items')
   @ApiBearerAuth()

@@ -178,33 +178,34 @@ export class AuthController {
     return this.authService.handleChangeRolePartner(username);
   }
 
-  @Patch('change-role')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thay đổi role của user (ADMIN)(WEB)' })
-  @ApiBody({ type: ChangeRoleRequestDto })
-  async changeRole(@Body() body: ChangeRoleRequestDto): Promise<ChangeRoleResponseDto> {
-    return this.authService.handleChangeRole(body);
-  }
+  // chuyển sang player manager
+  // @Patch('change-role')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Thay đổi role của user (ADMIN)(WEB)' })
+  // @ApiBody({ type: ChangeRoleRequestDto })
+  // async changeRole(@Body() body: ChangeRoleRequestDto): Promise<ChangeRoleResponseDto> {
+  //   return this.authService.handleChangeRole(body);
+  // }
 
-  @Patch('ban-user')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Ban user (ADMIN)(WEB)' })
-  @ApiBody({ type: BanUserRequestDto })
-  async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
-    return this.authService.handleBanUser(body);
-  }
+  // @Patch('ban-user')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Ban user (ADMIN)(WEB)' })
+  // @ApiBody({ type: BanUserRequestDto })
+  // async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
+  //   return this.authService.handleBanUser(body);
+  // }
 
-  @Patch('unban-user')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Unban user (ADMIN)(WEB)' })
-  @ApiBody({ type: UnbanUserRequestDto })
-  async unbanUser(@Body() body: UnbanUserRequestDto): Promise<UnbanUserResponseDto> {
-    return this.authService.handleUnbanUser(body);
-  }
+  // @Patch('unban-user')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Unban user (ADMIN)(WEB)' })
+  // @ApiBody({ type: UnbanUserRequestDto })
+  // async unbanUser(@Body() body: UnbanUserRequestDto): Promise<UnbanUserResponseDto> {
+  //   return this.authService.handleUnbanUser(body);
+  // }
 }

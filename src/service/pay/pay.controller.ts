@@ -28,14 +28,14 @@ export class PayController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  @Get('pay-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN)(WEB)' })
-  async getPayAdmin(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
-    return this.payService.getPay(query);
-  }
+  // @Get('pay-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN)(WEB)' })
+  // async getPayAdmin(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
+  //   return this.payService.getPay(query);
+  // }
 
   @Get('pay')
   @ApiBearerAuth()
@@ -46,25 +46,25 @@ export class PayController {
     return this.payService.getPay({userId: userId});
   }
   
-  @Patch('money')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB)' })
-  @ApiBody({ type:  UpdateMoneyRequestDto })
-  async updateMoney(@Body() body: UpdateMoneyRequestDto): Promise<PayResponseDto> {
-    return this.payService.updateMoney(body);
-  }
+  // @Patch('money')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB)' })
+  // @ApiBody({ type:  UpdateMoneyRequestDto })
+  // async updateMoney(@Body() body: UpdateMoneyRequestDto): Promise<PayResponseDto> {
+  //   return this.payService.updateMoney(body);
+  // }
 
-  @Patch('status')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví (ADMIN)(WEB)' })
-  @ApiBody({ type:  UpdateStatusRequestDto })
-  async updateStatus(@Body() body: UpdateStatusRequestDto): Promise<PayResponseDto> {
-    return this.payService.updateStatus(body);
-  }
+  // @Patch('status')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví (ADMIN)(WEB)' })
+  // @ApiBody({ type:  UpdateStatusRequestDto })
+  // async updateStatus(@Body() body: UpdateStatusRequestDto): Promise<PayResponseDto> {
+  //   return this.payService.updateStatus(body);
+  // }
 
   @Post('create-pay')
   @ApiBearerAuth()

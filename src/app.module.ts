@@ -18,6 +18,7 @@ import { PartnerModule } from './service/admin/partner/partner.module';
 import { PlayerManagerModule } from './service/admin/player_manager/player_manager.module';
 import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
+import { AdminModule } from './service/admin/admin/admin.module';
 
 @Module({
   imports: [
@@ -31,11 +32,12 @@ import { OnlineInterceptor } from './interceptor/online.interceptor';
     DeTuModule,
     RedisModule,
     PayModule,
+    AdminModule,
+    PlayerManagerModule,
     CashierModule,
     FinanceModule,
     EditorModule,
     PartnerModule,
-    PlayerManagerModule
   ],
   controllers: [],
   providers: [OnlineInterceptor, LoggingInterceptor],

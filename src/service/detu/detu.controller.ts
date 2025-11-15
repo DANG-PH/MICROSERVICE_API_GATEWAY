@@ -27,15 +27,15 @@ export class DeTuController {
     return this.deTuService.handleSaveDeTu(request);
   }
 
-  @Post('create-de-tu-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Tạo đệ tử cho 1 user bất kì (ADMIN)(WEB)' })
-  @ApiBody({ type: CreateDeTuRequestDto })
-  async createDeTuAdmin(@Body() body: CreateDeTuRequestDto) {
-    return this.deTuService.handleCreateDeTu(body);
-  }
+  // @Post('create-de-tu-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Tạo đệ tử cho 1 user bất kì (ADMIN)(WEB)' })
+  // @ApiBody({ type: CreateDeTuRequestDto })
+  // async createDeTuAdmin(@Body() body: CreateDeTuRequestDto) {
+  //   return this.deTuService.handleCreateDeTu(body);
+  // }
 
   @Post('create-de-tu')
   @ApiBearerAuth()
@@ -51,14 +51,14 @@ export class DeTuController {
     return this.deTuService.handleCreateDeTu(request);
   }
 
-  @Get('de-tu-admin')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy đệ tử của user bất kì (ADMIN)(WEB)' })
-  async getDeTuAdmin(@Query() query: GetDeTuRequestDto) {
-    return this.deTuService.handleGetDeTu(query);
-  }
+  // @Get('de-tu-admin')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy đệ tử của user bất kì (ADMIN)(WEB)' })
+  // async getDeTuAdmin(@Query() query: GetDeTuRequestDto) {
+  //   return this.deTuService.handleGetDeTu(query);
+  // }
 
   @Get('de-tu')
   @ApiBearerAuth()
