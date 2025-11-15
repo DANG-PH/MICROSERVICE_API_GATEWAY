@@ -59,6 +59,7 @@ message VerifyOtpResponse {
   string access_token = 1;
   string refresh_token = 2;
   int32 auth_id = 3;
+  string role = 4;
 }
 
 message RefreshRequest {

@@ -42,6 +42,7 @@ export interface VerifyOtpResponse {
   access_token: string;
   refresh_token: string;
   auth_id: number;
+  role: string;
 }
 
 export interface RefreshRequest {
