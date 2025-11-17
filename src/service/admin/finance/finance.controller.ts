@@ -24,7 +24,7 @@ export class FinanceController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.FINANCE)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Ghi lại dòng tiền khi nạp hoặc rút thành công (ADMIN/FINANCE)(WEB)' })
+  @ApiOperation({ summary: 'Ghi lại dòng tiền khi nạp hoặc rút thành công (ADMIN/FINANCE)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: CreateFinanceRequestDto })
   async createFinanceRecord(
     @Body() body: CreateFinanceRequestDto,
@@ -37,7 +37,7 @@ export class FinanceController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.FINANCE)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy danh sách giao dịch của một người dùng (ADMIN/FINANCE)(WEB)' })
+  @ApiOperation({ summary: 'Lấy danh sách giao dịch của một người dùng (ADMIN/FINANCE)(WEB) (CHƯA DÙNG)' })
   async getFinanceByUser(
     @Query() query: GetFinanceByUserRequestDto,
   ): Promise<ListFinanceResponseDto> {
@@ -49,7 +49,7 @@ export class FinanceController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.FINANCE)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin lấy danh sách toàn bộ giao dịch (ADMIN/FINANCE)(WEB)' })
+  @ApiOperation({ summary: 'Admin lấy danh sách toàn bộ giao dịch (ADMIN/FINANCE)(WEB) (CHƯA DÙNG)' })
   async getAllFinance(
     @Query() query: EmptyDto,
   ): Promise<ListFinanceResponseDto> {
@@ -61,7 +61,7 @@ export class FinanceController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.FINANCE)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thống kê tổng nạp, tổng rút và số dư toàn hệ thống (ADMIN/FINANCE)(WEB)' })
+  @ApiOperation({ summary: 'Thống kê tổng nạp, tổng rút và số dư toàn hệ thống (ADMIN/FINANCE)(WEB) (CHƯA DÙNG)' })
   async getFinanceSummary(
     @Query() query: EmptyDto,
   ): Promise<FinanceSummaryResponseDto> {

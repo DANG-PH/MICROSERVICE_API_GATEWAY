@@ -24,7 +24,7 @@ export class ItemController {
   @Get('user-items')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy tất cả thông tin item của bản thân (USER)(GAME)' })
+  @ApiOperation({ summary: 'Lấy tất cả thông tin item của bản thân (USER)(GAME) (ĐÃ DÙNG)' })
   async getUserItem(@Req() req: any) {
     const userId = req.user.userId;
     return this.itemService.handleGetItemByUser({user_id:userId});
@@ -63,7 +63,7 @@ export class ItemController {
   @Put('items')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User trong game tự gọi hàm này mỗi lần thoát game hoặc mỗi 5s (ghi đè toàn bộ lại items của user bằng items mới) (USER)(GAME)' })
+  @ApiOperation({ summary: 'User trong game tự gọi hàm này mỗi lần thoát game hoặc mỗi 5s (ghi đè toàn bộ lại items của user bằng items mới) (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  AddMultipleItemsRequestDto })
   async addItems(@Body() body: AddMultipleItemsRequestDto, @Req() req: any) {
     const userId = req.user.userId;

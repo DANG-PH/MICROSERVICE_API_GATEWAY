@@ -30,7 +30,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Partner/Admin đăng acc cần bán vào kho acc của hệ thống (ADMIN/PARTNER)(WEB)' })
+  @ApiOperation({ summary: 'Partner/Admin đăng acc cần bán vào kho acc của hệ thống (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: CreateAccountSellRequestDto })
   async createAccountSell(@Body() body: CreateAccountSellRequestDto, @Req() req: any): Promise<AccountResponseDto> {
     const userId = req.user.userId;
@@ -45,7 +45,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Partner/Admin cập nhật thông tin acc cần bán trong kho acc của hệ thống (ADMIN/PARTNER)(WEB)' })
+  @ApiOperation({ summary: 'Partner/Admin cập nhật thông tin acc cần bán trong kho acc của hệ thống (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: UpdateAccountSellRequestDto })
   async updateAccountSell(@Body() body: UpdateAccountSellRequestDto): Promise<AccountResponseDto> {
     return this.partnerService.handleUpdateAccountSell(body);
@@ -55,7 +55,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Partner/Admin xóa acc cần bán trong kho acc của hệ thống (ADMIN/PARTNER)(WEB)' })
+  @ApiOperation({ summary: 'Partner/Admin xóa acc cần bán trong kho acc của hệ thống (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: DeleteAccountSellRequestDto })
   async deleteAccountSell(@Body() body: DeleteAccountSellRequestDto): Promise<AccountResponseDto> {
     return this.partnerService.handleDeleteAccountSell(body);
@@ -65,7 +65,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'User Xem tất cả acc cần bán ( status: ACTIVE ) trong kho acc của hệ thống (ALL)(WEB)' })
+  @ApiOperation({ summary: 'User Xem tất cả acc cần bán ( status: ACTIVE ) trong kho acc của hệ thống (ALL)(WEB) (ĐÃ DÙNG)' })
   async getAllAccountSell(@Query() query: EmptyDto): Promise<ListAccountSellResponseDto> {
     return this.partnerService.handleGetAllActiveAccounts(query);
   }
@@ -74,7 +74,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN/PARTNER)(WEB)' })
+  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   async getAccountsByPartner(@Req() req: any): Promise<ListAccountSellResponseDto> {
     const id = req.user.id;
     return this.partnerService.handleGetAccountsByPartner({partner_id: id});
@@ -84,7 +84,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xem chi tiết một account nhất định theo id account (ALL)(WEB)' })
+  @ApiOperation({ summary: 'Xem chi tiết một account nhất định theo id account (ALL)(WEB) (ĐÃ DÙNG)' })
   async getAccountByIdr(@Param() param: GetAccountByIdRequestDto): Promise<AccountResponseDto> {
     return this.partnerService.handleGetAccountById(param);
   }
@@ -93,7 +93,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Đánh dấu acc bất kì đã bán (ADMIN/PARTNER)(WEB)' })
+  @ApiOperation({ summary: 'Đánh dấu acc bất kì đã bán (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: UpdateAccountStatusRequestDto })
   async markAccountAsSold(@Body() body: UpdateAccountStatusRequestDto): Promise<AccountResponseDto> {
     return this.partnerService.handleMarkAccountAsSold(body);
@@ -103,7 +103,7 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'User mua account trong kho tài khoản của hệ thống (USER)(WEB)' })
+  @ApiOperation({ summary: 'User mua account trong kho tài khoản của hệ thống (USER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: BuyAccountRequestDto })
   async buyAccount(@Body() body: BuyAccountRequestDto, @Req() req: any): Promise<AccountInformationResponseDto> {
     const userId = req.user.userId;
@@ -117,7 +117,7 @@ export class PartnerController {
   @Get('all-account-buyer')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User Xem tất cả acc mình đã mua trong kho acc của hệ thống (USER)(WEB)' })
+  @ApiOperation({ summary: 'User Xem tất cả acc mình đã mua trong kho acc của hệ thống (USER)(WEB) (ĐÃ DÙNG)' })
   async getAllAccountBuyer(@Query() query: GetAllAccountByBuyerRequest, @Req() req: any): Promise<GetAllAccountByBuyerResponse> {
     const userId = req.user.userId;
     const request = {

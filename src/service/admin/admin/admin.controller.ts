@@ -54,7 +54,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thay đổi role của user (ADMIN)(WEB) (Quản lí auth)' })
+  @ApiOperation({ summary: 'Thay đổi role của user (ADMIN)(WEB) (Quản lí auth) (CHƯA DÙNG) ' })
   @ApiBody({ type: ChangeRoleRequestDto })
   async changeRole(@Body() body: ChangeRoleRequestDto): Promise<ChangeRoleResponseDto> {
     return this.authService.handleChangeRole(body);
@@ -64,7 +64,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Ban user (ADMIN)(WEB) (Quản lí auth)' })
+  @ApiOperation({ summary: 'Ban user (ADMIN)(WEB) (Quản lí auth) (CHƯA DÙNG)' })
   @ApiBody({ type: BanUserRequestDto })
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
     return this.authService.handleBanUser(body);
@@ -74,7 +74,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Unban user (ADMIN)(WEB) (Quản lí auth)' })
+  @ApiOperation({ summary: 'Unban user (ADMIN)(WEB) (Quản lí auth) (CHƯA DÙNG)' })
   @ApiBody({ type: UnbanUserRequestDto })
   async unbanUser(@Body() body: UnbanUserRequestDto): Promise<UnbanUserResponseDto> {
     return this.authService.handleUnbanUser(body);
@@ -85,7 +85,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user (ADMIN)(WEB) (Quản lí user)' })
+  @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt (GÁN) cho user (ADMIN)(WEB) (Quản lí user) (CHƯA DÙNG)' })
   @ApiBody({ type:  UpdateBalanceRequestDto })  
   async updateBalance(@Body() body: UpdateBalanceRequestDto) {
     return this.userService.handleUpdateBalance(body);
@@ -95,7 +95,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB) (Quản lí user)' })
+  @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB) (Quản lí user) (CHƯA DÙNG)' })
   @ApiBody({ type:  AddItemAdminRequestDto })  
   async addItemWebAdmin(@Body() body: AddItemAdminRequestDto) {
     return this.userService.handleAddItemWeb(body);
@@ -105,7 +105,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB) (Quản lí user)' })
+  @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB) (Quản lí user) (CHƯA DÙNG)' })
   @ApiBody({ type:  UseItemAdminRequestDto })  
   async useItemWebAdmin(@Body() body: UseItemAdminRequestDto) {
     return this.userService.handleUseItemWeb(body);
@@ -116,7 +116,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB) (Quản lí item)' })
+  @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
   @ApiBody({ type:  AddUserItemRequestDto })
   async addItem(@Body() body: AddUserItemRequestDto) {
     return this.itemService.handleAddItem(body);
@@ -126,7 +126,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB) (Quản lí item)' })
+  @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
   @ApiBody({ type:  ItemDto })
   async updateItem(@Body() body: ItemDto) {
     return this.itemService.handleUpdateItem(body);
@@ -136,7 +136,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB) (Quản lí item)' })
+  @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
   @ApiBody({ type:  ItemIdRequestDto })
   async deleteItem(@Body() body: ItemIdRequestDto) {
     return this.itemService.handleDeleteItem(body);
@@ -147,7 +147,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Tạo đệ tử cho 1 user bất kì (ADMIN)(WEB) (Quản lí đệ tử)' })
+  @ApiOperation({ summary: 'Tạo đệ tử cho 1 user bất kì (ADMIN)(WEB) (Quản lí đệ tử) (CHƯA DÙNG)' })
   @ApiBody({ type: CreateDeTuRequestDto })
   async createDeTuAdmin(@Body() body: CreateDeTuRequestDto) {
     return this.deTuService.handleCreateDeTu(body);
@@ -158,7 +158,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB) (Quản lí ví)' })
+  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB) (Quản lí ví) (CHƯA DÙNG)' })
   @ApiBody({ type:  UpdateMoneyRequestDto })
   async updateMoney(@Body() body: UpdateMoneyRequestDto): Promise<PayResponseDto> {
     return this.payService.updateMoney(body);
@@ -168,7 +168,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví (ADMIN)(WEB) (Quản lí ví)' })
+  @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( khóa / mở khóa ) ví (ADMIN)(WEB) (Quản lí ví) (CHƯA DÙNG)' })
   @ApiBody({ type:  UpdateStatusRequestDto })
   async updateStatus(@Body() body: UpdateStatusRequestDto): Promise<PayResponseDto> {
     return this.payService.updateStatus(body);
@@ -179,7 +179,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN)(WEB) (Quản lí acc đăng bán của partner)' })
+  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN)(WEB) (Quản lí acc đăng bán của partner) (CHƯA DÙNG)' })
   async getAccountsByPartner(@Query() query: GetAccountsByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
     return this.partnerService.handleGetAccountsByPartner(query);
   }
@@ -188,7 +188,7 @@ export class AdminController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin Xem tất cả acc user bất kì đã mua trong kho acc của hệ thống (ADMIN)(WEB)' })
+  @ApiOperation({ summary: 'Admin Xem tất cả acc user bất kì đã mua trong kho acc của hệ thống (ADMIN)(WEB) (CHƯA DÙNG)' })
   async getAllAccountBuyer(@Query() query: GetAccountsByPartnerRequestDto): Promise<GetAllAccountByBuyerResponse> {
     // tạm thời sử dụng getAccount DTO vì chỗ này tôi lười viết thêm 1 dto nữa thôi.
     return this.partnerService.handleGetAllAccountBuyer({buyer_id: query.partner_id});

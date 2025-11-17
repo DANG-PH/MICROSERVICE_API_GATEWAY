@@ -36,7 +36,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getOnlineUsersVer1(): Promise<any> {
     const value = await this.cacheManager.get('online_users')
     return {
@@ -48,7 +48,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG - VER2 NÀY CHÍNH XÁC HƠN VER1)' })
   async getOnlineUsersVer2(): Promise<any> {
     const store = this.cacheManager.stores[0];
   
@@ -79,7 +79,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async profileadmin(@Param() param: UsernameRequestDto) {
     return this.userService.handleProfile(param);
   }
@@ -88,7 +88,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
     return this.userService.handleGetBalanceWeb(query);
   }
@@ -97,7 +97,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getItemWebAdmin(@Query() query: UsernameRequestDto) {
     return this.userService.handleGetItemWeb(query);
   }
@@ -107,7 +107,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy tất cả thông tin item của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Lấy tất cả thông tin item của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getUserItemAdmin(@Query() query: UserIdRequestDto) {
     return this.itemService.handleGetItemByUser(query);
   }
@@ -117,7 +117,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy đệ tử của user bất kì (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Lấy đệ tử của user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getDeTuAdmin(@Query() query: GetDeTuRequestDto) {
     return this.deTuService.handleGetDeTu(query);
   }
@@ -127,7 +127,7 @@ export class PlayerManagerController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN/PLAYER MANAGER)(WEB)' })
+  @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getPayAdmin(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
     return this.payService.getPay(query);
   }

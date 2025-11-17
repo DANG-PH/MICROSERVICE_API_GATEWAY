@@ -9,6 +9,9 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet'; 
 import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
+import { JaegerInterceptor } from './interceptor/tracing.interceptors';
+import { jaegerTracer } from 'jaeger';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -23,7 +26,11 @@ async function bootstrap() {
   });
 
   // interceptor logging
-  app.useGlobalInterceptors(app.get(LoggingInterceptor), app.get(OnlineInterceptor),);
+  app.useGlobalInterceptors(
+    app.get(LoggingInterceptor),
+    app.get(OnlineInterceptor),
+    app.get(JaegerInterceptor)
+  );
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()
@@ -54,6 +61,7 @@ async function bootstrap() {
   await app.listen(3000);
   console.log(`🚀 Server đang chạy tại: http://localhost:3000`);
   console.log(`📘 Swagger tại: http://localhost:3000/api-docs`);
+  console.log(`📘 Jeager tracing tại: http://localhost:16686`);
 }
 bootstrap();
 

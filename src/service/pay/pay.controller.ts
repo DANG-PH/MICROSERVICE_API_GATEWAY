@@ -40,7 +40,7 @@ export class PayController {
   @Get('pay')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User tự xem thông tin ví của bản thân (USER)(GAME/WEB)' })
+  @ApiOperation({ summary: 'User tự xem thông tin ví của bản thân (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async getPay(@Req() req: any): Promise<PayResponseDto> {
     const userId = req.user.userId;
     return this.payService.getPay({userId: userId});
@@ -70,7 +70,7 @@ export class PayController {
   @ApiBearerAuth()
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Tạo ví cho user bất kì (BACKEND DEV)(SWAGGER)' })
+  @ApiOperation({ summary: 'Tạo ví cho user bất kì (BACKEND DEV)(SWAGGER) (ĐÃ DÙNG)' })
   @ApiBody({ type:  CreatePayRequestDto })
   async createPay(@Body() body: CreatePayRequestDto): Promise<PayResponseDto> {
     return this.payService.createPay(body);
@@ -79,7 +79,7 @@ export class PayController {
   @Get('qr')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR )' })
+  @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR ) (ALL)(WEB) (ĐÃ DÙNG)' })
   async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: RequestWithUser): Promise<QrResponseDto> {
     const ip = req.headers['x-forwarded-for'] || req.ip;
     const key = `qr_rate_limit_${ip}`;

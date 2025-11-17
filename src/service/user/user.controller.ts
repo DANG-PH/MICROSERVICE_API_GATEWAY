@@ -13,7 +13,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Đăng ký tài khoản user, Sau khi auth đăng kí sẽ call cái này (BACKEND DEV)(SWAGGER)' })
+  @ApiOperation({ summary: 'Đăng ký tài khoản user, Sau khi auth đăng kí sẽ call cái này (BACKEND DEV)(SWAGGER) (ĐÃ DÙNG)' })
   @ApiBody({ type:  RegisterRequestDto })
   async register(@Body() body: RegisterRequestDto) {
     return this.userService.handleRegister(body);
@@ -31,7 +31,7 @@ export class UserController {
   @Get('profile/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB)' })
+  @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async profile(@Req() req: any) {
     const userId = req.user.userId;
     return this.userService.handleProfile({id: userId});
@@ -40,7 +40,7 @@ export class UserController {
   @Put('save-game')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User tự lưu thông tin của mình vào database (USER)(GAME)' })
+  @ApiOperation({ summary: 'User tự lưu thông tin của mình vào database (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  SaveGameRequestDto })
   async saveGame(@Body() body: SaveGameRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -66,7 +66,7 @@ export class UserController {
   @Get('balance-web') 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User lấy thông tin vàng nạp từ web và ngọc nạp từ web của bản thân (USER)(GAME/WEB)' })
+  @ApiOperation({ summary: 'User lấy thông tin vàng nạp từ web và ngọc nạp từ web của bản thân (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async getBalanceWeb(@Req() req: any) {
     const userId = req.user.userId;
     return this.userService.handleGetBalanceWeb({id: userId});
@@ -75,7 +75,7 @@ export class UserController {
   @Patch('add-vang-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) (USER)(WEB)' })
+  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) (USER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  AddBalanceRequestDto })
   async addVangWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -89,7 +89,7 @@ export class UserController {
   @Patch('add-ngoc-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) (USER)(WEB)' })
+  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) (USER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  AddBalanceRequestDto })  
   async addNgocWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -103,7 +103,7 @@ export class UserController {
   @Patch('use-vang-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Sử dụng vàng ( nạp trên web ) (USER)(GAME)' })
+  @ApiOperation({ summary: 'Sử dụng vàng ( nạp trên web ) (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  UseBalanceRequestDto })
   async useVangWeb(@Body() body: UseBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -117,7 +117,7 @@ export class UserController {
   @Patch('use-ngoc-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Sử dụng ngọc ( nạp trên web ) (USER)(GAME)' })
+  @ApiOperation({ summary: 'Sử dụng ngọc ( nạp trên web ) (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  UseBalanceRequestDto })  
   async useNgocWeb(@Body() body: UseBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -151,7 +151,7 @@ export class UserController {
   @Post('add-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User add item web ( id đồ ) cho bản thân (USER)(WEB)' })
+  @ApiOperation({ summary: 'User add item web ( id đồ ) cho bản thân (USER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  AddItemRequestDto })  
   async addItemWeb(@Body() body: AddItemRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -175,7 +175,7 @@ export class UserController {
   @Delete('use-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User sử dụng item web ( id đồ ) cho bản thân (USER)(GAME)' })
+  @ApiOperation({ summary: 'User sử dụng item web ( id đồ ) cho bản thân (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  UseItemRequestDto })  
   async useItemWeb(@Body() body: UseItemRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -198,20 +198,20 @@ export class UserController {
   @Get('item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User lấy item web của bản thân (USER)(GAME/WEB)' })
+  @ApiOperation({ summary: 'User lấy item web của bản thân (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async getItemWeb(@Req() req: any) {
     const userId = req.user.userId;
     return this.userService.handleGetItemWeb(userId);
   }
 
   @Get('top10-suc-manh')
-  @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất (ALL)(WEB)' })
+  @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
   async getTop10SucManh(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10SucManh(query);
   }
 
   @Get('top10-vang')
-  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất (ALL)(WEB)' })
+  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
   async getTop10Vang(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10Vang(query);
   }

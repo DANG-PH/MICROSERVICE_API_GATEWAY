@@ -16,7 +16,7 @@ export class DeTuController {
   @Put('save-game')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User lưu thông tin đệ tử của bản thân ( ghi đè toàn bộ ) (USER)(GAME)' })
+  @ApiOperation({ summary: 'User lưu thông tin đệ tử của bản thân ( ghi đè toàn bộ ) (USER)(GAME) (CHƯA DÙNG)' })
   @ApiBody({ type: SaveGameDeTuRequestDto })
   async getUserItem(@Body() body: SaveGameDeTuRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -40,7 +40,7 @@ export class DeTuController {
   @Post('create-de-tu')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User tạo đệ tử khi săn đệ thành công (USER)(GAME)' })
+  @ApiOperation({ summary: 'User tạo đệ tử khi săn đệ thành công (USER)(GAME) (CHƯA DÙNG)' })
   @ApiBody({ type: EmptyDto })
   async createDeTu(@Body() body: EmptyDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -63,7 +63,7 @@ export class DeTuController {
   @Get('de-tu')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User lấy đệ tử của bản thân (USER)(GAME)' })
+  @ApiOperation({ summary: 'User lấy đệ tử của bản thân (USER)(GAME) (CHƯA DÙNG)' })
   async getDeTu(@Req() req: any) {
     const userId = req.user.userId;
     return this.deTuService.handleGetDeTu(userId);
