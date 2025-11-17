@@ -47,7 +47,8 @@ export class UserController {
     const request = {
       user: {
         ...body.user,
-        id: userId
+        id: userId,
+        auth_id: userId,
       }
     }
     return this.userService.handleSaveGame(request);

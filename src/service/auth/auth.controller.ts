@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, Patch, Req, Inject } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
 import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,ChangePasswordRequestDto,
   ChangePasswordResponseDto,
@@ -176,6 +176,15 @@ export class AuthController {
   async changeRolePartner(@Req() req: any): Promise<ChangeRolePartnerResponseDto> {
     const username = req.user.username;
     return this.authService.handleChangeRolePartner(username);
+  }
+
+  @Get('profile/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB)' })
+  async profile(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.authService.handleProfile({id: userId});
   }
 
   // chuyển sang player manager

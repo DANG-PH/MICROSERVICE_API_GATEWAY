@@ -16,6 +16,7 @@ import {
   AuthServiceClient,
   RequestResetPasswordRequest,
   ChangeRolePartnerRequest,
+  GetProfileRequest,
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
@@ -85,5 +86,9 @@ export class AuthService {
 
   async handleChangeRolePartner(req: ChangeRolePartnerRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.changeRolePartner(req));
+  }
+
+  async handleProfile(req: GetProfileRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.getProfile(req));
   }
 }

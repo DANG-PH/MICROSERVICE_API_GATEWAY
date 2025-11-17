@@ -44,8 +44,30 @@ async function bootstrap() {
     transform: true, // tự chuyển kiểu dữ liệu nếu cần
   }));
 
+  app.use((req, res, next) => {
+    if (req.headers['x-http-method-override']) {
+      req.method = req.headers['x-http-method-override']; // POST → PATCH cho game dùng
+    }
+    next();
+  });
+
   await app.listen(3000);
   console.log(`🚀 Server đang chạy tại: http://localhost:3000`);
   console.log(`📘 Swagger tại: http://localhost:3000/api-docs`);
 }
 bootstrap();
+
+
+// Client -> POST /use-ngoc-nap
+//        │
+//        ▼
+// [Express Layer]
+//        │  <-- override req.method = PATCH
+//        ▼
+// [Nest Middleware] <-- chưa map route, chỉ có Logger, RateLimit...
+//        ▼
+// [Nest Route Mapping] <-- thấy PATCH → chọn @Patch()
+//        ▼
+// [Controller -> Service]
+//        ▼
+// Client nhận Response

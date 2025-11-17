@@ -27,7 +27,7 @@ export class ItemController {
   @ApiOperation({ summary: 'Lấy tất cả thông tin item của bản thân (USER)(GAME)' })
   async getUserItem(@Req() req: any) {
     const userId = req.user.userId;
-    return this.itemService.handleGetItemByUser(userId);
+    return this.itemService.handleGetItemByUser({user_id:userId});
   }
 
   // @Post('add-item-admin')

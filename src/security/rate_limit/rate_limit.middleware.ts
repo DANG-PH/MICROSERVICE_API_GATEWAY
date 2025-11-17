@@ -11,7 +11,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const ip = req.ip // tự parse ra socker.remoteAddress ( địa chỉ ip khi kết nối trực tiếp đến backend khi chưa thông qua cloudflare )
     const key = `rate_limit_${ip}`;
-    const limit = 100; // Giới hạn 100 request
+    const limit = 1000; // Giới hạn 100 request
     const ttl = 60; // trong 60 giây
 
     let count = (await this.cacheManager.get<number>(key)) || 0;

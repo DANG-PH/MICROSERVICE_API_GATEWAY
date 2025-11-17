@@ -65,7 +65,7 @@ export class ItemDto {
   @IsString()
   viTri: string;
 
-  @ApiProperty({ example: '{0,0,0,0,0,0,35,0,0,110000,0,0,0}{hp flat,ki flat,sức đánh flat,crit(%),giáp flat,crit dmg,hp(%),ki(%),sd(%),hp gốc,ki gốc,sức đánh gốc,giảm sát thương(%}' })
+  @ApiProperty({ example: '[0,0,0,0,0,0,35,0,0,110000,0,0,0}{hp flat,ki flat,sức đánh flat,crit(%),giáp flat,crit dmg,hp(%),ki(%),sd(%),hp gốc,ki gốc,sức đánh gốc,giảm sát thương(%]' })
   @IsString()
   chiso: string;
 

@@ -15,7 +15,7 @@ message Item {
   int32 soSaoPhaLe = 9;
   int32 soSaoPhaLeCuongHoa = 10;
   int32 soCap = 11;
-  int64 hanSuDung = 12;
+  int32 hanSuDung = 12;
   string sucManhYeuCau = 13;
   string linkTexture = 14;
   string viTri = 15;

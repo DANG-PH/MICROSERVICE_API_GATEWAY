@@ -136,6 +136,15 @@ export interface GetEmailUserResponse {
   email: string;
 }
 
+export interface GetProfileRequest {
+  id: number;
+}
+
+export interface GetProfileReponse {
+  role: string;
+  biBan: boolean;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -165,6 +174,8 @@ export interface AuthServiceClient {
   changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
   getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
+
+  getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
 
   /** admin actions */
 
@@ -207,6 +218,8 @@ export interface AuthServiceController {
 
   getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
 
+  getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -233,6 +246,7 @@ export function AuthServiceControllerMethods() {
       "changeEmail",
       "changeRolePartner",
       "getEmailUser",
+      "getProfile",
       "changeRole",
       "banUser",
       "unbanUser",

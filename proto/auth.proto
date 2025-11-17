@@ -16,6 +16,7 @@ service AuthService {
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse) {};
   rpc ChangeRolePartner (ChangeRolePartnerRequest) returns (ChangeRolePartnerResponse) {};
   rpc GetEmailUser (GetEmailUserRequest) returns (GetEmailUserResponse) {};
+  rpc GetProfile (GetProfileRequest) returns (GetProfileReponse) {};
 
   // admin actions
   rpc ChangeRole (ChangeRoleRequest) returns (ChangeRoleResponse) {};
@@ -150,4 +151,13 @@ message GetEmailUserRequest {
 
 message GetEmailUserResponse {
   string email = 1;
+}
+
+message GetProfileRequest {
+  int32 id = 1;
+}
+
+message GetProfileReponse {
+  string role = 1;
+  bool biBan = 2;
 }

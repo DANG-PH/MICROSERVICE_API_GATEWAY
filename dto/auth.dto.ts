@@ -254,3 +254,15 @@ export class ChangeRolePartnerResponseDto {
   @ApiProperty({ example: true, description: 'Trạng thái đổi role' })
   success: boolean;
 }
+
+export class GetProfileRequestDto {}
+
+export class GetProfileReponseDto {
+  @ApiProperty({ example: 'ADMIN' })
+  @IsString()
+  @IsNotEmpty()
+  role: string;
+
+  @ApiProperty({ example: 'true' })
+  biBan: boolean;
+}

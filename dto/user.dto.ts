@@ -114,11 +114,6 @@ export class UserDtoNoId {
   @IsArray()
   @IsInt({ each: true })
   danhSachVatPhamWeb: number[];
-
-  @ApiProperty({ example: 1 })
-  @IsOptional()
-  @IsInt()
-  auth_id: number;
 }
 
 // ===== REGISTER =====

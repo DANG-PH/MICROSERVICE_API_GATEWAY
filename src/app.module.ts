@@ -47,3 +47,21 @@ export class AppModule implements NestModule {
     consumer.apply(LoggerMiddleware, RateLimitMiddleware).forRoutes('*');
   }
 }
+
+// [1] Express/Fastify Layer (middleware thô: app.use()) 
+//       ↓
+// [2] Nest Global Middleware (class NestMiddleware)
+//       ↓
+// [3] Guards (CanActivate)
+//       ↓
+// [4] Interceptors (Before)
+//       ↓
+// [5] Pipes (Validation/Transform)
+//       ↓
+// [6] Controller → Service → Repository
+//       ↓
+// [7] Interceptors (After)
+//       ↓
+// [8] Exception Filters
+//       ↓
+// Client Response
