@@ -266,3 +266,25 @@ export class GetProfileReponseDto {
   @ApiProperty({ example: 'true' })
   biBan: boolean;
 }
+
+export class SendEmailToUserRequestDto {
+  @ApiProperty({ example: 'ALL, UserA,...' })
+  @IsString()
+  @IsNotEmpty()
+  who: string;
+
+  @ApiProperty({ example: 'THÔNG BÁO BẢO TRÌ' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({ example: 'Bảo trì game vào tối nay...' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
+
+export class SendemailToUserResponseDto {
+  @ApiProperty({ example: true, description: 'Trạng thái gửi email' })
+  success: boolean;
+}

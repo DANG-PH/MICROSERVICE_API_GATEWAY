@@ -10,7 +10,7 @@ export class OnlineInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
     const req = context.switchToHttp().getRequest();
-    const username = req.user?.username;
+    const username = req.user?.username; // đây là lí do đặt ở interceptor, vì cái này chạy sau guard nên có user từ token
     if (username) {
         const updateOnline = async () => {
           //Ver1
@@ -22,7 +22,8 @@ export class OnlineInterceptor implements NestInterceptor {
           await this.cacheManager.set('online_users', onlineUsers, timeConLai);
 
           //Ver2
-          await this.cacheManager.set(`online:${username}`, "online", 60 * 1000);
+          console.log(req.ip);
+          await this.cacheManager.set(`online:${username}`, req.ip, 60 * 1000);
         };
         updateOnline()
         // from(updateOnline()).subscribe(); 

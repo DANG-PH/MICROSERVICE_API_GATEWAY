@@ -41,7 +41,7 @@ export class AuthController {
   async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
      const ip = req.headers['x-forwarded-for'] || req.ip;
     const key = `register_rate_limit_${ip}`;
-    const limit = 1;  // 1 lần
+    const limit = 10;  // 10 lần
     const ttl = 60;   // trong 60 giây
 
     let count = (await this.cacheManager.get<number>(key)) || 0;

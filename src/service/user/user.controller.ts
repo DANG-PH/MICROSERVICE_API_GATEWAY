@@ -201,7 +201,8 @@ export class UserController {
   @ApiOperation({ summary: 'User lấy item web của bản thân (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async getItemWeb(@Req() req: any) {
     const userId = req.user.userId;
-    return this.userService.handleGetItemWeb(userId);
+    console.log(userId)
+    return this.userService.handleGetItemWeb({id: userId});
   }
 
   @Get('top10-suc-manh')

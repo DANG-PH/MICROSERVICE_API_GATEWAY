@@ -19,6 +19,7 @@ import {
     PayResponseDto,
  } from 'dto/pay.dto';
 import { PayService } from 'src/service/pay/pay.service';
+import { SendEmailToUserRequestDto, SendemailToUserResponseDto } from 'dto/auth.dto';
 
 @Controller('player_manager')
 @ApiTags('Api Player Manager') 
@@ -130,5 +131,16 @@ export class PlayerManagerController {
   @ApiOperation({ summary: 'Lấy thông tin ví của user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
   async getPayAdmin(@Query() query: GetPayByUserIdRequestDto): Promise<PayResponseDto> {
     return this.payService.getPay(query);
+  }
+
+  // Gửi thông báo email cho user ( gọi sang auth )
+  @Post('send-email')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'ADMIN/PLAYER MANAGER gửi thông báo qua email cho user ( hoặc all ) ví dụ như ( bảo trì, cập nhật, ... ) (CHƯA DÙNG) ' })
+  @ApiBody({ type:  SendEmailToUserRequestDto })
+  async sendEmailToUser(@Body() body: SendEmailToUserRequestDto): Promise<SendemailToUserResponseDto> {
+    return this.authService.handleSendEmailToUser(body);
   }
 }

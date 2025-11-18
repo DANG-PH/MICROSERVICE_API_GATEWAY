@@ -22,6 +22,7 @@ service AuthService {
   rpc ChangeRole (ChangeRoleRequest) returns (ChangeRoleResponse) {};
   rpc BanUser (BanUserRequest) returns (BanUserResponse) {};
   rpc UnbanUser (UnbanUserRequest) returns (UnbanUserResponse) {};
+  rpc SendEmailToUser(SendEmailToUserRequest) returns (SendemailToUserResponse) {};
 
   // admin service gọi khi check account có đủ điều kiện đăng bán không
   rpc CheckAccount (LoginRequest) returns (LoginResponse) {};
@@ -160,4 +161,14 @@ message GetProfileRequest {
 message GetProfileReponse {
   string role = 1;
   bool biBan = 2;
+}
+
+message SendEmailToUserRequest {
+  string who = 1;
+  string title = 2;
+  string content = 3;
+}
+
+message SendemailToUserResponse {
+  bool success = 1;
 }

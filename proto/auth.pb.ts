@@ -145,6 +145,16 @@ export interface GetProfileReponse {
   biBan: boolean;
 }
 
+export interface SendEmailToUserRequest {
+  who: string;
+  title: string;
+  content: string;
+}
+
+export interface SendemailToUserResponse {
+  success: boolean;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -184,6 +194,8 @@ export interface AuthServiceClient {
   banUser(request: BanUserRequest, metadata?: Metadata): Observable<BanUserResponse>;
 
   unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
+
+  sendEmailToUser(request: SendEmailToUserRequest, metadata?: Metadata): Observable<SendemailToUserResponse>;
 
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
@@ -228,6 +240,8 @@ export interface AuthServiceController {
 
   unbanUser(request: UnbanUserRequest, metadata?: Metadata): Observable<UnbanUserResponse>;
 
+  sendEmailToUser(request: SendEmailToUserRequest, metadata?: Metadata): Observable<SendemailToUserResponse>;
+
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
   checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
@@ -250,6 +264,7 @@ export function AuthServiceControllerMethods() {
       "changeRole",
       "banUser",
       "unbanUser",
+      "sendEmailToUser",
       "checkAccount",
     ];
     for (const method of grpcMethods) {
