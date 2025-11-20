@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // ===== ENTITY =====
 export class FinanceDto {
@@ -45,6 +46,7 @@ export class CreateFinanceRequestDto {
 // ===== GET BY USER =====
 export class GetFinanceByUserRequestDto {
   @ApiProperty({ example: 2, description: 'ID người dùng cần xem lịch sử giao dịch' })
+  @Type(() => Number)
   @IsInt()
   user_id: number;
 }

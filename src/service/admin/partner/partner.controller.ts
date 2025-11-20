@@ -34,9 +34,11 @@ export class PartnerController {
   @ApiBody({ type: CreateAccountSellRequestDto })
   async createAccountSell(@Body() body: CreateAccountSellRequestDto, @Req() req: any): Promise<AccountResponseDto> {
     const userId = req.user.userId;
+    const username = req.user.username;
     const request = {
       ...body,
-      partner_id: userId
+      partner_id: userId,
+      partner_username: username
     }
     return this.partnerService.handleCreateAccountSell(request);
   }

@@ -27,7 +27,7 @@ import {
     UpdateMoneyRequestDto,
     UpdateStatusRequestDto,
  } from 'dto/pay.dto';
-import { PayService } from 'src/service/pay/pay.service';
+import { PayService } from 'src/service/pay/pay/pay.service';
 import {
   GetAccountsByPartnerRequestDto,
   ListAccountSellResponseDto,

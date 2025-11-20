@@ -6,7 +6,7 @@ import { AuthModule } from 'src/service/auth/auth.module';
 import { UserModule } from 'src/service/user/user.module';
 import { ItemModule } from 'src/service/item/item.module';
 import { DeTuModule } from 'src/service/detu/detu.module';
-import { PayModule } from 'src/service/pay/pay.module';
+import { PayModule } from 'src/service/pay/pay/pay.module';
 import { PartnerModule } from '../partner/partner.module';
 
 @Module({

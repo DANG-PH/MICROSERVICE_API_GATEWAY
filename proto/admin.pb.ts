@@ -109,41 +109,6 @@ export interface ListWithdrawResponse {
   withdraws: Withdraw[];
 }
 
-export interface Finance {
-  id: number;
-  user_id: number;
-  /** NAP hoặc RUT */
-  type: string;
-  amount: number;
-  create_at: string;
-}
-
-export interface CreateFinanceRequest {
-  user_id: number;
-  /** NAP hoặc RUT */
-  type: string;
-  amount: number;
-}
-
-export interface GetFinanceByUserRequest {
-  user_id: number;
-}
-
-export interface FinanceResponse {
-  finance: Finance | undefined;
-}
-
-export interface ListFinanceResponse {
-  finances: Finance[];
-}
-
-export interface FinanceSummaryResponse {
-  total_nap: number;
-  total_rut: number;
-  /** tổng nạp - tổng rút */
-  balance: number;
-}
-
 export interface AccountSell {
   id: number;
   url: string;
@@ -163,6 +128,7 @@ export interface CreateAccountSellRequest {
   description: string;
   price: number;
   partner_id: number;
+  partner_username: string;
 }
 
 export interface UpdateAccountSellRequest {
@@ -358,63 +324,6 @@ export function CashierServiceControllerMethods() {
 }
 
 export const CASHIER_SERVICE_NAME = "CashierService";
-
-/** ===== SERVICE DEFINITION ===== */
-
-export interface FinanceServiceClient {
-  /** Khi nạp/rút thành công, ghi lại dòng tiền */
-
-  createFinanceRecord(request: CreateFinanceRequest, metadata?: Metadata): Observable<FinanceResponse>;
-
-  /** Lấy danh sách giao dịch của 1 user */
-
-  getFinanceByUser(request: GetFinanceByUserRequest, metadata?: Metadata): Observable<ListFinanceResponse>;
-
-  /** Lấy tất cả giao dịch (cho admin) */
-
-  getAllFinance(request: Empty, metadata?: Metadata): Observable<ListFinanceResponse>;
-
-  /** Thống kê tổng nạp và tổng rút */
-
-  getFinanceSummary(request: Empty, metadata?: Metadata): Observable<FinanceSummaryResponse>;
-}
-
-/** ===== SERVICE DEFINITION ===== */
-
-export interface FinanceServiceController {
-  /** Khi nạp/rút thành công, ghi lại dòng tiền */
-
-  createFinanceRecord(request: CreateFinanceRequest, metadata?: Metadata): Observable<FinanceResponse>;
-
-  /** Lấy danh sách giao dịch của 1 user */
-
-  getFinanceByUser(request: GetFinanceByUserRequest, metadata?: Metadata): Observable<ListFinanceResponse>;
-
-  /** Lấy tất cả giao dịch (cho admin) */
-
-  getAllFinance(request: Empty, metadata?: Metadata): Observable<ListFinanceResponse>;
-
-  /** Thống kê tổng nạp và tổng rút */
-
-  getFinanceSummary(request: Empty, metadata?: Metadata): Observable<FinanceSummaryResponse>;
-}
-
-export function FinanceServiceControllerMethods() {
-  return function (constructor: Function) {
-    const grpcMethods: string[] = ["createFinanceRecord", "getFinanceByUser", "getAllFinance", "getFinanceSummary"];
-    for (const method of grpcMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("FinanceService", method)(constructor.prototype[method], method, descriptor);
-    }
-    const grpcStreamMethods: string[] = [];
-    for (const method of grpcStreamMethods) {
-      const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("FinanceService", method)(constructor.prototype[method], method, descriptor);
-    }
-  };
-}
-
-export const FINANCE_SERVICE_NAME = "FinanceService";
 
 /** ===== SERVICE DEFINITION ===== */
 

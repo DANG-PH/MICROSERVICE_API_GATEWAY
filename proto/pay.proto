@@ -62,3 +62,58 @@ service PayService {
   rpc CreatePay (CreatePayRequest) returns (PayResponse);
   rpc CreatePayOrder (CreatePayOrderRequest) returns (QrResponse);
 }
+
+// ===== SERVICE DEFINITION =====
+service FinanceService {
+  // Khi nạp/rút thành công, ghi lại dòng tiền
+  rpc CreateFinanceRecord (CreateFinanceRequest) returns (FinanceResponse);
+
+  // Lấy danh sách giao dịch của 1 user
+  rpc GetFinanceByUser (GetFinanceByUserRequest) returns (ListFinanceResponse);
+
+  // Lấy tất cả giao dịch (cho admin)
+  rpc GetAllFinance (Empty) returns (ListFinanceResponse);
+
+  // Thống kê tổng nạp và tổng rút
+  rpc GetFinanceSummary (Empty) returns (FinanceSummaryResponse);
+}
+
+// ===== MESSAGES =====
+
+message Empty {}
+
+message Finance {
+  int32 id = 1;
+  int32 user_id = 2;
+  string type = 3;   // NAP hoặc RUT
+  double amount = 4;
+  string create_at = 5;
+}
+
+// --- REQUESTS ---
+
+message CreateFinanceRequest {
+  int32 user_id = 1;
+  string type = 2;   // NAP hoặc RUT
+  double amount = 3;
+}
+
+message GetFinanceByUserRequest {
+  int32 user_id = 1;
+}
+
+// --- RESPONSES ---
+
+message FinanceResponse {
+  Finance finance = 1;
+}
+
+message ListFinanceResponse {
+  repeated Finance finances = 1;
+}
+
+message FinanceSummaryResponse {
+  double total_nap = 1;
+  double total_rut = 2;
+  double balance = 3; // tổng nạp - tổng rút
+}

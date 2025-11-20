@@ -8,9 +8,9 @@ import {
   FinanceSummaryResponse,
   Empty,
   FinanceServiceClient,
-} from '../../../../proto/admin.pb';
+} from '../../../../proto/pay.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
-import { ADMIN_PACKAGE_NAME, FINANCE_SERVICE_NAME } from '../../../../proto/admin.pb';
+import { PAY_PACKAGE_NAME, FINANCE_SERVICE_NAME } from '../../../../proto/pay.pb';
 import { winstonLogger } from 'src/logger/logger.config';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class FinanceService {
   private financeGrpcService: FinanceServiceClient;
 
   constructor(
-    @Inject(ADMIN_PACKAGE_NAME) private readonly client: ClientGrpc,
+    @Inject(PAY_PACKAGE_NAME) private readonly client: ClientGrpc,
   ) {}
 
   onModuleInit() {

@@ -18,7 +18,7 @@ import {
     GetPayByUserIdRequestDto,
     PayResponseDto,
  } from 'dto/pay.dto';
-import { PayService } from 'src/service/pay/pay.service';
+import { PayService } from 'src/service/pay/pay/pay.service';
 import { SendEmailToUserRequestDto, SendemailToUserResponseDto } from 'dto/auth.dto';
 
 @Controller('player_manager')
