@@ -22,7 +22,7 @@ export class OnlineInterceptor implements NestInterceptor {
           await this.cacheManager.set('online_users', onlineUsers, timeConLai);
 
           //Ver2
-          console.log(req.ip);
+          // console.log(req.ip);
           await this.cacheManager.set(`online:${username}`, req.ip, 60 * 1000);
         };
         updateOnline()

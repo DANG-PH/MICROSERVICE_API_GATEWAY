@@ -20,6 +20,7 @@ import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { AdminModule } from './service/admin/admin/admin.module';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
+import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { JaegerInterceptor } from './interceptor/tracing.interceptors';
     PartnerModule,
   ],
   controllers: [],
-  providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor],
+  providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

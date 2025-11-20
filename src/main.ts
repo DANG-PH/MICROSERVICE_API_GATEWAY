@@ -11,6 +11,7 @@ import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
+import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,7 +30,8 @@ async function bootstrap() {
   app.useGlobalInterceptors(
     app.get(LoggingInterceptor),
     app.get(OnlineInterceptor),
-    app.get(JaegerInterceptor)
+    app.get(JaegerInterceptor),
+    app.get(TemporaryBanInterceptor)
   );
 
   // Cấu hình Swagger
