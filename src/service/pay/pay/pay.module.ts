@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         options: {
           package: PAY_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/pay.proto'),
-          url: "nozomi.proxy.rlwy.net:42969",
+          url: process.env.PAY_URL,
           loader: {
                 keepCase: true,
                 objects: true,

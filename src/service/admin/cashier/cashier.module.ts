@@ -17,7 +17,7 @@ import { UserModule } from 'src/service/user/user.module';
         options: {
           package: ADMIN_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/admin.proto'),
-          url: "localhost:50056",
+          url: process.env.ADMIN_URL,
           loader: {
             keepCase: true,
             objects: true,

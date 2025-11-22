@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         options: {
           package: DETU_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/detu.proto'),
-          url: "localhost:50054",
+          url: process.env.DETU_URL,
           loader: {
                 keepCase: true,
                 objects: true,

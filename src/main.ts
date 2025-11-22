@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
@@ -21,7 +20,7 @@ async function bootstrap() {
 
   // Bật CORS cho phép frontend gọi API
   app.enableCors({
-    origin: ['http://localhost:3107','http://localhost:3000','http://localhost:3108'], 
+    origin: [process.env.WEB_USER_URL,process.env.WEB_ADMIN_URL,process.env.API_GATEWAY_URL], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
@@ -36,14 +35,14 @@ async function bootstrap() {
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()
-    .setTitle('API Gateway')
-    .setDescription('Tài liệu API tổng hợp của hệ thống backend NRO')
-    .setVersion('1.0')
+    .setTitle(String(process.env.TITTLE_SWAGGER))
+    .setDescription(String(process.env.CONTENT_SWAGGER))
+    .setVersion(String(process.env.VERSION_SWAGGER))
     .addBearerAuth() 
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup(String(process.env.ENDPOINT_SWAGGER), app, document);
 
 
   // Bật validation cho tất cả request body/query/params
@@ -54,16 +53,16 @@ async function bootstrap() {
   }));
 
   app.use((req, res, next) => {
-    if (req.headers['x-http-method-override']) {
-      req.method = req.headers['x-http-method-override']; // POST → PATCH cho game dùng
+    if (req.headers[String(process.env.HEADER_POST_PATCH)]) {
+      req.method = req.headers[String(process.env.HEADER_POST_PATCH)]; // POST → PATCH cho game dùng
     }
     next();
   });
 
-  await app.listen(3000);
-  console.log(`🚀 Server đang chạy tại: http://localhost:3000`);
-  console.log(`📘 Swagger tại: http://localhost:3000/api-docs`);
-  console.log(`📘 Jeager tracing tại: http://localhost:16686`);
+  await app.listen(Number(process.env.PORT));
+  console.log(`🚀 Server đang chạy tại: http://localhost:${process.env.PORT}`);
+  console.log(`📘 Swagger tại: http://localhost:${process.env.PORT}/${process.env.ENDPOINT_SWAGGER}`);
+  console.log(`📘 Jeager tracing tại: http://localhost:${process.env.JAEGER_PORT}`);
 }
 bootstrap();
 

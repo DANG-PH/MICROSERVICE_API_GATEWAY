@@ -52,7 +52,7 @@ export class PlayerManagerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG - VER2 NÀY CHÍNH XÁC HƠN VER1)' })
   async getOnlineUsersVer2(): Promise<any> {
-    const store = this.cacheManager.stores[0];
+    const store = this.cacheManager.stores[1];
   
     const onlineUsers: string[] = [];  // Chỉ lưu username
     // const onlineUsersData: Record<string, any> = {};  // Lưu cả data
@@ -226,7 +226,16 @@ export class PlayerManagerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'ADMIN/PLAYER MANAGER xem danh sách user đang bị ban (tạm thời)' })
   async getAllTemporaryBannedUsers(): Promise<any> {
-    const store = this.cacheManager.stores?.[0];
+    const store = this.cacheManager.stores?.[1]; // store redis
+
+    // const store1 = this.cacheManager.stores?.[0].store; store ở RAM memory
+    // for (const key of store._lru.nodesMap.keys()) {
+    //   if (key.includes('temporary-ban:')) {
+    //     const userId = key.split('temporary-ban:')[1];
+    //     const value = store._lru.nodesMap.get(key)?.value;
+    //     bans.push({ userId, data: value });
+    //   }
+    // }
 
     console.log(store)
 

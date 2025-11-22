@@ -2,7 +2,7 @@ import { applyDecorators, SetMetadata, UseGuards } from '@nestjs/common';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 
-export const ROLES_KEY = 'roles';
+export const ROLES_KEY = process.env.ROLES_KEY;
 
 // export function Roles(...roles: Role[]) {
 //   return applyDecorators(SetMetadata(ROLES_KEY, roles), UseGuards(RolesGuard));

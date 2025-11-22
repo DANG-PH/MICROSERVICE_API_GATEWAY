@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         options: {
           package: ITEM_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/item.proto'),
-          url: "localhost:50053",
+          url: process.env.ITEM_URL,
           loader: {
                 keepCase: true,
                 objects: true,
