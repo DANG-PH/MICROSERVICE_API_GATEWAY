@@ -63,6 +63,7 @@ async function bootstrap() {
   console.log(`🚀 Server đang chạy tại: http://localhost:${process.env.PORT}`);
   console.log(`📘 Swagger tại: http://localhost:${process.env.PORT}/${process.env.ENDPOINT_SWAGGER}`);
   console.log(`📘 Jeager tracing tại: http://localhost:${process.env.JAEGER_PORT}`);
+  console.log(`📘 RabbitMQ ADMIN tại: http://localhost:${process.env.RABBIT_ADMIN_PORT}`);
 }
 bootstrap();
 

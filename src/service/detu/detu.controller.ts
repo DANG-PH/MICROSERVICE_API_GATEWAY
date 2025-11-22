@@ -66,6 +66,6 @@ export class DeTuController {
   @ApiOperation({ summary: 'User lấy đệ tử của bản thân (USER)(GAME) (CHƯA DÙNG)' })
   async getDeTu(@Req() req: any) {
     const userId = req.user.userId;
-    return this.deTuService.handleGetDeTu(userId);
+    return this.deTuService.handleGetDeTu({userId: userId});
   }
 }
