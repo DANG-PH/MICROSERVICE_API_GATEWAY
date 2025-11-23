@@ -216,4 +216,14 @@ export class UserController {
   async getTop10Vang(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10Vang(query);
   }
+
+  @Get('heart-beat')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'User gọi hàm này liên tục để check online ( cách thay thế cho websocket ) (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  async heartBeat() {;
+    return {
+      success: true
+    };
+  }
 }
