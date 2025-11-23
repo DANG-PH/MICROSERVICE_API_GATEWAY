@@ -30,7 +30,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "haidang"
+      MYSQL_ROOT_PASSWORD: "Phamhaidang112@"
     volumes:
       - ./configAdmin.sql:/docker-entrypoint-initdb.d/configAdmin.sql
 
