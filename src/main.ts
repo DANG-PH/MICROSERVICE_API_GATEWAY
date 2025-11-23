@@ -11,12 +11,23 @@ import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
 import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
+import { bold, green, cyan } from 'chalk';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Bật Helmet bảo mật header HTTP
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true, // cấu hình mặc định CSP
+        directives: { // Custom lại các rule (tránh chặn hình ảnh).
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          "img-src": ["'self'", "data:", "https:", "http:"],
+        },
+      },
+    }),
+  );
 
   // Bật CORS cho phép frontend gọi API
   app.enableCors({
@@ -60,12 +71,7 @@ async function bootstrap() {
   });
 
   await app.listen(Number(process.env.PORT));
-  console.log(`🚀 Server đang chạy tại: http://localhost:${process.env.PORT}`);
-  console.log(`📘 Swagger tại: http://localhost:${process.env.PORT}/${process.env.ENDPOINT_SWAGGER}`);
-  console.log(`📘 Jeager tracing tại: http://localhost:${process.env.JAEGER_PORT}`);
-  console.log(`📘 RabbitMQ ADMIN tại: http://localhost:${process.env.RABBIT_ADMIN_PORT}`);
-  console.log(`📘 Redisinsight tại: http://localhost:${process.env.REDISINSIGHT_PORT}`);
-  console.log(`📘 Redisinsight swagger tại: http://localhost:${process.env.REDISINSIGHT_PORT}/api/docs#/`);
+  console.log(bold(green(`🚀 Server Dashboard: http://${process.env.SERVER_DASHBOARD_URL}`)));
 }
 bootstrap();
 

@@ -21,6 +21,7 @@ import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { AdminModule } from './service/admin/admin/admin.module';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
+import { ServerModule } from './service/server/server.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptor
     FinanceModule,
     EditorModule,
     PartnerModule,
+    ServerModule
   ],
   controllers: [],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],
