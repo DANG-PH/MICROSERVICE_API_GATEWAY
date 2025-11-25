@@ -1,5 +1,136 @@
 version: '3.8'
 services:
+  admin-service:
+    build:
+      context: ../admin-service
+      dockerfile: Dockerfile
+    container_name: admin-service
+    ports:
+      - "3006:3006"
+      - "50056:50056"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../admin-service/.env
+  
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+      - "50051:50051"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../auth-service/.env
+  detu-service:
+    build:
+      context: ../detu-service
+      dockerfile: Dockerfile
+    container_name: detu-service
+    ports:
+      - "3002:3002"
+      - "50054:50054"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../detu-service/.env
+  email-service:
+    build:
+      context: ../email-service
+      dockerfile: Dockerfile
+    container_name: email-service
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../email-service/.env
+  item-service:
+    build:
+      context: ../item-service
+      dockerfile: Dockerfile
+    container_name: item-service
+    ports:
+      - "3003:3003"
+      - "50053:50053"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../item-service/.env
+  user-service:
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "3004:3004"
+      - "50052:50052"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../user-service/.env
+  
+  api_gateway:
+    build:
+      context: ../api_gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../api_gateway/.env
   redis:
     image: redis
     container_name: redis
@@ -18,8 +149,8 @@ services:
     image: rabbitmq:management
     container_name: rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5674:5672"
+      - "15674:15672"
     environment:
       RABBITMQ_DEFAULT_USER: dang123
       RABBITMQ_DEFAULT_PASS: "haidang"
@@ -66,3 +197,29 @@ services:
       - "14250:14250"
       - "27777:27777"
       - "27778:27778"
+  
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: haidang
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8082:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: haidang
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_BASICAUTH_USERNAME: dang123
+      ME_CONFIG_BASICAUTH_PASSWORD: haidang
+    depends_on:
+      - mongo

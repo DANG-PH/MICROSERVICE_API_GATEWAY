@@ -44,7 +44,7 @@ export class AuthService {
     if (result.sessionId) {
       // gửi mail cho admin để biết ai login
       const username = Buffer.from(result.sessionId, 'base64').toString('ascii');
-      winstonLogger.log({ nhiemVu: 'thongBaoLoginUser', username: username })
+      winstonLogger.log({ message: "Đăng nhập thành công", service: AuthService.name, admin: process.env.ADMIN_TEST,nhiemVu: 'thongBaoLoginUser', username: username, })
     }
     return result;
   }

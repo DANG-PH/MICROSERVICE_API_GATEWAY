@@ -20,8 +20,8 @@ export class JaegerInterceptor implements NestInterceptor {
         sampler: { type: "const", param: 1 },
         reporter: {
             logSpans: true,
-            agentHost: 'localhost',
-            agentPort: 6832,
+            agentHost: process.env.JAEGER_CONNECT_HOST,
+            agentPort: process.env.JAEGER_CONNECT_PORT,
         },
       },
       {},

@@ -1,0 +1,39 @@
+# 🚫 Không copy thư mục node_modules (cực nặng)
+node_modules
+
+# 🚫 Không copy thư mục build / dist
+dist
+
+# 🚫 Thư mục git không cần đưa vào image
+.git
+.gitignore
+
+# 🚫 File log và cache
+*.log
+npm-debug.log
+
+# 🚫 Bỏ Docker config (không cần trong image)
+Dockerfile
+docker-compose.yml
+
+# 🚫 File môi trường - bảo mật!
+.env
+.env.*
+.env.local
+
+# 🚫 IDE editor
+.vscode
+.idea
+
+# 🚫 Các folder test
+coverage
+test
+__tests__
+
+# 🚫 Hình ảnh / tài liệu thừa
+*.md
+*.txt
+*.jpg
+*.png
+*.zip
+*.rar

@@ -159,6 +159,7 @@ export interface UpdateAccountStatusRequest {
 export interface BuyAccountRequest {
   id: number;
   user_id: number;
+  username: string;
 }
 
 export interface GetAllAccountByBuyerRequest {

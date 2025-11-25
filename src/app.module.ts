@@ -43,7 +43,7 @@ import { ServerModule } from './service/server/server.module';
     PartnerModule,
     ServerModule
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],
 })
 export class AppModule implements NestModule {

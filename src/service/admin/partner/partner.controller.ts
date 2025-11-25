@@ -109,8 +109,10 @@ export class PartnerController {
   @ApiBody({ type: BuyAccountRequestDto })
   async buyAccount(@Body() body: BuyAccountRequestDto, @Req() req: any): Promise<AccountInformationResponseDto> {
     const userId = req.user.userId;
+    const username = req.user.username;
     const request = {
       user_id: userId,
+      username: username,
       ...body
     }
     return this.partnerService.handleBuyAccount(request);

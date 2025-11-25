@@ -218,6 +218,7 @@ message UpdateAccountStatusRequest {
 message BuyAccountRequest {
   int32 id = 1;
   int32 user_id = 2;
+  string username = 3;
 }
 
 message GetAllAccountByBuyerRequest {

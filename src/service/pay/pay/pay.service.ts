@@ -48,7 +48,7 @@ export class PayService {
   async getQr(req: CreatePayOrderRequest): Promise<QrResponse> {
     const result = await grpcCall(PayService.name,this.payGrpcService.createPayOrder(req));
     if (result.qr) {
-        winstonLogger.log({ nhiemVu: 'thongBaoNapTien', username: result.username })
+        winstonLogger.log({message: "Tạo QR thành công", service: PayService.name, admin: process.env.ADMIN_TEST, nhiemVu: 'thongBaoNapTien', username: result.username })
     }
     return result;
   }
