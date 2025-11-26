@@ -22,6 +22,7 @@ import { AdminModule } from './service/admin/admin/admin.module';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 import { ServerModule } from './service/server/server.module';
+import { OpenaiModule } from './service/open-ai/openai.module';
 
 @Module({
   imports: [
@@ -41,7 +42,8 @@ import { ServerModule } from './service/server/server.module';
     FinanceModule,
     EditorModule,
     PartnerModule,
-    ServerModule
+    ServerModule,
+    OpenaiModule
   ],
   controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],
