@@ -3,9 +3,9 @@ import { OpenaiService } from './openai.service';
 import { Controller, UseGuards, Get, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
 
-@Controller('user')
-@ApiTags('Api User') 
-export class UserController {
+@Controller('ai')
+@ApiTags('Api Open AI') 
+export class OpenAIController {
   constructor(private readonly openAIService: OpenaiService) {}
 
   @Get('ask') 
