@@ -16,7 +16,9 @@ export class OpenaiService {
       ],
     });
 
-    return response.choices[0].message.content;
+    return { 
+      message: response.choices[0].message.content
+    };
   }
 }
 
