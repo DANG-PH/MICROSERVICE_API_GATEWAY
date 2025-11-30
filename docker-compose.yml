@@ -1,136 +1,241 @@
 version: '3.8'
 services:
-  # admin-service:
-  #   build:
-  #     context: ../admin-service
-  #     dockerfile: Dockerfile
-  #   container_name: admin-service
-  #   ports:
-  #     - "3006:3006"
-  #     - "50056:50056"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../admin-service/.env.production.local
+  admin-service:
+    build:
+      context: ../admin-service
+      dockerfile: Dockerfile
+    container_name: admin-service
+    ports:
+      - "3006:3006"
+      - "50056:50056"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+      - postgres
+      - pgadmin
+    restart: always
+    env_file:
+      - ../admin-service/.env.production.local
   
-  # auth-service:
-  #   build:
-  #     context: ../auth-service
-  #     dockerfile: Dockerfile
-  #   container_name: auth-service
-  #   ports:
-  #     - "3001:3001"
-  #     - "50051:50051"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../auth-service/.env.production.local
-  # detu-service:
-  #   build:
-  #     context: ../detu-service
-  #     dockerfile: Dockerfile
-  #   container_name: detu-service
-  #   ports:
-  #     - "3002:3002"
-  #     - "50054:50054"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../detu-service/.env.production.local
-  # email-service:
-  #   build:
-  #     context: ../email-service
-  #     dockerfile: Dockerfile
-  #   container_name: email-service
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../email-service/.env.production.local
-  # item-service:
-  #   build:
-  #     context: ../item-service
-  #     dockerfile: Dockerfile
-  #   container_name: item-service
-  #   ports:
-  #     - "3003:3003"
-  #     - "50053:50053"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../item-service/.env.production.local
-  # user-service:
-  #   build:
-  #     context: ../user-service
-  #     dockerfile: Dockerfile
-  #   container_name: user-service
-  #   ports:
-  #     - "3004:3004"
-  #     - "50052:50052"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../user-service/.env.production.local
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "3001:3001"
+      - "50051:50051"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../auth-service/.env.production.local
+  detu-service:
+    build:
+      context: ../detu-service
+      dockerfile: Dockerfile
+    container_name: detu-service
+    ports:
+      - "3002:3002"
+      - "50054:50054"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../detu-service/.env.production.local
+  email-service:
+    build:
+      context: ../email-service
+      dockerfile: Dockerfile
+    container_name: email-service
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../email-service/.env.production.local
+  item-service:
+    build:
+      context: ../item-service
+      dockerfile: Dockerfile
+    container_name: item-service
+    ports:
+      - "3003:3003"
+      - "50053:50053"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../item-service/.env.production.local
+  user-service:
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    ports:
+      - "3004:3004"
+      - "50052:50052"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../user-service/.env.production.local
   
-  # api_gateway:
-  #   build:
-  #     context: ../api_gateway
-  #     dockerfile: Dockerfile
-  #   container_name: api_gateway
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - redis
-  #     - redisinsight
-  #     - jaeger
-  #     - rabbitmq
-  #     - mysql-nro
-  #     - phpmyadmin
-  #     - adminer
-  #   restart: always
-  #   env_file:
-  #     - ../api_gateway/.env.production.local
+  api_gateway:
+    build:
+      context: ../api_gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../api_gateway/.env.production.local
+
+  admin-service-1:
+    image: api_gateway-admin-service:latest
+    container_name: admin-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+      - postgres
+      - pgadmin
+    restart: always
+    env_file:
+      - ../admin-service/.env.local
+  
+  auth-service-1:
+    image: api_gateway-auth-service:latest
+    container_name: auth-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../auth-service/.env.local
+  detu-service-1:
+    image: api_gateway-detu-service:latest
+    container_name: detu-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../detu-service/.env.local
+  email-service-1:
+    image: api_gateway-email-service:latest
+    container_name: email-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../email-service/.env.production.local
+  item-service-1:
+    image: api_gateway-item-service:latest
+    container_name: item-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../item-service/.env.local
+  user-service-1:
+    image: api_gateway-user-service:latest
+    container_name: user-service-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../user-service/.env.local
+  
+  api_gateway-1:
+    image: api_gateway-api_gateway:latest
+    container_name: api_gateway-1
+    depends_on:
+      - redis
+      - redisinsight
+      - jaeger
+      - rabbitmq
+      - mysql-nro
+      - phpmyadmin
+      - adminer
+    restart: always
+    env_file:
+      - ../api_gateway/.env.local
   redis:
     image: redis
     container_name: redis
@@ -223,3 +328,43 @@ services:
       ME_CONFIG_BASICAUTH_PASSWORD: haidang
     depends_on:
       - mongo
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: haidang
+      POSTGRES_DB: admin_db
+    ports:
+      - "5432:5432"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dangph.ptit@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: haidang
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: always
+    ports:
+      - "2006:80"
+    # depends_on:
+    #   - api_gateway
+
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared
+  #   restart: always
+  #   command: tunnel --no-autoupdate run myserver2006
+  #   environment:
+  #     - TUNNEL_TOKEN=<YOUR_TUNNEL_TOKEN> # token lấy từ Cloudflare
+  #   depends_on:
+  #     - nginx

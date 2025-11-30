@@ -32,7 +32,7 @@ export function parseGrpcError(err: any) {
   }
 }
 
-export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable<T>, useLastValue = false,): Promise<T> {
+export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable<T>, useLastValue = false, metadata?): Promise<T> {
   const wrapped = obs.pipe(
     catchError(err => {
       const parsed = parseGrpcError(err);

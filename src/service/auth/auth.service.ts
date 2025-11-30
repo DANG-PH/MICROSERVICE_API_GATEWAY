@@ -21,6 +21,7 @@ import {
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class AuthService {
@@ -39,8 +40,8 @@ export class AuthService {
     return grpcCall(AuthService.name,this.authGrpcService.register(req));
   }
 
-  async handleLogin(req: LoginRequest) {
-    const result = await grpcCall(AuthService.name,this.authGrpcService.login(req), true);
+  async handleLogin(req: LoginRequest, metadata: Metadata) {
+    const result = await grpcCall(AuthService.name,this.authGrpcService.login(req, metadata), true);
     if (result.sessionId) {
       // gửi mail cho admin để biết ai login
       const username = Buffer.from(result.sessionId, 'base64').toString('ascii');

@@ -25,6 +25,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Request } from 'express';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import type { RequestWithUser } from 'src/interface/RequestWithUser.interface';
+import { Metadata } from '@grpc/grpc-js';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -39,7 +40,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng ký tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG) ' })
   @ApiBody({ type:  RegisterRequest })
   async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
-     const ip = req.headers['x-forwarded-for'] || req.ip;
+    const ip = req.headers['x-forwarded-for'] || req.ip;
     const key = `register_rate_limit_${ip}`;
     const limit = 10;  // 10 lần
     const ttl = 60;   // trong 60 giây
@@ -60,14 +61,11 @@ export class AuthController {
     if (!authResult.success) {
       return { success: false, message: 'Đăng ký auth thất bại' };
     }
-    console.log(authResult)
     const userRequest = {
       id: authResult.auth_id, 
     };
 
     const userResult = await this.userService.handleRegister(userRequest);
-
-    console.log(userRequest)
 
     return {
       auth: authResult,
@@ -78,8 +76,8 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: 'Đăng nhập tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  LoginRequest })
-  async login(@Body() body: LoginRequest, @Req() req: Request) {
-    const ip = req.ip;
+  async login(@Body() body: LoginRequest, @Req() req: RequestWithUser) {
+    const ip = req.headers['x-forwarded-for'] || req.ip
     const key = `login_rate_limit_${ip}`;
     const limit = 6;  // 6 lần
     const ttl = 60;   // trong 60 giây
@@ -95,8 +93,16 @@ export class AuthController {
     }
 
     await this.cacheManager.set(key, count, ttl * 1000);
-    
-    return this.authService.handleLogin(body);
+
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+
+    return this.authService.handleLogin(body, metadata);
   }
   
   @Post('verify-otp')

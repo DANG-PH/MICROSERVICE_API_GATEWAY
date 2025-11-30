@@ -11,6 +11,9 @@ export class OnlineInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> {
     const req = context.switchToHttp().getRequest();
     const username = req.user?.username; // đây là lí do đặt ở interceptor, vì cái này chạy sau guard nên có user từ token
+
+    const platform = this.detectPlatform(req);
+
     if (username) {
         const updateOnline = async () => {
           //Ver1
@@ -23,7 +26,7 @@ export class OnlineInterceptor implements NestInterceptor {
 
           //Ver2
           // console.log(req.ip);
-          await this.cacheManager.set(`online:${username}`, req.ip, 60 * 1000);
+          await this.cacheManager.set(`online:${username}:${platform}`, req.headers['x-forwarded-for'] || req.ip, 60 * 1000);
         };
         updateOnline()
         // from(updateOnline()).subscribe(); 
@@ -33,5 +36,12 @@ export class OnlineInterceptor implements NestInterceptor {
         */
     }
     return next.handle();
+  }
+
+  private detectPlatform(req: any): 'web' | 'mobile' | 'game' {
+    const ua = req.headers?.['user-agent'];
+    if (ua && /mobile|android|iphone/i.test(ua)) return 'mobile';
+    if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) return 'web';
+    return 'game';  // fallback nếu là socket/gRPC/WebSocket
   }
 }
