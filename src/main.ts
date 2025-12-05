@@ -89,3 +89,26 @@ bootstrap();
 // [Controller -> Service]
 //        ▼
 // Client nhận Response
+
+
+//
+
+// >>> Request in >>>
+
+// [ Express middleware @ main.ts ]
+//         ↓
+// [ Nest Router Handler ]   <— ROUTE MATCH HAPPENS HERE, ở tầng express layer
+//         ↓
+// [ Nest middleware ]
+//         ↓
+// [ Guards ]
+//         ↓
+// [ Interceptors (before) ]
+//         ↓
+// [ Controller Handler ]
+//         ↓
+// [ Interceptors (after) ]
+//         ↓
+// [ Filters ]
+//         ↓
+// <<< Response out <<<

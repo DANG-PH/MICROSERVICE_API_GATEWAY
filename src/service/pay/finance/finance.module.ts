@@ -29,6 +29,7 @@ import { UserModule } from 'src/service/user/user.module';
     UserModule,
   ],
   controllers: [FinanceController],
-  providers: [FinanceService,JwtStrategy,RolesGuard]
+  providers: [FinanceService,JwtStrategy,RolesGuard],
+  exports: [FinanceService]
 })
 export class FinanceModule {}

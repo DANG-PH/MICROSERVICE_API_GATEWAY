@@ -7,9 +7,10 @@ import { UserModule } from 'src/service/user/user.module';
 import { ItemModule } from 'src/service/item/item.module';
 import { DeTuModule } from 'src/service/detu/detu.module';
 import { PayModule } from 'src/service/pay/pay/pay.module';
+import { FinanceModule } from 'src/service/pay/finance/finance.module';
 
 @Module({
-  imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule],
+  imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule, FinanceModule],
   controllers: [PlayerManagerController],
   providers: [JwtStrategy,RolesGuard]
 })

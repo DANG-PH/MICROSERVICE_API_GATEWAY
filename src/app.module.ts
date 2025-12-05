@@ -23,9 +23,11 @@ import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 import { ServerModule } from './service/server/server.module';
 import { OpenaiModule } from './service/open-ai/openai.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,           
       envFilePath: '.env',     
