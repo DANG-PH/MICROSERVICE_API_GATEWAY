@@ -38,7 +38,7 @@ export class CashierController {
   @ApiOperation({ summary: 'Người dùng xem lịch sử rút tiền của bản thân (USER)(WEB) (CHƯA DÙNG)' })
   async getWithdrawsByUser(@Req() req: any): Promise<ListWithdrawResponseDto> {
     const userId = req.user.userId;
-    return this.cashierService.handleGetWithdrawsByUser(userId);
+    return this.cashierService.handleGetWithdrawsByUser({user_id: userId});
   }
 
   @Get('all-withdraw')
