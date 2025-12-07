@@ -50,20 +50,20 @@ export class AuthService {
     return result;
   }
 
-  async handleVerifyOtp(req: VerifyOtpRequest) {
-    return grpcCall(AuthService.name,this.authGrpcService.verifyOtp(req), true);
+  async handleVerifyOtp(req: VerifyOtpRequest, metadata: Metadata) {
+    return grpcCall(AuthService.name,this.authGrpcService.verifyOtp(req, metadata), true);
   }
 
-  async handleRefresh(req: RefreshRequest) {
-    return grpcCall(AuthService.name,this.authGrpcService.refresh(req));
+  async handleRefresh(req: RefreshRequest, metadata: Metadata) {
+    return grpcCall(AuthService.name,this.authGrpcService.refresh(req, metadata));
   }
 
-  async handleChangePassword(req: ChangePasswordRequest) {
-    return grpcCall(AuthService.name,this.authGrpcService.changePassword(req));
+  async handleChangePassword(req: ChangePasswordRequest, metadata: Metadata) {
+    return grpcCall(AuthService.name,this.authGrpcService.changePassword(req, metadata));
   }
 
-  async handleResetPassword(req: ResetPasswordRequest) {
-    return grpcCall(AuthService.name,this.authGrpcService.resetPassword(req));
+  async handleResetPassword(req: ResetPasswordRequest, metadata: Metadata) {
+    return grpcCall(AuthService.name,this.authGrpcService.resetPassword(req, metadata));
   }
 
   async handleChangeEmail(req: ChangeEmailRequest) {

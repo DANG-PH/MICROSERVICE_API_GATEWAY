@@ -5,6 +5,7 @@ import type { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { UnauthorizedException } from '@nestjs/common';
 import { Request } from 'express';
+import { Metadata } from '@grpc/grpc-js';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
@@ -19,7 +20,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
 
   async validate(req: Request, payload: any) {
     const tokenFromHeader = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-    const accessTokenInRedis = await this.cacheManager.get(`ACCESS:${payload.username}`);
+
+    const ua = req.headers?.['user-agent'];;
+
+    let metadata;
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata = "app";
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata = "web";
+    else metadata = "game"; // fallback
+
+    const accessTokenInRedis = await this.cacheManager.get(`ACCESS:${payload.username}:${metadata}`);
 
     console.log(tokenFromHeader);
     console.log(accessTokenInRedis)

@@ -108,8 +108,17 @@ export class AuthController {
   @Post('verify-otp')
   @ApiOperation({ summary: 'Bước 2: Xác thực OTP và nhận access + refresh token (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: VerifyOtpRequestDto })
-  async verifyOtp(@Body() body: VerifyOtpRequestDto) {
-    const result = await this.authService.handleVerifyOtp(body);
+  async verifyOtp(@Body() body: VerifyOtpRequestDto, @Req() req: RequestWithUser) {
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+
+    const result = await this.authService.handleVerifyOtp(body, metadata);
+
     if (result.access_token) {
         const username = Buffer.from(body.sessionId, 'base64').toString('ascii');
         let onlineUsers = await this.cacheManager.get<string[]>('online_users') || [];
@@ -125,8 +134,16 @@ export class AuthController {
   @Post('refresh')
   @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token (USER)(GAME/WEB) (CHƯA DÙNG)' })
   @ApiBody({ type: RefreshRequest })
-  async refresh(@Body() body: RefreshRequest) {
-    return this.authService.handleRefresh(body);
+  async refresh(@Body() body: RefreshRequest, @Req() req: any) {
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+
+    return this.authService.handleRefresh(body, metadata);
   }
 
   @Patch('change-password')
@@ -140,7 +157,14 @@ export class AuthController {
       ...body,
       sessionId: Buffer.from(username).toString('base64')
     }
-    return this.authService.handleChangePassword(request);
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+    return this.authService.handleChangePassword(request, metadata);
   }
 
   @Patch('change-email')
@@ -169,8 +193,15 @@ export class AuthController {
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset mật khẩu khi quên (USER)(WEB) (CHƯA DÙNG)' })
   @ApiBody({ type: ResetPasswordRequestDto })
-  async resetPassword(@Body() body: ResetPasswordRequestDto): Promise<ResetPasswordResponseDto> {
-    return this.authService.handleResetPassword(body);
+  async resetPassword(@Body() body: ResetPasswordRequestDto, @Req() req: any): Promise<ResetPasswordResponseDto> {
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+    return this.authService.handleResetPassword(body, metadata);
   }
 
   @Patch('change-role-partner')
