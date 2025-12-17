@@ -13,7 +13,9 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   UnbanUserRequestDto,
   UnbanUserResponseDto,RequestResetPasswordRequestDto, RequestResetPasswordResponseDto, 
   ChangeRolePartnerRequestDto,
-  ChangeRolePartnerResponseDto} from 'dto/auth.dto';
+  ChangeRolePartnerResponseDto,
+  ChangeAvatarRequestDto,
+  ChangeAvatarResponseDto} from 'dto/auth.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { Roles } from 'src/security/decorators/role.decorator';
@@ -179,6 +181,20 @@ export class AuthController {
       sessionId: Buffer.from(username).toString('base64')
     }
     return this.authService.handleChangeEmail(request);
+  }
+
+  @Patch('change-avatar')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Thay đổi avatar (USER)(WEB) (CHƯA DÙNG)' })
+  @ApiBody({ type: ChangeAvatarRequestDto })
+  async changeAvatar(@Body() body: ChangeAvatarRequestDto, @Req() req: any): Promise<ChangeAvatarResponseDto> {
+    const userId = req.user.userId;
+    const request = {
+      ...body,
+      userId: userId
+    }
+    return this.authService.handleChangeAvatar(request);
   }
 
   @Post('request-reset-password')

@@ -18,6 +18,23 @@ import {
   ChangeRolePartnerRequest,
   GetProfileRequest,
   SendEmailToUserRequest,
+  AddFriendRequest,
+  AddFriendResponse,
+  GetSentFriendRequest,
+  GetSentFriendResponse,
+  GetIncomingFriendRequest,
+  GetIncomingFriendResponse,
+  AcceptFriendRequest,
+  AcceptFriendResponse,
+  RejectFriendRequest,
+  RejectFriendResponse,
+  GetAllFriendRequest,
+  GetAllFriendResponse,
+  UnfriendRequest,
+  UnfriendResponse,
+  BlockUserRequest,
+  BlockUserResponse,
+  ChangeAvatarRequest,
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
@@ -70,6 +87,10 @@ export class AuthService {
     return grpcCall(AuthService.name,this.authGrpcService.changeEmail(req));
   }
 
+  async handleChangeAvatar(req: ChangeAvatarRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.changeAvatar(req));
+  }
+
   async handleChangeRole(req: ChangeRoleRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.changeRole(req));
   }
@@ -96,5 +117,37 @@ export class AuthService {
 
   async handleSendEmailToUser(req: SendEmailToUserRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.sendEmailToUser(req));
+  }
+
+  async handleAddFriend(req: AddFriendRequest): Promise<AddFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.addFriend(req))
+  }
+
+  async handleGetSendFriend(req: GetSentFriendRequest): Promise<GetSentFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.getSentFriend(req))
+  }
+
+  async handleGetIncomingFriend(req: GetIncomingFriendRequest): Promise<GetIncomingFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.getIncomingFriend(req))
+  }
+
+  async handleAcceptFriend(req: AcceptFriendRequest): Promise<AcceptFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.acceptFriend(req))
+  }
+
+  async handleRejectFriend(req: RejectFriendRequest): Promise<RejectFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.rejectFriend(req))
+  }
+
+  async handleGetAllFriend(req: GetAllFriendRequest): Promise<GetAllFriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.getAllFriend(req))
+  }
+
+  async handleUnfriend(req: UnfriendRequest): Promise<UnfriendResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.unfriend(req))
+  }
+
+  async handleBlockUser(req: BlockUserRequest): Promise<BlockUserResponse> {
+    return grpcCall(AuthService.name, this.authGrpcService.blockUser(req))
   }
 }

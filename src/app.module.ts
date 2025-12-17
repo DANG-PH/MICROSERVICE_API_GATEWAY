@@ -24,6 +24,7 @@ import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptor
 import { ServerModule } from './service/server/server.module';
 import { OpenaiModule } from './service/open-ai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { SocialNetworkModule } from './service/social_network/social_network.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     }),
     AuthModule,
     UserModule,
+    SocialNetworkModule,
     ItemModule,
     DeTuModule,
     RedisModule,

@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength, Length } from 'class-validator';
+import { AcceptFriendResponse, FriendStatus } from 'proto/auth.pb';
+import { IsEnum, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // ===== REGISTER =====
 export class RegisterRequest {
@@ -184,6 +187,18 @@ export class ChangeEmailResponseDto {
   success: boolean;
 }
 
+export class ChangeAvatarRequestDto {
+  @ApiProperty({ example: 'https://avatarfiles.alphacoders.com/227/thumb-1920-227760.png', description: 'Avatar mới' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+}
+
+export class ChangeAvatarResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
 // ===== ADMIN METHODS =====
 
 // Change Role
@@ -265,6 +280,11 @@ export class GetProfileReponseDto {
 
   @ApiProperty({ example: 'true' })
   biBan: boolean;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
 }
 
 export class SendEmailToUserRequestDto {
@@ -288,3 +308,143 @@ export class SendemailToUserResponseDto {
   @ApiProperty({ example: true, description: 'Trạng thái gửi email' })
   success: boolean;
 }
+
+// FriendShip
+
+export class RelationFriendInfoDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  relationId: number;
+
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  friendId: number;
+
+  @ApiProperty({ example: 'Hải Đăng' })
+  @IsString()
+  @IsNotEmpty()
+  friendRealname: string;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+
+  @ApiProperty({ enum: FriendStatus, example: FriendStatus.PENDING })
+  @IsEnum(FriendStatus)
+  status: FriendStatus;
+
+  @ApiProperty({ example: '2025-01-01T10:00:00Z' })
+  @IsString()
+  create_at: string;
+}
+
+export class FriendInfoDto {
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  friendId: number;
+
+  @ApiProperty({ example: 'Hải Đăng' })
+  @IsString()
+  @IsNotEmpty()
+  friendRealname: string;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+
+  @ApiProperty({ enum: FriendStatus, example: FriendStatus.ACCEPTED })
+  @IsEnum(FriendStatus)
+  status: FriendStatus;
+}
+
+
+export class AddFriendRequestDto {
+  @ApiProperty({ example: 2, description: 'ID người muốn kết bạn' })
+  @IsInt()
+  friendId: number;
+}
+
+export class AddFriendResponseDto {
+  @ApiProperty({ example: 10 })
+  relationId: number;
+
+  @ApiProperty({ example: 1 })
+  userId: number;
+
+  @ApiProperty({ example: 2 })
+  friendId: number;
+
+  @ApiProperty({ enum: FriendStatus })
+  status: FriendStatus;
+
+  @ApiProperty({ example: '2025-01-01T10:00:00Z' })
+  create_at: string;
+}
+
+export class GetSentFriendRequestDto {}
+
+export class GetSentFriendResponseDto {
+  @ApiProperty({ type: [RelationFriendInfoDto] })
+  relationFriendInfo: RelationFriendInfoDto[];
+}
+
+export class GetIncomingFriendRequestDto {}
+
+export class GetIncomingFriendResponseDto {
+  @ApiProperty({ type: [RelationFriendInfoDto] })
+  relationFriendInfo: RelationFriendInfoDto[];
+}
+
+export class AcceptFriendRequestDto {
+  @ApiProperty({ example: 10, description: 'ID của quan hệ friend' })
+  @IsInt()
+  relationId: number;
+}
+
+export class AcceptFriendResponseDto {
+  @ApiProperty({ type: RelationFriendInfoDto })  
+  relationFriendInfo?: RelationFriendInfoDto;
+}
+
+export class RejectFriendRequestDto {
+  @ApiProperty({ example: 10, description: 'ID của quan hệ friend' })
+  @IsInt()
+  relationId: number;
+}
+
+export class RejectFriendResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+export class GetAllFriendRequestDto {}
+
+export class GetAllFriendResponseDto {
+  @ApiProperty({ type: [FriendInfoDto] })
+  friendInfo: FriendInfoDto[];
+}
+
+export class UnfriendRequestDto {
+  @ApiProperty({ example: 2, description: 'ID của người bạn cần xoá' })
+  @IsInt()
+  friendId: number;
+}
+
+export class UnfriendResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+export class BlockUserRequestDto {
+  @ApiProperty({ example: 2, description: 'ID của user cần block' })
+  @IsInt()
+  friendId: number;
+}
+
+export class BlockUserResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+

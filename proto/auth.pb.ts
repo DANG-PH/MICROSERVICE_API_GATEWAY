@@ -11,6 +11,13 @@ import { Observable } from "rxjs";
 
 export const protobufPackage = "auth";
 
+export enum FriendStatus {
+  PENDING = 0,
+  ACCEPTED = 1,
+  BLOCKED = 2,
+  UNRECOGNIZED = -1,
+}
+
 /** --- Register/Login/OTP/Refresh  --- */
 export interface RegisterRequest {
   username: string;
@@ -143,6 +150,7 @@ export interface GetProfileRequest {
 export interface GetProfileReponse {
   role: string;
   biBan: boolean;
+  avatarUrl: string;
 }
 
 export interface SendEmailToUserRequest {
@@ -152,6 +160,102 @@ export interface SendEmailToUserRequest {
 }
 
 export interface SendemailToUserResponse {
+  success: boolean;
+}
+
+export interface ChangeAvatarRequest {
+  userId: number;
+  avatarUrl: string;
+}
+
+export interface ChangeAvatarResponse {
+  success: boolean;
+}
+
+export interface RelationFriendInfo {
+  relationId: number;
+  friendId: number;
+  friendRealname: string;
+  avatarUrl: string;
+  status: FriendStatus;
+  create_at: string;
+}
+
+export interface FriendInfo {
+  friendId: number;
+  friendRealname: string;
+  avatarUrl: string;
+  status: FriendStatus;
+}
+
+export interface AddFriendRequest {
+  userId: number;
+  friendId: number;
+}
+
+export interface AddFriendResponse {
+  relationId: number;
+  userId: number;
+  friendId: number;
+  status: FriendStatus;
+  create_at: string;
+}
+
+export interface GetSentFriendRequest {
+  userId: number;
+}
+
+export interface GetSentFriendResponse {
+  relationFriendInfo: RelationFriendInfo[];
+}
+
+export interface GetIncomingFriendRequest {
+  userId: number;
+}
+
+export interface GetIncomingFriendResponse {
+  relationFriendInfo: RelationFriendInfo[];
+}
+
+export interface AcceptFriendRequest {
+  relationId: number;
+}
+
+export interface AcceptFriendResponse {
+  relationFriendInfo: RelationFriendInfo | undefined;
+}
+
+export interface RejectFriendRequest {
+  relationId: number;
+}
+
+export interface RejectFriendResponse {
+  success: boolean;
+}
+
+export interface GetAllFriendRequest {
+  userId: number;
+}
+
+export interface GetAllFriendResponse {
+  friendInfo: FriendInfo[];
+}
+
+export interface UnfriendRequest {
+  userId: number;
+  friendId: number;
+}
+
+export interface UnfriendResponse {
+  success: boolean;
+}
+
+export interface BlockUserRequest {
+  userId: number;
+  friendId: number;
+}
+
+export interface BlockUserResponse {
   success: boolean;
 }
 
@@ -187,6 +291,8 @@ export interface AuthServiceClient {
 
   getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
 
+  changeAvatar(request: ChangeAvatarRequest, metadata?: Metadata): Observable<ChangeAvatarResponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -200,6 +306,38 @@ export interface AuthServiceClient {
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
   checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
+
+  /** Gửi lời mời kết bạn ( Người gửi ) */
+
+  addFriend(request: AddFriendRequest, metadata?: Metadata): Observable<AddFriendResponse>;
+
+  /** Xem tất cả lời mời kết bạn mà bản thân đã gửi ( Người gửi ) */
+
+  getSentFriend(request: GetSentFriendRequest, metadata?: Metadata): Observable<GetSentFriendResponse>;
+
+  /** Xem tất cả lời mời kết bạn của bản thân để accept ( Người nhận ) */
+
+  getIncomingFriend(request: GetIncomingFriendRequest, metadata?: Metadata): Observable<GetIncomingFriendResponse>;
+
+  /** Chấp nhận yêu cầu kết bạn ( Người nhận ) */
+
+  acceptFriend(request: AcceptFriendRequest, metadata?: Metadata): Observable<AcceptFriendResponse>;
+
+  /** Hủy yêu cầu kết bạn ( chỉ áp dụng khi pending ) ( xóa record ) ( Người nhận ) */
+
+  rejectFriend(request: RejectFriendRequest, metadata?: Metadata): Observable<RejectFriendResponse>;
+
+  /** Lấy danh sách bạn bè của bản thân */
+
+  getAllFriend(request: GetAllFriendRequest, metadata?: Metadata): Observable<GetAllFriendResponse>;
+
+  /** Xóa 1 bạn bè nhất định ( xóa record ) */
+
+  unfriend(request: UnfriendRequest, metadata?: Metadata): Observable<UnfriendResponse>;
+
+  /** Chặn bạn bè bất kì ( Blocking User ) */
+
+  blockUser(request: BlockUserRequest, metadata?: Metadata): Observable<BlockUserResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -232,6 +370,8 @@ export interface AuthServiceController {
 
   getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
 
+  changeAvatar(request: ChangeAvatarRequest, metadata?: Metadata): Observable<ChangeAvatarResponse>;
+
   /** admin actions */
 
   changeRole(request: ChangeRoleRequest, metadata?: Metadata): Observable<ChangeRoleResponse>;
@@ -245,6 +385,38 @@ export interface AuthServiceController {
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
   checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
+
+  /** Gửi lời mời kết bạn ( Người gửi ) */
+
+  addFriend(request: AddFriendRequest, metadata?: Metadata): Observable<AddFriendResponse>;
+
+  /** Xem tất cả lời mời kết bạn mà bản thân đã gửi ( Người gửi ) */
+
+  getSentFriend(request: GetSentFriendRequest, metadata?: Metadata): Observable<GetSentFriendResponse>;
+
+  /** Xem tất cả lời mời kết bạn của bản thân để accept ( Người nhận ) */
+
+  getIncomingFriend(request: GetIncomingFriendRequest, metadata?: Metadata): Observable<GetIncomingFriendResponse>;
+
+  /** Chấp nhận yêu cầu kết bạn ( Người nhận ) */
+
+  acceptFriend(request: AcceptFriendRequest, metadata?: Metadata): Observable<AcceptFriendResponse>;
+
+  /** Hủy yêu cầu kết bạn ( chỉ áp dụng khi pending ) ( xóa record ) ( Người nhận ) */
+
+  rejectFriend(request: RejectFriendRequest, metadata?: Metadata): Observable<RejectFriendResponse>;
+
+  /** Lấy danh sách bạn bè của bản thân */
+
+  getAllFriend(request: GetAllFriendRequest, metadata?: Metadata): Observable<GetAllFriendResponse>;
+
+  /** Xóa 1 bạn bè nhất định ( xóa record ) */
+
+  unfriend(request: UnfriendRequest, metadata?: Metadata): Observable<UnfriendResponse>;
+
+  /** Chặn bạn bè bất kì ( Blocking User ) */
+
+  blockUser(request: BlockUserRequest, metadata?: Metadata): Observable<BlockUserResponse>;
 }
 
 export function AuthServiceControllerMethods() {
@@ -261,11 +433,20 @@ export function AuthServiceControllerMethods() {
       "changeRolePartner",
       "getEmailUser",
       "getProfile",
+      "changeAvatar",
       "changeRole",
       "banUser",
       "unbanUser",
       "sendEmailToUser",
       "checkAccount",
+      "addFriend",
+      "getSentFriend",
+      "getIncomingFriend",
+      "acceptFriend",
+      "rejectFriend",
+      "getAllFriend",
+      "unfriend",
+      "blockUser",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
