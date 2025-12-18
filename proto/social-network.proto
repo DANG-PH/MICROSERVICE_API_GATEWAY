@@ -1,0 +1,169 @@
+syntax = "proto3";
+
+package socialnetwork;
+
+// ===== SERVICE DEFINITION =====
+service SocialNetworkService {
+  // Gửi lời mời kết bạn ( Người gửi )
+  rpc AddFriend(AddFriendRequest) returns (AddFriendResponse) {};
+
+  // Xem tất cả lời mời kết bạn mà bản thân đã gửi ( Người gửi )
+  rpc GetSentFriend(GetSentFriendRequest) returns (GetSentFriendResponse) {};
+
+  // Xem tất cả lời mời kết bạn của bản thân để accept ( Người nhận )
+  rpc GetIncomingFriend(GetIncomingFriendRequest) returns (GetIncomingFriendResponse) {};
+
+  // Chấp nhận yêu cầu kết bạn ( Người nhận )
+  rpc AcceptFriend(AcceptFriendRequest) returns (AcceptFriendResponse) {};
+
+  // Hủy yêu cầu kết bạn ( chỉ áp dụng khi pending ) ( xóa record ) ( Người nhận )
+  rpc RejectFriend(RejectFriendRequest) returns (RejectFriendResponse) {};
+
+  // Lấy danh sách bạn bè của bản thân
+  rpc GetAllFriend(GetAllFriendRequest) returns (GetAllFriendResponse) {};
+
+  // Xóa 1 bạn bè nhất định ( xóa record )
+  rpc Unfriend(UnfriendRequest) returns (UnfriendResponse) {};
+
+  // Chặn bạn bè bất kì ( Blocking User )
+  rpc BlockUser(BlockUserRequest) returns (BlockUserResponse) {};
+
+  // Xem bạn và 1 user bất kì có phải bạn bè hay không
+  rpc CanChat(CanChatRequest) returns (CanChatResponse) {};
+
+  // Lưu tin nhắn chat giữa 2 người
+  rpc SaveMessage(SaveMessageRequest) returns (SaveMessageResponse) {};
+
+  // Lấy lịch sử nhắn tin của 2 người
+  rpc GetMessage(GetMessageRequest) returns (GetMessageResponse) {};
+}
+
+// ===== MESSAGES =====
+enum FriendStatus {
+  PENDING = 0;
+  ACCEPTED = 1;
+  BLOCKED = 2;
+}
+
+message RelationFriendInfo {
+  int32 relationId = 1;
+  int32 friendId = 2;
+  string friendRealname = 3;
+  string avatarUrl = 4;
+  FriendStatus status = 5;
+  string create_at = 6;
+}
+
+message FriendInfo {
+  int32 friendId = 1;
+  string friendRealname = 2;
+  string avatarUrl = 3;
+  FriendStatus status = 4;
+}
+
+message AddFriendRequest {
+  int32 userId = 1;
+  int32 friendId = 2;
+}
+
+message AddFriendResponse {
+  int32 relationId = 1;
+  int32 userId = 2;
+  int32 friendId = 3;
+  FriendStatus status = 4;
+  string create_at = 5;
+}
+
+message GetSentFriendRequest {
+  int32 userId = 1;
+}
+
+message GetSentFriendResponse {
+  repeated RelationFriendInfo relationFriendInfo = 1;
+}
+
+message GetIncomingFriendRequest {
+  int32 userId = 1;
+}
+
+message GetIncomingFriendResponse {
+  repeated RelationFriendInfo relationFriendInfo = 1;
+}
+
+message AcceptFriendRequest {
+  int32 relationId = 1;
+  int32 userId = 2;
+}
+
+message AcceptFriendResponse {
+  RelationFriendInfo relationFriendInfo = 1;
+}
+
+message RejectFriendRequest {
+  int32 relationId = 1;
+  int32 userId = 2;
+}
+
+message RejectFriendResponse {
+  bool success = 1;
+}
+
+message GetAllFriendRequest {
+  int32 userId = 1;
+}
+
+message GetAllFriendResponse {
+  repeated FriendInfo friendInfo = 1;
+}
+
+message UnfriendRequest {
+  int32 userId = 1;
+  int32 friendId = 2;
+}
+
+message UnfriendResponse {
+  bool success = 1;
+}
+
+message BlockUserRequest {
+  int32 userId = 1;
+  int32 friendId = 2;
+}
+
+message BlockUserResponse {
+  bool success = 1;
+}
+
+message CanChatRequest {
+  int32 userId = 1;
+  int32 friendId = 2;
+}
+
+message CanChatResponse {
+  bool canChat = 1;
+}
+
+message Message {
+  string roomId = 1;
+  int32 userId = 2;
+  int32 friendId = 3;
+  string content = 4;
+  string create_at = 5;
+}
+
+message SaveMessageRequest {
+  Message message = 1;
+}
+
+message SaveMessageResponse {
+  bool success = 1;
+}
+
+message GetMessageRequest {
+  int32 userId = 1;
+  string roomId = 2;
+}
+
+message GetMessageResponse {
+  repeated Message message = 1;
+}

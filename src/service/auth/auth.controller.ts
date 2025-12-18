@@ -28,6 +28,7 @@ import type { Request } from 'express';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import type { RequestWithUser } from 'src/interface/RequestWithUser.interface';
 import { Metadata } from '@grpc/grpc-js';
+import { GetAllUserResponse } from 'proto/auth.pb';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -238,6 +239,14 @@ export class AuthController {
   async profile(@Req() req: any) {
     const userId = req.user.userId;
     return this.authService.handleProfile({id: userId});
+  }
+
+  @Get('all-user')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy thông tin user khác để kết bạn mạng xã hội (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  async getAllUser(): Promise<GetAllUserResponse> {
+    return this.authService.handleGetAllUser({});
   }
 
   // chuyển sang player manager

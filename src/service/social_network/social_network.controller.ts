@@ -5,14 +5,15 @@ import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetSentFriendResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto } from 'dto/auth.dto';
+import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetSentFriendResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto } from 'dto/social-network.dto';
 import { AuthService } from 'src/service/auth/auth.service';
+import { SocialNetworkService } from './social-network.service';
 
 @Controller('social_network')
 @ApiTags('Api Social network') 
 export class SocialNetworkController {
   constructor(
-    private authService: AuthService,
+    private socialService: SocialNetworkService,
   ) {}
 
   @Post('add-friend')
@@ -25,7 +26,7 @@ export class SocialNetworkController {
       ...body,
       userId: req.user?.userId
     }
-    return this.authService.handleAddFriend(request);
+    return this.socialService.handleAddFriend(request);
   }
 
   @Get('sent-friend')
@@ -36,7 +37,7 @@ export class SocialNetworkController {
     const request = {
       userId: req.user?.userId
     }
-    return this.authService.handleGetSendFriend(request)
+    return this.socialService.handleGetSendFriend(request)
   }
 
   @Get('incoming-friend')
@@ -47,7 +48,7 @@ export class SocialNetworkController {
     const request = {
       userId: req.user?.userId
     }
-    return this.authService.handleGetIncomingFriend(request)
+    return this.socialService.handleGetIncomingFriend(request)
   }
 
   @Patch('accept-friend')
@@ -55,8 +56,12 @@ export class SocialNetworkController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Chấp nhận lời mời kết bạn' })
   @ApiBody({ type: AcceptFriendRequestDto })
-  async acceptFriend(@Body() body: AcceptFriendRequestDto): Promise<AcceptFriendResponseDto> {
-    return this.authService.handleAcceptFriend(body);
+  async acceptFriend(@Body() body: AcceptFriendRequestDto, @Req() req: any): Promise<AcceptFriendResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user.userId
+    }
+    return this.socialService.handleAcceptFriend(request);
   }
 
   @Delete('reject-friend')
@@ -64,8 +69,12 @@ export class SocialNetworkController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Từ chối lời mời kết bạn' })
   @ApiBody({ type: RejectFriendRequestDto })
-  async rejectFriend(@Body() body: RejectFriendRequestDto): Promise<RejectFriendResponseDto> {
-    return this.authService.handleRejectFriend(body);
+  async rejectFriend(@Body() body: RejectFriendRequestDto, @Req() req: any): Promise<RejectFriendResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user.userId
+    }
+    return this.socialService.handleRejectFriend(request);
   }
 
   @Get('all-friend')
@@ -76,7 +85,7 @@ export class SocialNetworkController {
     const request = {
       userId: req.user?.userId
     }
-    return this.authService.handleGetAllFriend(request)
+    return this.socialService.handleGetAllFriend(request)
   }
 
   @Delete('unfriend')
@@ -89,7 +98,7 @@ export class SocialNetworkController {
       ...body,
       userId: req.user?.userId
     }
-    return this.authService.handleUnfriend(request);
+    return this.socialService.handleUnfriend(request);
   }
 
   @Patch('block-user')
@@ -102,6 +111,6 @@ export class SocialNetworkController {
       ...body,
       userId: req.user?.userId
     }
-    return this.authService.handleBlockUser(request);
+    return this.socialService.handleBlockUser(request);
   }
 }
