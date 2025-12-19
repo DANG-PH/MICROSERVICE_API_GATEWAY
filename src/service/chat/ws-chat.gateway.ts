@@ -23,7 +23,6 @@ export class WsChatGateway {
   server: Server;
   private redis: Redis;
 
-  private socketActiveRooms = new Map<string, string>();
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
@@ -33,48 +32,41 @@ export class WsChatGateway {
   }
 
   async handleConnection(client: Socket) {
-    // Nếu dùng cách 1 ở phần emitToUser thì cần đoạn logic này để join client vào room đó để nhận tin nhắn emit
-    // Cách 2 thì không cần viết gì
-
-    // try {
-    //   const token = 
-    //         client.handshake.auth?.token ||
-    //         client.handshake.query?.token ||
-    //         client.handshake.headers?.authorization?.split(' ')[1];
-    //   if (!token) throw new Error('Missing token');
-
-    //   const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
-    //   client.data.user = payload;
-
-    //   const userRooms = await this.redis.smembers(`hdgstudio::hdgstudio:USER_ROOMS:${payload.userId}`);
-    //   userRooms.forEach(roomId => client.join(roomId));
-
-    //   console.log('User connected:', payload.userId);
-    // } catch (err) {
-    //   console.error('Connection error:', err.message);
-    //   client.disconnect();
-    //   return;
-    // }
+    // Auth handled by WsJwtGuard
+    // Client only joins room after setActiveRoom
   }
 
   handleDisconnect(client: Socket) {
-    this.socketActiveRooms.delete(client.id);
+    // Socket.IO auto leave rooms
   }
 
-  // Hàm này cần để xử lí logic nghiệp vụ cho cách 2 của emitToUser
   /* ================= SET ACTIVE ROOM ================= */
   @SubscribeMessage('setActiveRoom')
-  handleSetActiveRoom(
+  async handleSetActiveRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { roomId: string },
   ) {
     if (!body?.roomId) return;
 
-    this.socketActiveRooms.set(client.id, body.roomId);
+    const userId = client.data.user.userId;
+
+    const room = await this.cacheManager.get<{ users: number[] }>(
+      `CHAT_ROOM:${body.roomId}`,
+    );
+    if (!room || !room.users.includes(userId)) return;
+
+    // Rời tất cả active chat cũ ( Rời room chat cũ để k nhận tin nhắn nữa )
+    for (const room of client.rooms) {
+      if (room.startsWith('ACTIVE_CHAT:')) {
+        client.leave(room);
+      }
+    }
+
+    // Join active chat mới
+    client.join(`ACTIVE_CHAT:${body.roomId}`);
   }
 
   /* ================= SEND MESSAGE ================= */
-
   @SubscribeMessage('chatMessage')
   async handleChat(
     @ConnectedSocket() client: Socket,
@@ -101,43 +93,14 @@ export class WsChatGateway {
   }
 
   async emitToRoom(roomId: string, payload: any) {
-    // Ở đây có 2 cách để gửi emit cho client:
-
-    // Cách 1: Gửi hết cho client nào join vào room và kèm theo roomId để frontend tự lọc và tránh lỗi khi B đang chat với C mà nhảy hiện ra tin nhắn của A chen vào
-
-      // console.log(roomId)
-      // this.server.to(roomId).emit('chatMessage', payload);
-
-    // Ưu điểm: Backend dễ triển khai, code dễ hiểu
-    // Nhược điểm: Backend gửi emit thừa khiến hiệu năng giảm mạnh, bảo mật kém do trao quá nhiều quyền cho FE
-
-
-    // Cách 2: Cache memory active room mỗi khi client nào gọi thì sẽ add roomId vào client đó ( nên là chỉ tồn tại 1 client cùng lúc - 1 tab vì nếu sang tab khác sẽ bị ghi đè lên roomId mới )
-    //         Sau đó backend sẽ xem tất cả các client và so sánh 3 tiêu chí:
-    //         + Phải có roomId trong cache memory trùng với roomId của lần gửi ( tránh việc B đang chat với C mà nhận được tin nhắn của A, vì B lúc này đang có room là dm:B:C còn A đang gửi dm:A:B )
-    //         + Phải tồn tại userId từ token ( tránh hacker gian lận )
-    //         + Check xem userId của client đó có được phép nhận tin nhắn k ( tránh hacker tiêm script nghe lén )
-    const roomKey = `CHAT_ROOM:${roomId}`;
-    const room = await this.cacheManager.get<{ users: number[] }>(roomKey);
+    const room = await this.cacheManager.get<{ users: number[] }>(
+      `CHAT_ROOM:${roomId}`,
+    );
     if (!room) return;
 
-    // Lấy tất cả sockets trong namespace (async method)
-    const allSockets = await this.server.fetchSockets();
-    
-    for (const socket of allSockets) {
-      const socketRoom = this.socketActiveRooms.get(socket.id);
-      const socketUserId = (socket.data as any).user?.userId;
-
-      if (
-        socketRoom === roomId &&
-        socketUserId &&
-        room.users.includes(socketUserId)
-      ) {
-        socket.emit('chatMessage', payload);
-      }
-    }
-    // Ưu điểm: Bảo mật cao, hiệu năng ổn định
-    // Nhược điểm: Code phức tạp hơn ở phía Backend
+    this.server
+      .to(`ACTIVE_CHAT:${roomId}`)
+      .emit('chatMessage', payload);
   }
 
   private async sendToChatService(command: any) {
@@ -148,9 +111,10 @@ export class WsChatGateway {
         userId: command.userId,
         content: command.content,
         timestamp: new Date().toISOString(),
-        roomId: command.roomId, // Có thể truyền thêm roomId nếu muốn client tự set xem roomId đang hiện trên màn hình có phải roomId này k để hiện tin nhắn
+        roomId: command.roomId, 
     });
 
+    // Hiện tại đang gRPC, có thể dùng RabbitMQ + gRPC để đồng bộ db sau ( nếu phát triển performance thêm )
     this.socialService.handleSaveMessage({
       message: {
         roomId: command.roomId,
@@ -162,3 +126,72 @@ export class WsChatGateway {
     })
   }
 }
+
+/**
+ * ========================= REALTIME CHAT EMIT STRATEGIES =========================
+ *
+ * Hiện tại có 3 cách tiếp cận để implement việc emit tin nhắn realtime trong hệ thống chat 1-1.
+ * Mỗi cách có trade-off khác nhau về hiệu năng, bảo mật và độ phức tạp.
+ *
+ * -------------------------------------------------------------------------------
+ * CÁCH 1 — BROADCAST THEO ROOM LOGIC + FRONTEND FILTER
+ * -------------------------------------------------------------------------------
+ * Cách thực thi:
+ * - Backend cho tất cả client join vào room logic (vd: dm:userA:userB) ngay từ khi connect.
+ * - Khi có tin nhắn, server emit broadcast tới toàn bộ room.
+ * - Frontend tự kiểm tra trạng thái UI (đang mở room nào) để quyết định render hay không.
+ *
+ * Ưu điểm:
+ * - Backend đơn giản, dễ triển khai.
+ * - Ít logic trạng thái ở server.
+ *
+ * Nhược điểm:
+ * - Emit thừa rất nhiều tin nhắn (hiệu năng kém khi scale).
+ * - Backend không kiểm soát được client nào đang active.
+ * - Bảo mật thấp hơn do trao quyền lọc dữ liệu cho frontend.
+ * - Dễ phát sinh bug UX (nhận tin nhắn khi không ở màn hình chat).
+ *
+ * -------------------------------------------------------------------------------
+ * CÁCH 2 — CACHE ACTIVE ROOM TRONG MEMORY (MAP / REDIS)
+ * -------------------------------------------------------------------------------
+ * Cách thực thi:
+ * - Mỗi socket khi mở một room sẽ gọi event setActiveRoom.
+ * - Backend lưu mapping socketId -> roomId (in-memory hoặc Redis).
+ * - Khi emit, backend duyệt tất cả socket và chỉ gửi cho socket đang active room tương ứng.
+ *
+ * Ưu điểm:
+ * - Backend kiểm soát chính xác client nào được nhận tin.
+ * - Tránh được bug nhận tin nhắn sai context.
+ *
+ * Nhược điểm:
+ * - Phải duyệt toàn bộ socket (O(N)) cho mỗi message.
+ * - Khó scale khi số lượng kết nối lớn.
+ * - Code phức tạp, dễ phát sinh memory leak nếu cleanup không tốt.
+ *
+ * -------------------------------------------------------------------------------
+ * CÁCH 3 — SOCKET.IO ACTIVE ROOM (CÁCH ĐANG SỬ DỤNG)
+ * -------------------------------------------------------------------------------
+ * Cách thực thi:
+ * - Mỗi khi user mở một phòng chat, client gọi setActiveRoom.
+ * - Backend validate quyền truy cập, sau đó:
+ *   + Leave tất cả room trạng thái cũ (ACTIVE_CHAT:*).
+ *   + Join socket vào room trạng thái mới (ACTIVE_CHAT:{roomId}).
+ * - Khi có tin nhắn, server emit trực tiếp tới ACTIVE_CHAT:{roomId}.
+ *
+ * Ưu điểm:
+ * - Emit O(1), không duyệt socket.
+ * - Backend kiểm soát tuyệt đối quyền nhận tin.
+ * - Không emit thừa, hiệu năng và bảo mật cao.
+ * - Tận dụng đúng cơ chế routing của Socket.IO.
+ *
+ * Nhược điểm:
+ * - Cần thêm một event setActiveRoom.
+ * - Cần quản lý trạng thái join/leave room chặt chẽ.
+ *
+ * -------------------------------------------------------------------------------
+ * KẾT LUẬN
+ * -------------------------------------------------------------------------------
+ * Hệ thống hiện tại đang sử dụng CÁCH 3.
+ * Đây là phương án tối ưu cho chat 1-1 realtime trong bối cảnh production:
+ * cân bằng tốt giữa hiệu năng, bảo mật và khả năng mở rộng.
+ */
