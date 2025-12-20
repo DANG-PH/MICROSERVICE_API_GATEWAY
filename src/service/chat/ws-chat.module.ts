@@ -7,9 +7,10 @@ import { JwtAuthGuard } from "src/security/JWT/jwt-auth.guard";
 import { RolesGuard } from "src/security/guard/role.guard";
 import { JwtStrategy } from "src/security/JWT/jwt.strategy";
 import { JwtService } from "@nestjs/jwt";
+import { AuthModule } from "../auth/auth.module";
 
 @Module({
-    imports: [SocialNetworkModule],
+    imports: [SocialNetworkModule, AuthModule],
     controllers: [ChatController],
     providers: [WsChatGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService]
 })

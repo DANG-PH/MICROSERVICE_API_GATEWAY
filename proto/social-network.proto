@@ -36,6 +36,18 @@ service SocialNetworkService {
 
   // Lấy lịch sử nhắn tin của 2 người
   rpc GetMessage(GetMessageRequest) returns (GetMessageResponse) {};
+
+  // Tạo group 
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse) {};
+
+  // Add User vào group
+  rpc AddUserToGroup(AddUserToGroupRequest) returns (AddUserToGroupResponse) {};
+
+  // Check xem group có tồn tại và userId có tồn tại trong group hay không
+  rpc CheckGroupUser(CheckGroupUserRequest) returns (CheckGroupUserResponse) {};
+
+  // Xem all group mà bản thân đã vào
+  rpc GetAllGroup(GetAllGroupRequest) returns (GetAllGroupResponse) {};
 }
 
 // ===== MESSAGES =====
@@ -146,9 +158,17 @@ message CanChatResponse {
 message Message {
   string roomId = 1;
   int32 userId = 2;
-  int32 friendId = 3;
-  string content = 4;
-  string create_at = 5;
+  string content = 3;
+  string create_at = 4;
+}
+
+message MessageTraVe {
+  string roomId = 1;
+  int32 userId = 2;
+  string avatarUrl = 3;
+  string realname = 4;
+  string content = 5;
+  string create_at = 6;
 }
 
 message SaveMessageRequest {
@@ -165,5 +185,58 @@ message GetMessageRequest {
 }
 
 message GetMessageResponse {
-  repeated Message message = 1;
+  repeated MessageTraVe message = 1;
+}
+
+message CreateGroupRequest {
+  string name = 1;
+  string avatarUrl = 2;
+  string description = 3;
+  int32 ownerId = 4;
+  int32 maxMember = 5;
+  repeated int32 userId = 6;
+}
+
+message CreateGroupResponse {
+  bool success = 1;
+}
+
+enum role {
+  ADMIN = 0;
+  MEMBER = 1;
+}
+
+message AddUserToGroupRequest {
+  int32 userId = 1;
+  int32 groupId = 2;
+  int32 role = 3;
+}
+
+message AddUserToGroupResponse {
+  bool success = 1;
+}
+
+message CheckGroupUserRequest {
+  int32 userId = 1;
+  int32 groupId = 2;
+}
+
+message CheckGroupUserResponse {
+  bool success = 1;
+}
+
+message GetAllGroupRequest {
+  int32 userId = 1;
+}
+
+message GroupInfo {
+  int32 groupId = 1;
+  string name = 2;
+  string avatarUrl = 3;
+  string description = 4;
+  int32 ownerId = 5;
+}
+
+message GetAllGroupResponse {
+  repeated GroupInfo groupInfo = 1;
 }

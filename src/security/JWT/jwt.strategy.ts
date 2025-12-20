@@ -31,8 +31,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
 
     const accessTokenInRedis = await this.cacheManager.get(`ACCESS:${payload.username}:${metadata}`);
 
-    console.log(tokenFromHeader);
-    console.log(accessTokenInRedis)
     if (!accessTokenInRedis || accessTokenInRedis !== tokenFromHeader) {
       throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc bị thay đổi.');
     }

@@ -1,6 +1,6 @@
-import { AcceptFriendResponse, FriendStatus } from 'proto/social-network.pb';
+import { AcceptFriendResponse, FriendStatus, role } from 'proto/social-network.pb';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Length, IsArray, ArrayNotEmpty } from 'class-validator';
 import { IsEnum, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 // FriendShip
@@ -163,9 +163,36 @@ export class MessageDto {
   @IsInt()
   userId: number;
 
-  @ApiProperty({ example: 2, description: 'ID của friend' })
+  @ApiProperty({ example: 'Xin chào' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @ApiProperty({ example: '2025-01-01T10:00:00Z' })
+  @IsString()
+  @IsNotEmpty()
+  create_at: string;
+}
+
+export class MessageTraVeDto {
+  @ApiProperty({ example: 'dm:1:2' })
+  @IsString()
+  @IsNotEmpty()
+  roomId: string;
+
+  @ApiProperty({ example: 1 })
   @IsInt()
-  friendId: number;
+  userId: number;
+
+  @ApiProperty({ example: 'Hải Đăng' })
+  @IsString()
+  @IsNotEmpty()
+  realname: string;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
 
   @ApiProperty({ example: 'Xin chào' })
   @IsString()
@@ -186,7 +213,92 @@ export class GetMessageRequestDto {
 }
 
 export class GetMessageResponseDto {
-  @ApiProperty({ type: [MessageDto] })
-  message: MessageDto[];
+  @ApiProperty({ type: [MessageTraVeDto] })
+  message: MessageTraVeDto[];
+}
+
+export class CreateGroupRequestDto {
+  @ApiProperty({ example: 'Box Chat Server 1' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+
+  @ApiProperty({ example: 'Box chat dành cho ae server 1' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty({ example: 50 })
+  @IsInt()
+  maxMember: number;
+
+  @ApiProperty({ type: [Number], example: [1, 2, 3] })
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  userId: number[];
+}
+
+export class CreateGroupResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+export class AddUserToGroupRequestDto {
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  userId: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  groupId: number;
+
+  @ApiProperty({ enum: role, example: role.MEMBER })
+  @IsEnum(role)
+  role: role;
+}
+
+export class AddUserToGroupResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+export class GroupInfoDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  groupId: number;
+
+  @ApiProperty({ example: 'Box Chat Server 1' })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ example: 'https://avatar' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+
+  @ApiProperty({ example: 'Box chat dành cho ae server 1' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  ownerId: number;
+}
+
+export class GetAllGroupRequestDto {
+
+}
+
+export class GetAllGroupResponseDto {
+  @ApiProperty({ type: [GroupInfoDto] })
+  groupInfo: GroupInfoDto[];
 }
 

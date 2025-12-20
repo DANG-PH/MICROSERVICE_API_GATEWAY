@@ -25,7 +25,15 @@ import {
   SaveMessageRequest,
   SaveMessageResponse,
   GetMessageRequest,
-  GetMessageResponse
+  GetMessageResponse,
+  CreateGroupRequest,
+  CreateGroupResponse,
+  AddUserToGroupRequest,
+  AddUserToGroupResponse,
+  CheckGroupUserRequest,
+  CheckGroupUserResponse,
+  GetAllGroupRequest,
+  GetAllGroupResponse
 } from 'proto/social-network.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -84,5 +92,21 @@ export class SocialNetworkService {
 
   async handleGetMessage(req: GetMessageRequest): Promise<GetMessageResponse> {
     return grpcCall(SocialNetworkService.name, this.socialNetworkService.getMessage(req))
+  }
+
+  async handleCreateGroup(req: CreateGroupRequest): Promise<CreateGroupResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.createGroup(req))
+  }
+
+  async handleAddUserToGroup(req: AddUserToGroupRequest): Promise<AddUserToGroupResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.addUserToGroup(req))
+  }
+
+  async handleCheckGroupUser(req: CheckGroupUserRequest): Promise<CheckGroupUserResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.checkGroupUser(req))
+  }
+
+  async handleAllGroup(req: GetAllGroupRequest): Promise<GetAllGroupResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.getAllGroup(req))
   }
 }

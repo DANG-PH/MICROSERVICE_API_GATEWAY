@@ -9,7 +9,7 @@ import { createRoomRequest } from 'dto/auth.dto';
 import Redis from 'ioredis';
 import { AuthService } from '../auth/auth.service';
 import { SocialNetworkService } from '../social_network/social-network.service';
-import { GetMessageRequestDto, GetMessageResponseDto } from 'dto/social-network.dto';
+import { AddUserToGroupRequestDto, AddUserToGroupResponseDto, CreateGroupRequestDto, CreateGroupResponseDto, GetAllGroupResponseDto, GetMessageRequestDto, GetMessageResponseDto } from 'dto/social-network.dto';
 
 @Controller('chat')
 @ApiTags('Api Chat') 
@@ -25,7 +25,7 @@ export class ChatController {
   @Post('1-1')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Tạo room chat cho 2 user' })
+  @ApiOperation({ summary: 'Tạo room chat cho 2 user ( còn group chat thì không cần vì có group entity đại diện cho 1 room luôn )' })
   @ApiBody({ type: createRoomRequest })
   async createRoom(@Body() body: createRoomRequest, @Req() req: any): Promise<{roomId: string}> {
     const userId = req.user.userId;
@@ -51,10 +51,10 @@ export class ChatController {
     }
 
     await this.cacheManager.set(roomKey, { users: [a, b] }, 1000 * 60 * 60 * 24 * 30);
-    await this.redis.sadd(`hdgstudio::hdgstudio:USER_ROOMS:${a}`, roomId);
-    await this.redis.sadd(`hdgstudio::hdgstudio:USER_ROOMS:${b}`, roomId);
-    await this.redis.expire(`hdgstudio::hdgstudio:USER_ROOMS:${a}`, 60 * 60 * 24 * 30); 
-    await this.redis.expire(`hdgstudio::hdgstudio:USER_ROOMS:${b}`, 60 * 60 * 24 * 30); 
+    // await this.redis.sadd(`hdgstudio::hdgstudio:USER_ROOMS:${a}`, roomId);
+    // await this.redis.sadd(`hdgstudio::hdgstudio:USER_ROOMS:${b}`, roomId);
+    // await this.redis.expire(`hdgstudio::hdgstudio:USER_ROOMS:${a}`, 60 * 60 * 24 * 30); 
+    // await this.redis.expire(`hdgstudio::hdgstudio:USER_ROOMS:${b}`, 60 * 60 * 24 * 30); 
 
     return { roomId };
   }
@@ -72,5 +72,41 @@ export class ChatController {
     }
 
     return this.socialService.handleGetMessage(request);
+  }
+
+  @Post('create-group')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Tạo room chat ( Group ) cho nhiều user' })
+  @ApiBody({ type: CreateGroupRequestDto })
+  async createGroup(@Body() body: CreateGroupRequestDto, @Req() req: any): Promise<CreateGroupResponseDto> {
+    const userId = req.user.userId;
+
+    const request = {
+      ...body,
+      ownerId: userId 
+    }
+
+    return this.socialService.handleCreateGroup(request)
+  }
+
+  @Post('add-user-group')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Tạo room chat ( Group ) cho nhiều user' })
+  @ApiBody({ type: AddUserToGroupRequestDto })
+  async addGroup(@Body() body: AddUserToGroupRequestDto, @Req() req: any): Promise<AddUserToGroupResponseDto> {
+    return this.socialService.handleAddUserToGroup(body)
+  }
+  
+  @Get('all-group')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Xem danh sách group của bản thân' })
+  async allGroup(@Req() req: any): Promise<GetAllGroupResponseDto> {
+    const request = {
+      userId: req.user?.userId
+    }
+    return this.socialService.handleAllGroup(request)
   }
 }

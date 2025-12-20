@@ -20,7 +20,8 @@ import {
   SendEmailToUserRequest,
   ChangeAvatarRequest,
   GetAllUserRequest,
-  GetAllUserResponse
+  GetAllUserResponse,
+  GetRealnameAvatarRequest
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
@@ -107,5 +108,9 @@ export class AuthService {
 
   async handleGetAllUser(req: GetAllUserRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.getAllUser(req));
+  }
+
+  async handleGetRealnameAvatar(req: GetRealnameAvatarRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.getRealnameAvatar(req));
   }
 }

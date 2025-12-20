@@ -19,6 +19,12 @@ export enum FriendStatus {
   UNRECOGNIZED = -1,
 }
 
+export enum role {
+  ADMIN = 0,
+  MEMBER = 1,
+  UNRECOGNIZED = -1,
+}
+
 export interface RelationFriendInfo {
   relationId: number;
   friendId: number;
@@ -120,7 +126,15 @@ export interface CanChatResponse {
 export interface Message {
   roomId: string;
   userId: number;
-  friendId: number;
+  content: string;
+  create_at: string;
+}
+
+export interface MessageTraVe {
+  roomId: string;
+  userId: number;
+  avatarUrl: string;
+  realname: string;
   content: string;
   create_at: string;
 }
@@ -139,7 +153,55 @@ export interface GetMessageRequest {
 }
 
 export interface GetMessageResponse {
-  message: Message[];
+  message: MessageTraVe[];
+}
+
+export interface CreateGroupRequest {
+  name: string;
+  avatarUrl: string;
+  description: string;
+  ownerId: number;
+  maxMember: number;
+  userId: number[];
+}
+
+export interface CreateGroupResponse {
+  success: boolean;
+}
+
+export interface AddUserToGroupRequest {
+  userId: number;
+  groupId: number;
+  role: number;
+}
+
+export interface AddUserToGroupResponse {
+  success: boolean;
+}
+
+export interface CheckGroupUserRequest {
+  userId: number;
+  groupId: number;
+}
+
+export interface CheckGroupUserResponse {
+  success: boolean;
+}
+
+export interface GetAllGroupRequest {
+  userId: number;
+}
+
+export interface GroupInfo {
+  groupId: number;
+  name: string;
+  avatarUrl: string;
+  description: string;
+  ownerId: number;
+}
+
+export interface GetAllGroupResponse {
+  groupInfo: GroupInfo[];
 }
 
 export const SOCIALNETWORK_PACKAGE_NAME = "socialnetwork";
@@ -190,6 +252,22 @@ export interface SocialNetworkServiceClient {
   /** Lấy lịch sử nhắn tin của 2 người */
 
   getMessage(request: GetMessageRequest, metadata?: Metadata): Observable<GetMessageResponse>;
+
+  /** Tạo group */
+
+  createGroup(request: CreateGroupRequest, metadata?: Metadata): Observable<CreateGroupResponse>;
+
+  /** Add User vào group */
+
+  addUserToGroup(request: AddUserToGroupRequest, metadata?: Metadata): Observable<AddUserToGroupResponse>;
+
+  /** Check xem group có tồn tại và userId có tồn tại trong group hay không */
+
+  checkGroupUser(request: CheckGroupUserRequest, metadata?: Metadata): Observable<CheckGroupUserResponse>;
+
+  /** Xem all group mà bản thân đã vào */
+
+  getAllGroup(request: GetAllGroupRequest, metadata?: Metadata): Observable<GetAllGroupResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -238,6 +316,22 @@ export interface SocialNetworkServiceController {
   /** Lấy lịch sử nhắn tin của 2 người */
 
   getMessage(request: GetMessageRequest, metadata?: Metadata): Observable<GetMessageResponse>;
+
+  /** Tạo group */
+
+  createGroup(request: CreateGroupRequest, metadata?: Metadata): Observable<CreateGroupResponse>;
+
+  /** Add User vào group */
+
+  addUserToGroup(request: AddUserToGroupRequest, metadata?: Metadata): Observable<AddUserToGroupResponse>;
+
+  /** Check xem group có tồn tại và userId có tồn tại trong group hay không */
+
+  checkGroupUser(request: CheckGroupUserRequest, metadata?: Metadata): Observable<CheckGroupUserResponse>;
+
+  /** Xem all group mà bản thân đã vào */
+
+  getAllGroup(request: GetAllGroupRequest, metadata?: Metadata): Observable<GetAllGroupResponse>;
 }
 
 export function SocialNetworkServiceControllerMethods() {
@@ -254,6 +348,10 @@ export function SocialNetworkServiceControllerMethods() {
       "canChat",
       "saveMessage",
       "getMessage",
+      "createGroup",
+      "addUserToGroup",
+      "checkGroupUser",
+      "getAllGroup",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -13,6 +13,8 @@ import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { JwtService } from '@nestjs/jwt';
 import { SocialNetworkService } from '../social_network/social-network.service';
+import { group } from 'console';
+import { AuthService } from '../auth/auth.service';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -27,6 +29,7 @@ export class WsChatGateway {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
     private readonly socialService: SocialNetworkService,
+    private readonly authService: AuthService
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
   }
@@ -50,10 +53,21 @@ export class WsChatGateway {
 
     const userId = client.data.user.userId;
 
-    const room = await this.cacheManager.get<{ users: number[] }>(
-      `CHAT_ROOM:${body.roomId}`,
-    );
-    if (!room || !room.users.includes(userId)) return;
+    if (body.roomId.startsWith('dm')) {
+      const room = await this.cacheManager.get<{ users: number[] }>(
+        `CHAT_ROOM:${body.roomId}`,
+      );
+      if (!room || !room.users.includes(userId)) return;
+    } 
+    else if (body.roomId.startsWith('group')) {
+      const [, a] = body.roomId.split(':');
+      const groupId = Number(a);
+      const success = await this.socialService.handleCheckGroupUser({
+        userId: userId,
+        groupId: groupId
+      })
+      if (!success) return;
+    }
 
     // Rời tất cả active chat cũ ( Rời room chat cũ để k nhận tin nhắn nữa )
     for (const room of client.rooms) {
@@ -62,6 +76,7 @@ export class WsChatGateway {
       }
     }
 
+    console.log(`ACTIVE_CHAT:${body.roomId}`)
     // Join active chat mới
     client.join(`ACTIVE_CHAT:${body.roomId}`);
   }
@@ -77,10 +92,21 @@ export class WsChatGateway {
     if (!body?.roomId || !body?.content) return;
 
     // Validate user có quyền chat trong room này
-    const roomKey = `CHAT_ROOM:${body.roomId}`;
-    const room = await this.cacheManager.get<{ users: string[] }>(roomKey);
-    if (!room || !room?.users?.includes(userId)) {
-        return; // không cho gửi
+    if (body.roomId.startsWith('dm')) {
+      const roomKey = `CHAT_ROOM:${body.roomId}`;
+      const room = await this.cacheManager.get<{ users: string[] }>(roomKey);
+      if (!room || !room?.users?.includes(userId)) {
+          return; // không cho gửi
+      }
+    } 
+    else if (body.roomId.startsWith('group')) {
+      const [, a] = body.roomId.split(':');
+      const groupId = Number(a);
+      const success = await this.socialService.handleCheckGroupUser({
+        userId: userId,
+        groupId: groupId
+      })
+      if (!success) return;
     }
 
     // Gửi tới Chat Service (lưu DB, xử lý logic)
@@ -93,10 +119,12 @@ export class WsChatGateway {
   }
 
   async emitToRoom(roomId: string, payload: any) {
-    const room = await this.cacheManager.get<{ users: number[] }>(
-      `CHAT_ROOM:${roomId}`,
-    );
-    if (!room) return;
+    if (roomId.startsWith('dm')) {
+      const room = await this.cacheManager.get<{ users: number[] }>(
+        `CHAT_ROOM:${roomId}`,
+      );
+      if (!room) return;
+    }
 
     this.server
       .to(`ACTIVE_CHAT:${roomId}`)
@@ -104,12 +132,15 @@ export class WsChatGateway {
   }
 
   private async sendToChatService(command: any) {
-    const [_, userA, userB] = command.roomId.split(':');
-    const friendId = command.userId === +userA ? +userB : +userA;
+    const realnameAvatarInfo = await this.authService.handleGetRealnameAvatar({
+      userIds: [command.userId]
+    })
 
     this.emitToRoom(command.roomId, {
         userId: command.userId,
         content: command.content,
+        realname: realnameAvatarInfo.realnameAvatarInfo[0].realname,
+        avatarUrl: realnameAvatarInfo.realnameAvatarInfo[0].avatarUrl,
         timestamp: new Date().toISOString(),
         roomId: command.roomId, 
     });
@@ -119,7 +150,6 @@ export class WsChatGateway {
       message: {
         roomId: command.roomId,
         userId: command.userId,
-        friendId: friendId,
         content: command.content,
         create_at: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
       }
