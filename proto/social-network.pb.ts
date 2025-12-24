@@ -204,6 +204,86 @@ export interface GetAllGroupResponse {
   groupInfo: GroupInfo[];
 }
 
+export interface GetAllCommentRequest {
+  postId: number;
+  userId: number;
+}
+
+export interface UpdateCommentRequest {
+  commentId: number;
+  userId: number;
+  content: string;
+}
+
+export interface UpdateCommentResponse {
+  success: boolean;
+}
+
+export interface DeleteCommentRequest {
+  commentId: number;
+  userId: number;
+}
+
+export interface DeleteCommentResponse {
+  success: boolean;
+}
+
+export interface LikeCommentRequest {
+  commentId: number;
+  userId: number;
+}
+
+export interface LikeCommentResponse {
+  success: boolean;
+}
+
+export interface UnlikeCommentRequest {
+  commentId: number;
+  userId: number;
+}
+
+export interface UnlikeCommentResponse {
+  success: boolean;
+}
+
+export interface GetAllCommentResponse {
+  comments: CommentNode[];
+}
+
+export interface CommentNode {
+  id: number;
+  postId: number;
+  parentId: number;
+  userId: number;
+  content: string;
+  createdAt: string;
+  likeCount: number;
+  isLikedByCurrentUser: boolean;
+  isDelete: boolean;
+  realname: string;
+  avatarUrl: string;
+  children: CommentNode[];
+}
+
+export interface CreateCommentRequest {
+  postId: number;
+  parentId: number;
+  userId: number;
+  content: string;
+}
+
+export interface CreateCommentResponse {
+  comment: CommentNode | undefined;
+}
+
+export interface GetCommentRequest {
+  commentId: number;
+}
+
+export interface GetCommentResponse {
+  comment: CommentNode | undefined;
+}
+
 export const SOCIALNETWORK_PACKAGE_NAME = "socialnetwork";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -268,6 +348,34 @@ export interface SocialNetworkServiceClient {
   /** Xem all group mà bản thân đã vào */
 
   getAllGroup(request: GetAllGroupRequest, metadata?: Metadata): Observable<GetAllGroupResponse>;
+
+  /** Tạo comment trong bài viết */
+
+  createComment(request: CreateCommentRequest, metadata?: Metadata): Observable<CreateCommentResponse>;
+
+  /** Lấy thông tin comment dựa trên commentId */
+
+  getComment(request: GetCommentRequest, metadata?: Metadata): Observable<GetCommentResponse>;
+
+  /** Lấy danh sách comment của bài viết ( Build cây Json trả về FE, Có like hay chưa theo User ) */
+
+  getAllComment(request: GetAllCommentRequest, metadata?: Metadata): Observable<GetAllCommentResponse>;
+
+  /** Chỉnh sửa comment */
+
+  updateComment(request: UpdateCommentRequest, metadata?: Metadata): Observable<UpdateCommentResponse>;
+
+  /** Xóa comment ( Soft Delete ) */
+
+  deleteComment(request: DeleteCommentRequest, metadata?: Metadata): Observable<DeleteCommentResponse>;
+
+  /** Like comment */
+
+  likeComment(request: LikeCommentRequest, metadata?: Metadata): Observable<LikeCommentResponse>;
+
+  /** Unlike comment */
+
+  unlikeComment(request: UnlikeCommentRequest, metadata?: Metadata): Observable<UnlikeCommentResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -332,6 +440,34 @@ export interface SocialNetworkServiceController {
   /** Xem all group mà bản thân đã vào */
 
   getAllGroup(request: GetAllGroupRequest, metadata?: Metadata): Observable<GetAllGroupResponse>;
+
+  /** Tạo comment trong bài viết */
+
+  createComment(request: CreateCommentRequest, metadata?: Metadata): Observable<CreateCommentResponse>;
+
+  /** Lấy thông tin comment dựa trên commentId */
+
+  getComment(request: GetCommentRequest, metadata?: Metadata): Observable<GetCommentResponse>;
+
+  /** Lấy danh sách comment của bài viết ( Build cây Json trả về FE, Có like hay chưa theo User ) */
+
+  getAllComment(request: GetAllCommentRequest, metadata?: Metadata): Observable<GetAllCommentResponse>;
+
+  /** Chỉnh sửa comment */
+
+  updateComment(request: UpdateCommentRequest, metadata?: Metadata): Observable<UpdateCommentResponse>;
+
+  /** Xóa comment ( Soft Delete ) */
+
+  deleteComment(request: DeleteCommentRequest, metadata?: Metadata): Observable<DeleteCommentResponse>;
+
+  /** Like comment */
+
+  likeComment(request: LikeCommentRequest, metadata?: Metadata): Observable<LikeCommentResponse>;
+
+  /** Unlike comment */
+
+  unlikeComment(request: UnlikeCommentRequest, metadata?: Metadata): Observable<UnlikeCommentResponse>;
 }
 
 export function SocialNetworkServiceControllerMethods() {
@@ -352,6 +488,13 @@ export function SocialNetworkServiceControllerMethods() {
       "addUserToGroup",
       "checkGroupUser",
       "getAllGroup",
+      "createComment",
+      "getComment",
+      "getAllComment",
+      "updateComment",
+      "deleteComment",
+      "likeComment",
+      "unlikeComment",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

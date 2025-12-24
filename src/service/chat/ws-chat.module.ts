@@ -12,6 +12,7 @@ import { AuthModule } from "../auth/auth.module";
 @Module({
     imports: [SocialNetworkModule, AuthModule],
     controllers: [ChatController],
-    providers: [WsChatGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService]
+    providers: [WsChatGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService],
+    exports: [WsChatGateway]
 })
 export class WsChatModule{};

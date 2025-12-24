@@ -1,6 +1,6 @@
 import { AcceptFriendResponse, FriendStatus, role } from 'proto/social-network.pb';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength, Length, IsArray, ArrayNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength, Length, IsArray, ArrayNotEmpty, IsBoolean } from 'class-validator';
 import { IsEnum, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 // FriendShip
@@ -302,3 +302,141 @@ export class GetAllGroupResponseDto {
   groupInfo: GroupInfoDto[];
 }
 
+export class CommentNodeDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ example: 10 })
+  @IsInt()
+  postId: number;
+
+  @ApiProperty({ example: 0, description: '0 nếu là comment root' })
+  @IsInt()
+  parentId: number;
+
+  @ApiProperty({ example: 5 })
+  @IsInt()
+  userId: number;
+
+  @ApiProperty({ example: 'Nội dung comment' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @ApiProperty({ example: '2025-01-01T10:00:00Z' })
+  @IsString()
+  createdAt: string;
+
+  @ApiProperty({ example: 12 })
+  @IsInt()
+  likeCount: number;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  isLikedByCurrentUser: boolean;
+
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  isDelete: boolean;
+
+  @ApiProperty({ example: 'Phạm Hải Đăng' })
+  @IsString()
+  @IsNotEmpty()
+  realname: string;
+
+  @ApiProperty({ example: 'https://avatar.url' })
+  @IsString()
+  @IsNotEmpty()
+  avatarUrl: string;
+
+  @ApiProperty({ type: () => [CommentNodeDto] })
+  @IsArray()
+  @Type(() => CommentNodeDto)
+  children: CommentNodeDto[];
+}
+
+export class GetAllCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @IsInt()
+  postId: number;
+}
+
+export class GetAllCommentResponseDto {
+  @ApiProperty({ type: [CommentNodeDto] })
+  comments: CommentNodeDto[];
+}
+
+export class UpdateCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  commentId: number;
+
+  @ApiProperty({ example: 'Nội dung mới' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
+
+export class UpdateCommentResponseDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  success: boolean;
+}
+
+export class DeleteCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  commentId: number;
+}
+
+export class DeleteCommentResponseDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  success: boolean;
+}
+
+export class LikeCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  commentId: number;
+}
+
+export class LikeCommentResponseDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  success: boolean;
+}
+
+export class UnlikeCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  commentId: number;
+}
+
+export class UnlikeCommentResponseDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  success: boolean;
+}
+
+export class CreateCommentRequestDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  postId: number;
+
+  @ApiProperty({ example: 0, description: '0 nếu comment root' })
+  @IsInt()
+  parentId: number;
+
+  @ApiProperty({ example: 'Nội dung comment' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
+
+export class CreateCommentResponseDto {
+  @ApiProperty({ type: () => CommentNodeDto })
+  comment?: CommentNodeDto;
+}

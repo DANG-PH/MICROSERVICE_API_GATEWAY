@@ -155,6 +155,25 @@ export class WsChatGateway {
       }
     })
   }
+
+  // Dùng cho logic gửi thông báo khi reply comment nhau 
+
+  // User vừa vào web thì cho phép nhận thông báo
+  @SubscribeMessage('setReadyNotification')
+  async handleSetReadyNotification(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: {},
+  ) {
+    const { userId } = client.data.user;
+    client.join(`Notification:${userId}`);
+  }
+
+  // Gửi thông báo
+  async sendCommentNotification(userId: number, payload: any) {
+    this.server
+      .to(`Notification:${userId}`)
+      .emit('setReadyNotification', payload);
+  }
 }
 
 /**

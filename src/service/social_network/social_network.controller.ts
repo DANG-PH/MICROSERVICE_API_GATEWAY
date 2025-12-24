@@ -5,15 +5,18 @@ import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetSentFriendResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto } from 'dto/social-network.dto';
+import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, CreateCommentRequestDto, CreateCommentResponseDto, DeleteCommentRequestDto, DeleteCommentResponseDto, GetAllCommentRequestDto, GetAllCommentResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetSentFriendResponseDto, LikeCommentRequestDto, LikeCommentResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto, UnlikeCommentRequestDto, UnlikeCommentResponseDto, UpdateCommentRequestDto, UpdateCommentResponseDto } from 'dto/social-network.dto';
 import { AuthService } from 'src/service/auth/auth.service';
 import { SocialNetworkService } from './social-network.service';
+import { GetAllCommentRequest } from 'proto/social-network.pb';
+import { WsChatGateway } from '../chat/ws-chat.gateway';
 
 @Controller('social_network')
 @ApiTags('Api Social network') 
 export class SocialNetworkController {
   constructor(
     private socialService: SocialNetworkService,
+    private wsChatGateway: WsChatGateway
   ) {}
 
   @Post('add-friend')
@@ -112,5 +115,92 @@ export class SocialNetworkController {
       userId: req.user?.userId
     }
     return this.socialService.handleBlockUser(request);
+  }
+
+  @Post('create-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Tạo comment mới vào bài post mà ADMIN/EDITOR tạo' })
+  @ApiBody({ type: CreateCommentRequestDto })
+  async createComment(@Body() body: CreateCommentRequestDto, @Req() req: any): Promise<CreateCommentResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user?.userId
+    }
+    const result = await this.socialService.handleCreateComment(request);
+    if (result.comment) {
+      // Lấy người được bạn reply để gửi thông báo cho người đó
+      const comment = (await this.socialService.handleGetComment({commentId: body.parentId})).comment
+
+      await this.wsChatGateway.sendCommentNotification(Number(comment?.userId), {
+        message: `${comment?.realname} vừa reply comment của bạn` // sau này có thể thêm thông tin Post nào
+      })
+    }
+    
+    return result;
+  }
+
+  @Get('all-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy hết comment của 1 bài post bất kỳ' })
+  async getAllComment(@Query() query: GetAllCommentRequestDto, @Req() req: any): Promise<GetAllCommentResponseDto> {
+    const request = {
+      ...query,
+      userId: req.user.userId
+    }
+    return this.socialService.handleGetAllComment(request)
+  }
+
+  @Patch('update-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Chỉnh sửa comment của 1 bài viết' })
+  @ApiBody({ type: UpdateCommentRequestDto })
+  async updateComment(@Body() body: UpdateCommentRequestDto, @Req() req: any): Promise<UpdateCommentResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user?.userId
+    }
+    return this.socialService.handleUpdateComment(request);
+  }
+
+  @Patch('delete-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Xóa comment của 1 bài viết ( Soft Delete )' })
+  @ApiBody({ type: DeleteCommentRequestDto })
+  async deleteComment(@Body() body: DeleteCommentRequestDto, @Req() req: any): Promise<DeleteCommentResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user?.userId
+    }
+    return this.socialService.handleDeleteComment(request);
+  }
+
+  @Post('like-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Like comment 1 bài viết' })
+  @ApiBody({ type: LikeCommentRequestDto })
+  async likeComment(@Body() body: LikeCommentRequestDto, @Req() req: any): Promise<LikeCommentResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user?.userId
+    }
+    return this.socialService.handleLikeComment(request);
+  }
+
+  @Delete('unlike-comment')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Unlike comment 1 bài viết' })
+  @ApiBody({ type: UnlikeCommentRequestDto })
+  async unlikeComment(@Body() body: UnlikeCommentRequestDto, @Req() req: any): Promise<UnlikeCommentResponseDto> {
+    const request = {
+      ...body,
+      userId: req.user?.userId
+    }
+    return this.socialService.handleUnlikeComment(request);
   }
 }

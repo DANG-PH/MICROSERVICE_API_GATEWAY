@@ -48,6 +48,27 @@ service SocialNetworkService {
 
   // Xem all group mà bản thân đã vào
   rpc GetAllGroup(GetAllGroupRequest) returns (GetAllGroupResponse) {};
+
+  // Tạo comment trong bài viết
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {};
+
+  // Lấy thông tin comment dựa trên commentId
+  rpc GetComment(GetCommentRequest) returns (GetCommentResponse) {};
+
+  // Lấy danh sách comment của bài viết ( Build cây Json trả về FE, Có like hay chưa theo User )
+  rpc GetAllComment(GetAllCommentRequest) returns (GetAllCommentResponse) {};
+
+  // Chỉnh sửa comment
+  rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse) {}; 
+
+  // Xóa comment ( Soft Delete )
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse) {};
+
+  // Like comment
+  rpc LikeComment(LikeCommentRequest) returns (LikeCommentResponse) {};
+
+  // Unlike comment
+  rpc UnlikeComment(UnlikeCommentRequest) returns (UnlikeCommentResponse) {};
 }
 
 // ===== MESSAGES =====
@@ -239,4 +260,84 @@ message GroupInfo {
 
 message GetAllGroupResponse {
   repeated GroupInfo groupInfo = 1;
+}
+
+message GetAllCommentRequest {
+  int32 postId = 1;
+  int32 userId = 2; 
+}
+
+message UpdateCommentRequest {
+  int32 commentId = 1;
+  int32 userId = 2;
+  string content = 3;
+}
+
+message UpdateCommentResponse {
+  bool success = 1;
+}
+
+message DeleteCommentRequest {
+  int32 commentId = 1;
+  int32 userId = 2;
+}
+
+message DeleteCommentResponse {
+  bool success = 1;
+}
+
+message LikeCommentRequest {
+  int32 commentId = 1;
+  int32 userId = 2;
+}
+
+message LikeCommentResponse {
+  bool success = 1;
+}
+
+message UnlikeCommentRequest {
+  int32 commentId = 1;
+  int32 userId = 2;
+}
+
+message UnlikeCommentResponse {
+  bool success = 1;
+}
+
+message GetAllCommentResponse {
+  repeated CommentNode comments = 1;
+}
+
+message CommentNode {
+  int32 id = 1;
+  int32 postId = 2;
+  int32 parentId = 3;
+  int32 userId = 4;
+  string content = 5;
+  string createdAt = 6;
+  int32 likeCount = 7;
+  bool isLikedByCurrentUser = 8;
+  bool isDelete = 9;
+  string realname = 10;
+  string avatarUrl = 11;
+  repeated CommentNode children = 12;
+}
+
+message CreateCommentRequest {
+  int32 postId = 1;     
+  int32 parentId = 2;   
+  int32 userId = 3;     
+  string content = 4;   
+}
+
+message CreateCommentResponse {
+  CommentNode comment = 1; 
+}
+
+message GetCommentRequest {
+  int32 commentId = 1;
+}
+
+message GetCommentResponse {
+  CommentNode comment = 1; 
 }

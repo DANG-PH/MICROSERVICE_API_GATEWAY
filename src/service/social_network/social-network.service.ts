@@ -33,7 +33,21 @@ import {
   CheckGroupUserRequest,
   CheckGroupUserResponse,
   GetAllGroupRequest,
-  GetAllGroupResponse
+  GetAllGroupResponse,
+  CreateCommentRequest,
+  CreateCommentResponse,
+  GetAllCommentRequest,
+  GetAllCommentResponse,
+  UpdateCommentRequest,
+  UpdateCommentResponse,
+  DeleteCommentRequest,
+  DeleteCommentResponse,
+  LikeCommentRequest,
+  LikeCommentResponse,
+  UnlikeCommentRequest,
+  UnlikeCommentResponse,
+  GetCommentRequest,
+  GetCommentResponse
 } from 'proto/social-network.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -108,5 +122,33 @@ export class SocialNetworkService {
 
   async handleAllGroup(req: GetAllGroupRequest): Promise<GetAllGroupResponse> {
     return grpcCall(SocialNetworkService.name, this.socialNetworkService.getAllGroup(req))
+  }
+
+  async handleCreateComment(req: CreateCommentRequest): Promise<CreateCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.createComment(req))
+  }
+
+  async handleGetAllComment(req: GetAllCommentRequest): Promise<GetAllCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.getAllComment(req))
+  }
+
+  async handleUpdateComment(req: UpdateCommentRequest): Promise<UpdateCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.updateComment(req))
+  }
+
+  async handleDeleteComment(req: DeleteCommentRequest): Promise<DeleteCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.deleteComment(req))
+  }
+
+  async handleLikeComment(req: LikeCommentRequest): Promise<LikeCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.likeComment(req))
+  }
+
+  async handleUnlikeComment(req: UnlikeCommentRequest): Promise<UnlikeCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.unlikeComment(req))
+  }
+
+  async handleGetComment(req: GetCommentRequest): Promise<GetCommentResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.getComment(req))
   }
 }

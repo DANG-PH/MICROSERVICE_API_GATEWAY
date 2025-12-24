@@ -7,6 +7,7 @@ import { SocialNetworkService } from './social-network.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { SOCIALNETWORK_PACKAGE_NAME } from 'proto/social-network.pb';
+import { WsChatModule } from '../chat/ws-chat.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { SOCIALNETWORK_PACKAGE_NAME } from 'proto/social-network.pb';
         },
       },
     ]),
-    AuthModule
+    AuthModule,
+    WsChatModule
   ],
   controllers: [SocialNetworkController],
   providers: [SocialNetworkService,JwtStrategy,RolesGuard],
