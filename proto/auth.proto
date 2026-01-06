@@ -29,6 +29,9 @@ service AuthService {
 
   // admin service gọi khi check account có đủ điều kiện đăng bán không
   rpc CheckAccount (LoginRequest) returns (LoginResponse) {};
+
+  // Login google
+  rpc LoginWithGoogle (LoginWithGoogleRequest) returns (LoginWithGoogleResponse) {};
 }
 
 // ===== MESSAGES =====
@@ -210,4 +213,15 @@ message UserTraVe {
 
 message GetAllUserResponse {
   repeated UserTraVe userTraVe = 1;
+}
+
+message LoginWithGoogleRequest {
+  string tokenFromGoogle = 1;
+}
+
+message LoginWithGoogleResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+  int32 auth_id = 3;
+  string role = 4;
 }

@@ -37,6 +37,23 @@ export class WsChatGateway {
   async handleConnection(client: Socket) {
     // Auth handled by WsJwtGuard
     // Client only joins room after setActiveRoom
+
+    try {
+      const token = 
+            client.handshake.auth?.token ||
+            client.handshake.query?.token ||
+            client.handshake.headers?.authorization?.split(' ')[1];
+      if (!token) throw new Error('Missing token');
+
+      const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
+      client.data.user = payload;
+
+      client.join(`Notification:${payload.userId}`);
+    } catch (err) {
+      client.disconnect();
+      return;
+    }
+
   }
 
   handleDisconnect(client: Socket) {
@@ -159,14 +176,14 @@ export class WsChatGateway {
   // Dùng cho logic gửi thông báo khi reply comment nhau 
 
   // User vừa vào web thì cho phép nhận thông báo
-  @SubscribeMessage('setReadyNotification')
-  async handleSetReadyNotification(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() body: {},
-  ) {
-    const { userId } = client.data.user;
-    client.join(`Notification:${userId}`);
-  }
+  // @SubscribeMessage('setReadyNotification')
+  // async handleSetReadyNotification(
+  //   @ConnectedSocket() client: Socket,
+  //   @MessageBody() body: {},
+  // ) {
+  //   const { userId } = client.data.user;
+  //   client.join(`Notification:${userId}`);
+  // }
 
   // Gửi thông báo
   async sendCommentNotification(userId: number, payload: any) {

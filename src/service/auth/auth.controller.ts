@@ -15,7 +15,8 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   ChangeRolePartnerRequestDto,
   ChangeRolePartnerResponseDto,
   ChangeAvatarRequestDto,
-  ChangeAvatarResponseDto} from 'dto/auth.dto';
+  ChangeAvatarResponseDto,
+  LoginWithGoogleRequestDto} from 'dto/auth.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { Roles } from 'src/security/decorators/role.decorator';
@@ -106,6 +107,38 @@ export class AuthController {
     else metadata.set('platform', 'game'); // fallback
 
     return this.authService.handleLogin(body, metadata);
+  }
+
+  @Post('login-google')
+  @ApiOperation({ summary: 'Đăng nhập tài khoản user bằng google (USER)(WEB) (CHƯA DÙNG)' })
+  @ApiBody({ type:  LoginWithGoogleRequestDto })
+  async loginWithGoogle(@Body() body: LoginWithGoogleRequestDto, @Req() req: RequestWithUser) {
+    const ip = req.headers['x-forwarded-for'] || req.ip
+    const key = `login_rate_limit_${ip}`;
+    const limit = 6;  // 6 lần
+    const ttl = 60;   // trong 60 giây
+
+    let count = (await this.cacheManager.get<number>(key)) || 0;
+    count++;
+
+    if (count > limit) {
+      throw new HttpException(
+        'Bạn đăng nhập quá nhiều lần, vui lòng thử lại sau 1 phút.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    await this.cacheManager.set(key, count, ttl * 1000);
+
+    const ua = req.headers?.['user-agent'];;
+
+    const metadata = new Metadata();
+
+    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
+    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
+    else metadata.set('platform', 'game'); // fallback
+
+    return this.authService.handleLoginWithGoogle(body, metadata);
   }
   
   @Post('verify-otp')

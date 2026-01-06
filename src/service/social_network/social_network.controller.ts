@@ -128,12 +128,12 @@ export class SocialNetworkController {
       userId: req.user?.userId
     }
     const result = await this.socialService.handleCreateComment(request);
-    if (result.comment) {
+    if (body.parentId != 0 && result.comment) {
       // Lấy người được bạn reply để gửi thông báo cho người đó
       const comment = (await this.socialService.handleGetComment({commentId: body.parentId})).comment
 
       await this.wsChatGateway.sendCommentNotification(Number(comment?.userId), {
-        message: `${comment?.realname} vừa reply comment của bạn` // sau này có thể thêm thông tin Post nào
+        message: `${result.comment.realname} vừa reply comment của bạn` // sau này có thể thêm thông tin Post nào
       })
     }
     

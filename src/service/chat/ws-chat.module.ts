@@ -8,9 +8,10 @@ import { RolesGuard } from "src/security/guard/role.guard";
 import { JwtStrategy } from "src/security/JWT/jwt.strategy";
 import { JwtService } from "@nestjs/jwt";
 import { AuthModule } from "../auth/auth.module";
+import { forwardRef } from "@nestjs/common";
 
 @Module({
-    imports: [SocialNetworkModule, AuthModule],
+    imports: [forwardRef(() => SocialNetworkModule), AuthModule],
     controllers: [ChatController],
     providers: [WsChatGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService],
     exports: [WsChatGateway]

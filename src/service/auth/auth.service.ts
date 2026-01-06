@@ -21,7 +21,8 @@ import {
   ChangeAvatarRequest,
   GetAllUserRequest,
   GetAllUserResponse,
-  GetRealnameAvatarRequest
+  GetRealnameAvatarRequest,
+  LoginWithGoogleRequest
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { winstonLogger } from 'src/logger/logger.config'; 
@@ -112,5 +113,9 @@ export class AuthService {
 
   async handleGetRealnameAvatar(req: GetRealnameAvatarRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.getRealnameAvatar(req));
+  }
+
+  async handleLoginWithGoogle(req: LoginWithGoogleRequest, metadata: Metadata) {
+    return grpcCall(AuthService.name,this.authGrpcService.loginWithGoogle(req, metadata), true);
   }
 }

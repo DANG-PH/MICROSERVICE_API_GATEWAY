@@ -192,6 +192,17 @@ export interface GetAllUserResponse {
   userTraVe: UserTraVe[];
 }
 
+export interface LoginWithGoogleRequest {
+  tokenFromGoogle: string;
+}
+
+export interface LoginWithGoogleResponse {
+  access_token: string;
+  refresh_token: string;
+  auth_id: number;
+  role: string;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -243,6 +254,10 @@ export interface AuthServiceClient {
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
   checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
+
+  /** Login google */
+
+  loginWithGoogle(request: LoginWithGoogleRequest, metadata?: Metadata): Observable<LoginWithGoogleResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -294,6 +309,10 @@ export interface AuthServiceController {
   /** admin service gọi khi check account có đủ điều kiện đăng bán không */
 
   checkAccount(request: LoginRequest, metadata?: Metadata): Observable<LoginResponse>;
+
+  /** Login google */
+
+  loginWithGoogle(request: LoginWithGoogleRequest, metadata?: Metadata): Observable<LoginWithGoogleResponse>;
 }
 
 export function AuthServiceControllerMethods() {
@@ -318,6 +337,7 @@ export function AuthServiceControllerMethods() {
       "unbanUser",
       "sendEmailToUser",
       "checkAccount",
+      "loginWithGoogle",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

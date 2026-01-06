@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength, Length } from 'class-validator';
 import { IsEnum, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
+import { LoginWithGoogleRequest } from 'proto/auth.pb';
 
 // ===== REGISTER =====
 export class RegisterRequest {
@@ -314,3 +315,32 @@ export class createRoomRequest {
   friendId: number;
 }
 
+export class LoginWithGoogleRequestDto implements LoginWithGoogleRequest {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI...',
+    description: 'Token từ google',
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'Token không được để trống' })
+  tokenFromGoogle: string;
+}
+
+export class LoginWithGoogleResponseDto {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI...',
+    description: 'Access Token cấp sau khi OTP hợp lệ'
+  })
+  access_token: string;
+
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI...',
+    description: 'Refresh Token dài hạn'
+  })
+  refresh_token: string;
+
+  @ApiProperty({
+    example: '1',
+    description: 'Auth ID trả về để người dùng truy cập được API bên user'
+  })
+  auth_id: number;
+}
