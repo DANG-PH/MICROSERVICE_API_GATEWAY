@@ -9,7 +9,6 @@ import {
   CreateAccountSellRequestDto,
   UpdateAccountSellRequestDto,
   DeleteAccountSellRequestDto,
-  GetAccountsByPartnerRequestDto,
   GetAccountByIdRequestDto,
   UpdateAccountStatusRequestDto,
   EmptyDto,
@@ -18,7 +17,10 @@ import {
   BuyAccountRequestDto,
   AccountInformationResponseDto,
   GetAllAccountByBuyerRequest,
-  GetAllAccountByBuyerResponse
+  GetAllAccountByBuyerResponse,
+  ListAccountSellRequestDto,
+  PaginationRequestDto,
+  PaginationByPartnerRequestDto
 } from 'dto/partner.dto';
 
 @Controller('partner')
@@ -68,8 +70,14 @@ export class PartnerController {
   @Roles(Role.PARTNER, Role.ADMIN, Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'User Xem tất cả acc cần bán ( status: ACTIVE ) trong kho acc của hệ thống (ALL)(WEB) (ĐÃ DÙNG)' })
-  async getAllAccountSell(@Query() query: EmptyDto): Promise<ListAccountSellResponseDto> {
-    return this.partnerService.handleGetAllActiveAccounts(query);
+  async getAllAccountSell(@Query() query: PaginationRequestDto): Promise<ListAccountSellResponseDto> {
+    return this.partnerService.handleGetAllActiveAccounts({
+        paginationRequest: {
+          page: query.page || "1",
+          itemPerPage: query.itemPerPage || "10",
+          search: query.search || ""
+        }
+    });
   }
 
   @Get('account-sell-by-partner')
@@ -77,9 +85,18 @@ export class PartnerController {
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
-  async getAccountsByPartner(@Req() req: any): Promise<ListAccountSellResponseDto> {
+  async getAccountsByPartner(@Query() query: PaginationByPartnerRequestDto, @Req() req: any): Promise<ListAccountSellResponseDto> {
     const id = req.user.id;
-    return this.partnerService.handleGetAccountsByPartner({partner_id: id});
+    return this.partnerService.handleGetAccountsByPartner(
+      {
+        partner_id: id,
+        paginationRequest: {
+          page: query.page || "1",
+          itemPerPage: query.itemPerPage || "10",
+          search: query.search || ""
+        }
+      }
+    );
   }
 
   @Get('account-sell/:id')

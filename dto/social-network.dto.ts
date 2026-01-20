@@ -440,3 +440,40 @@ export class CreateCommentResponseDto {
   @ApiProperty({ type: () => CommentNodeDto })
   comment?: CommentNodeDto;
 }
+
+export class NotificationDto {
+  @ApiProperty({ example: 5 })
+  @IsInt()
+  userId: number;
+
+  @ApiProperty({ example: 'Nội dung tiêu đề' })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({ example: 'Nội dung comment' })
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+}
+
+export class CreateNotificationRequestDto {
+  @ApiProperty({ type: () => NotificationDto })
+  notification: NotificationDto;
+}
+
+export class CreateNotificationResponseDto {
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  success: boolean;
+}
+
+export class GetNotificationByUserRequestDto {
+
+}
+
+export class GetNotificationByUserResponseDto {
+  @ApiProperty({ type: () => [NotificationDto] })
+  @Type(() => NotificationDto)
+  notification: NotificationDto[];
+}

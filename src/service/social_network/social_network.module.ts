@@ -28,7 +28,7 @@ import { forwardRef } from '@nestjs/common';
         },
       },
     ]),
-    AuthModule,
+    forwardRef(() => AuthModule),
     forwardRef(() => WsChatModule)
   ],
   controllers: [SocialNetworkController],

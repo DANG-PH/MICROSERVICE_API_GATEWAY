@@ -224,4 +224,5 @@ message LoginWithGoogleResponse {
   string refresh_token = 2;
   int32 auth_id = 3;
   string role = 4;
+  bool register = 5;
 }

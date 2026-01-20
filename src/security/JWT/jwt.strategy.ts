@@ -21,15 +21,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
   async validate(req: Request, payload: any) {
     const tokenFromHeader = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
 
-    const ua = req.headers?.['user-agent'];;
+    const platform = req.headers['x-platform'] || 'web';
 
-    let metadata;
-
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata = "app";
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata = "web";
-    else metadata = "game"; // fallback
-
-    const accessTokenInRedis = await this.cacheManager.get(`ACCESS:${payload.username}:${metadata}`);
+    const accessTokenInRedis =
+      await this.cacheManager.get(`ACCESS:${payload.username}:${platform}`);
 
     if (!accessTokenInRedis || accessTokenInRedis !== tokenFromHeader) {
       throw new UnauthorizedException('Phiên đăng nhập đã hết hạn hoặc bị thay đổi.');

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { AUTH_PACKAGE_NAME } from 'proto/auth.pb';
@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { UserModule } from 'src/service/user/user.module';
+import { SocialNetworkModule } from '../social_network/social_network.module';
+import { WsChatModule } from '../chat/ws-chat.module';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { UserModule } from 'src/service/user/user.module';
       },
     ]),
     UserModule,
+    forwardRef(() => SocialNetworkModule) ,
+    forwardRef(() => WsChatModule)
   ],
   controllers: [AuthController],
   providers: [AuthService,JwtStrategy,RolesGuard],

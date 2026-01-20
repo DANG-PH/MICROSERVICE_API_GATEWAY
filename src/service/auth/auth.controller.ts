@@ -30,6 +30,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import type { RequestWithUser } from 'src/interface/RequestWithUser.interface';
 import { Metadata } from '@grpc/grpc-js';
 import { GetAllUserResponse } from 'proto/auth.pb';
+import { WsChatGateway } from '../chat/ws-chat.gateway';
+import { SocialNetworkService } from '../social_network/social-network.service';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -37,7 +39,9 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private wsChatGateway: WsChatGateway,
+    private readonly socialService: SocialNetworkService
   ) {}
 
   @Post('register')
@@ -102,9 +106,8 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
 
     return this.authService.handleLogin(body, metadata);
   }
@@ -134,11 +137,19 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
+    
+    const response = await this.authService.handleLoginWithGoogle(body, metadata);
+    if (response.register) {
+      const userRequest = {
+        id: response.auth_id, 
+      };
+  
+      const userResult = await this.userService.handleRegister(userRequest);
+    }
 
-    return this.authService.handleLoginWithGoogle(body, metadata);
+    return response;
   }
   
   @Post('verify-otp')
@@ -149,9 +160,8 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
 
     const result = await this.authService.handleVerifyOtp(body, metadata);
 
@@ -175,9 +185,8 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
 
     return this.authService.handleRefresh(body, metadata);
   }
@@ -197,9 +206,8 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
     return this.authService.handleChangePassword(request, metadata);
   }
 
@@ -248,9 +256,8 @@ export class AuthController {
 
     const metadata = new Metadata();
 
-    if (ua && /mobile|android|iphone/i.test(ua)) metadata.set('platform', 'app');
-    else if (ua && /mozilla|chrome|safari|edge|node/i.test(ua)) metadata.set('platform', 'web');
-    else metadata.set('platform', 'game'); // fallback
+    const platform = String(req.headers['x-platform'] || 'web');
+    metadata.set('platform', platform);
     return this.authService.handleResetPassword(body, metadata);
   }
 
@@ -262,7 +269,21 @@ export class AuthController {
   @ApiBody({ type: ChangeRolePartnerRequestDto })
   async changeRolePartner(@Req() req: any): Promise<ChangeRolePartnerResponseDto> {
     const username = req.user.username;
-    return this.authService.handleChangeRolePartner(username);
+    const result = await this.authService.handleChangeRolePartner({username: username});
+    if (result && result.success) {
+      await this.socialService.createNotification({
+        notification: {
+          userId: req.user.userId,
+          title: "Đổi role thành công",
+          content: "Chúc mừng bạn đã đổi role thành Cộng Tác Viên thành công, vui lòng hợp tác vui vẻ với bạn trong tương lai!"
+        }
+      })
+      await this.wsChatGateway.sendCommentNotification(Number(req.user.userId), {
+        message: `Bạn có thông báo mới` 
+      })
+    }
+
+    return result;
   }
 
   @Get('profile/:id')

@@ -5,7 +5,7 @@ import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, CreateCommentRequestDto, CreateCommentResponseDto, DeleteCommentRequestDto, DeleteCommentResponseDto, GetAllCommentRequestDto, GetAllCommentResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetSentFriendResponseDto, LikeCommentRequestDto, LikeCommentResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto, UnlikeCommentRequestDto, UnlikeCommentResponseDto, UpdateCommentRequestDto, UpdateCommentResponseDto } from 'dto/social-network.dto';
+import { AcceptFriendRequestDto, AcceptFriendResponseDto, AddFriendRequestDto, AddFriendResponseDto, BlockUserRequestDto, BlockUserResponseDto, CreateCommentRequestDto, CreateCommentResponseDto, CreateNotificationRequestDto, CreateNotificationResponseDto, DeleteCommentRequestDto, DeleteCommentResponseDto, GetAllCommentRequestDto, GetAllCommentResponseDto, GetAllFriendResponseDto, GetIncomingFriendResponseDto, GetNotificationByUserRequestDto, GetNotificationByUserResponseDto, GetSentFriendResponseDto, LikeCommentRequestDto, LikeCommentResponseDto, RejectFriendRequestDto, RejectFriendResponseDto, UnfriendRequestDto, UnfriendResponseDto, UnlikeCommentRequestDto, UnlikeCommentResponseDto, UpdateCommentRequestDto, UpdateCommentResponseDto } from 'dto/social-network.dto';
 import { AuthService } from 'src/service/auth/auth.service';
 import { SocialNetworkService } from './social-network.service';
 import { GetAllCommentRequest } from 'proto/social-network.pb';
@@ -202,5 +202,30 @@ export class SocialNetworkController {
       userId: req.user?.userId
     }
     return this.socialService.handleUnlikeComment(request);
+  }
+
+  @Post('create-notification')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Tạo thông báo cho User (WEB)(CHƯA DÙNG)' })
+  @ApiBody({ type: CreateNotificationRequestDto })
+  async createNotification(@Body() body: CreateNotificationRequestDto, @Req() req: any): Promise<CreateNotificationResponseDto> {
+    const notification = body.notification;
+    notification.userId = req.user.userId;
+    return this.socialService.createNotification({
+      notification: notification
+    });
+  }
+
+  @Get('notification')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Lấy hết notification theo user' })
+  async getNotification(@Query() query: GetNotificationByUserRequestDto, @Req() req: any): Promise<GetNotificationByUserResponseDto> {
+    const request = {
+      ...query,
+      userId: req.user.userId
+    }
+    return this.socialService.getNotificationByUser(request)
   }
 }

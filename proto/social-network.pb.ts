@@ -284,6 +284,28 @@ export interface GetCommentResponse {
   comment: CommentNode | undefined;
 }
 
+export interface Notification {
+  userId: number;
+  title: string;
+  content: string;
+}
+
+export interface CreateNotificationRequest {
+  notification: Notification | undefined;
+}
+
+export interface CreateNotificationResponse {
+  success: boolean;
+}
+
+export interface GetNotificationByUserRequest {
+  userId: number;
+}
+
+export interface GetNotificationByUserResponse {
+  notification: Notification[];
+}
+
 export const SOCIALNETWORK_PACKAGE_NAME = "socialnetwork";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -376,6 +398,15 @@ export interface SocialNetworkServiceClient {
   /** Unlike comment */
 
   unlikeComment(request: UnlikeCommentRequest, metadata?: Metadata): Observable<UnlikeCommentResponse>;
+
+  /** Thông báo nội bộ trong game và web */
+
+  createNotification(request: CreateNotificationRequest, metadata?: Metadata): Observable<CreateNotificationResponse>;
+
+  getNotificationByUser(
+    request: GetNotificationByUserRequest,
+    metadata?: Metadata,
+  ): Observable<GetNotificationByUserResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -468,6 +499,15 @@ export interface SocialNetworkServiceController {
   /** Unlike comment */
 
   unlikeComment(request: UnlikeCommentRequest, metadata?: Metadata): Observable<UnlikeCommentResponse>;
+
+  /** Thông báo nội bộ trong game và web */
+
+  createNotification(request: CreateNotificationRequest, metadata?: Metadata): Observable<CreateNotificationResponse>;
+
+  getNotificationByUser(
+    request: GetNotificationByUserRequest,
+    metadata?: Metadata,
+  ): Observable<GetNotificationByUserResponse>;
 }
 
 export function SocialNetworkServiceControllerMethods() {
@@ -495,6 +535,8 @@ export function SocialNetworkServiceControllerMethods() {
       "deleteComment",
       "likeComment",
       "unlikeComment",
+      "createNotification",
+      "getNotificationByUser",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

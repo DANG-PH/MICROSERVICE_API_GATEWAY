@@ -144,6 +144,7 @@ export interface DeleteAccountSellRequest {
 
 export interface GetAccountsByPartnerRequest {
   partner_id: number;
+  paginationRequest: PaginationRequest | undefined;
 }
 
 export interface GetAccountByIdRequest {
@@ -172,6 +173,7 @@ export interface AccountSellResponse {
 
 export interface ListAccountSellResponse {
   accounts: AccountSell[];
+  paginationResponse: PaginationResponse | undefined;
 }
 
 export interface AccountInformationResponse {
@@ -181,6 +183,24 @@ export interface AccountInformationResponse {
 
 export interface GetAllAccountByBuyerResponse {
   accounts: AccountInformationResponse[];
+}
+
+export interface PaginationRequest {
+  page: string;
+  itemPerPage: string;
+  search: string;
+}
+
+export interface PaginationResponse {
+  total: number;
+  currentPage: number;
+  nextPage: number;
+  prevPage: number;
+  lastPage: number;
+}
+
+export interface ListAccountSellRequest {
+  paginationRequest: PaginationRequest | undefined;
 }
 
 export const ADMIN_PACKAGE_NAME = "admin";
@@ -343,7 +363,7 @@ export interface PartnerServiceClient {
 
   /** Lấy danh sách tất cả acc đang bán (user xem) */
 
-  getAllActiveAccounts(request: Empty, metadata?: Metadata): Observable<ListAccountSellResponse>;
+  getAllActiveAccounts(request: ListAccountSellRequest, metadata?: Metadata): Observable<ListAccountSellResponse>;
 
   /** Lấy danh sách acc theo partner (người bán xem) */
 
@@ -384,7 +404,7 @@ export interface PartnerServiceController {
 
   /** Lấy danh sách tất cả acc đang bán (user xem) */
 
-  getAllActiveAccounts(request: Empty, metadata?: Metadata): Observable<ListAccountSellResponse>;
+  getAllActiveAccounts(request: ListAccountSellRequest, metadata?: Metadata): Observable<ListAccountSellResponse>;
 
   /** Lấy danh sách acc theo partner (người bán xem) */
 

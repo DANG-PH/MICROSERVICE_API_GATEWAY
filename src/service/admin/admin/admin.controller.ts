@@ -32,7 +32,8 @@ import {
   GetAccountsByPartnerRequestDto,
   ListAccountSellResponseDto,
     GetAllAccountByBuyerRequest,
-  GetAllAccountByBuyerResponse
+  GetAllAccountByBuyerResponse,
+  PaginationByPartnerRequestDto
 } from 'dto/partner.dto';
 import { PartnerService } from '../partner/partner.service';
 
@@ -180,8 +181,17 @@ export class AdminController {
   @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN)(WEB) (Quản lí acc đăng bán của partner) (CHƯA DÙNG)' })
-  async getAccountsByPartner(@Query() query: GetAccountsByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
-    return this.partnerService.handleGetAccountsByPartner(query);
+  async getAccountsByPartner(@Query() query: PaginationByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
+    return this.partnerService.handleGetAccountsByPartner(
+      {
+        partner_id: query.partner_id,
+        paginationRequest: {
+          page: query.page || "1",
+          itemPerPage: query.itemPerPage || "10",
+          search: query.search || ""
+        }
+      }
+    );
   }
 
   @Get('all-account-buyer')

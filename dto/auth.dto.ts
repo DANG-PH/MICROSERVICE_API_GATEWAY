@@ -343,4 +343,7 @@ export class LoginWithGoogleResponseDto {
     description: 'Auth ID trả về để người dùng truy cập được API bên user'
   })
   auth_id: number;
+
+  @ApiProperty({ example: true })
+  register: boolean;
 }

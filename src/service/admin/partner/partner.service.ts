@@ -14,7 +14,8 @@ import {
   BuyAccountRequest,
   AccountInformationResponse,
   GetAllAccountByBuyerRequest,
-  GetAllAccountByBuyerResponse
+  GetAllAccountByBuyerResponse,
+  ListAccountSellRequest
 } from '../../../../proto/admin.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
@@ -49,7 +50,7 @@ export class PartnerService {
   }
 
   /* Lấy danh sách tất cả acc đang bán (user xem) */
-  async handleGetAllActiveAccounts(req: Empty) {
+  async handleGetAllActiveAccounts(req: ListAccountSellRequest): Promise<ListAccountSellResponse> {
     return grpcCall(PartnerService.name, this.partnerGrpcService.getAllActiveAccounts(req));
   }
 

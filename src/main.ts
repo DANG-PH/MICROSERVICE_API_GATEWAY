@@ -31,7 +31,7 @@ async function bootstrap() {
 
   // Bật CORS cho phép frontend gọi API
   app.enableCors({
-    origin: [process.env.WEB_USER_URL,process.env.WEB_ADMIN_URL,process.env.API_GATEWAY_URL], 
+    origin: [process.env.WEB_USER_URL,process.env.WEB_ADMIN_URL,process.env.API_GATEWAY_URL,process.env.WEB_USER_URL_DEV], 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
@@ -70,7 +70,7 @@ async function bootstrap() {
     next();
   });
 
-  await app.listen(Number(process.env.PORT));
+  await app.listen(Number(process.env.PORT), '0.0.0.0');
   console.log(bold(green(`🚀 Server Dashboard: http://${process.env.SERVER_DASHBOARD_URL}`)));
 }
 bootstrap();

@@ -47,7 +47,11 @@ import {
   UnlikeCommentRequest,
   UnlikeCommentResponse,
   GetCommentRequest,
-  GetCommentResponse
+  GetCommentResponse,
+  CreateNotificationRequest,
+  CreateNotificationResponse,
+  GetNotificationByUserRequest,
+  GetNotificationByUserResponse
 } from 'proto/social-network.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -150,5 +154,13 @@ export class SocialNetworkService {
 
   async handleGetComment(req: GetCommentRequest): Promise<GetCommentResponse> {
     return grpcCall(SocialNetworkService.name, this.socialNetworkService.getComment(req))
+  }
+
+  async createNotification(req: CreateNotificationRequest): Promise<CreateNotificationResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.createNotification(req))
+  }
+
+  async getNotificationByUser(req: GetNotificationByUserRequest): Promise<GetNotificationByUserResponse> {
+    return grpcCall(SocialNetworkService.name, this.socialNetworkService.getNotificationByUser(req))
   }
 }

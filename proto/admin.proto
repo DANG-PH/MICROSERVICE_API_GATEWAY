@@ -149,7 +149,7 @@ service PartnerService {
   rpc DeleteAccountSell (DeleteAccountSellRequest) returns (AccountSellResponse);
 
   // Lấy danh sách tất cả acc đang bán (user xem)
-  rpc GetAllActiveAccounts (Empty) returns (ListAccountSellResponse);
+  rpc GetAllActiveAccounts (ListAccountSellRequest) returns (ListAccountSellResponse);
 
   // Lấy danh sách acc theo partner (người bán xem)
   rpc GetAccountsByPartner (GetAccountsByPartnerRequest) returns (ListAccountSellResponse);
@@ -204,6 +204,7 @@ message DeleteAccountSellRequest {
 
 message GetAccountsByPartnerRequest {
   int32 partner_id = 1;
+  PaginationRequest paginationRequest = 2;
 }
 
 message GetAccountByIdRequest {
@@ -233,6 +234,7 @@ message AccountSellResponse {
 
 message ListAccountSellResponse {
   repeated AccountSell accounts = 1;
+  PaginationResponse paginationResponse = 2;
 }
 
 message AccountInformationResponse {
@@ -242,6 +244,24 @@ message AccountInformationResponse {
 
 message GetAllAccountByBuyerResponse {
   repeated AccountInformationResponse accounts = 1;
+}
+
+message PaginationRequest {
+  string page = 1;
+  string itemPerPage = 2;
+  string search = 3;
+}
+
+message PaginationResponse {
+  int32 total = 2;
+  int32 currentPage = 3;
+  int32 nextPage = 4;
+  int32 prevPage = 5;
+  int32 lastPage = 6;
+}
+
+message ListAccountSellRequest {
+  PaginationRequest paginationRequest = 1;
 }
 
 

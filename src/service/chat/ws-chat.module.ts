@@ -11,7 +11,10 @@ import { AuthModule } from "../auth/auth.module";
 import { forwardRef } from "@nestjs/common";
 
 @Module({
-    imports: [forwardRef(() => SocialNetworkModule), AuthModule],
+    imports: [
+        forwardRef(() => SocialNetworkModule), 
+        forwardRef(() => AuthModule)
+    ],
     controllers: [ChatController],
     providers: [WsChatGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService],
     exports: [WsChatGateway]

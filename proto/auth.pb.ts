@@ -201,6 +201,7 @@ export interface LoginWithGoogleResponse {
   refresh_token: string;
   auth_id: number;
   role: string;
+  register: boolean;
 }
 
 export const AUTH_PACKAGE_NAME = "auth";

@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ListAccountSellRequest, ListAccountSellResponse, PaginationResponse } from 'proto/admin.pb';
 
 // ===== ENTITY =====
 export class AccountSellDto {
@@ -94,6 +95,55 @@ export class UpdateAccountSellRequestDto {
   price: number;
 }
 
+// Pagination
+
+export class PaginationRequestDto {
+  @ApiPropertyOptional({ example: '1', description: 'Trang cần xem (optional)' })
+  @IsOptional()
+  @IsString()
+  page?: string;
+
+  @ApiPropertyOptional({ example: '5', description: 'Bao nhiêu phần tử 1 trang (optional)' })
+  @IsOptional()
+  @IsString()
+  itemPerPage?: string;
+
+  @ApiPropertyOptional({ example: 'có đệ', description: 'Keyword để search (optional)' })
+  @IsOptional()
+  @IsString()
+  search?: string;
+}
+
+export class PaginationByPartnerRequestDto extends PaginationRequestDto {
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @IsNumber()
+  @IsNotEmpty()
+  partner_id: number;
+}
+
+export class PaginationResponseDto implements PaginationResponse {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  total: number;
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  prevPage: number;
+
+  @ApiProperty({ example: 2 })
+  @IsInt()
+  currentPage: number;
+
+  @ApiProperty({ example: 3 })
+  @IsInt()
+  nextPage: number;
+
+  @ApiProperty({ example: 3 })
+  @IsInt()
+  lastPage: number;
+}
+
 // ===== DELETE REQUEST =====
 export class DeleteAccountSellRequestDto {
   @ApiProperty({ example: 1 })
@@ -108,6 +158,9 @@ export class GetAccountsByPartnerRequestDto {
   @IsNumber()
   @IsNotEmpty()
   partner_id: number;
+
+  @ApiProperty({ type: PaginationRequestDto })
+  paginationRequest: PaginationRequestDto;
 }
 
 // ===== GET BY ID =====
@@ -157,6 +210,9 @@ export class AccountResponseDto {
 export class ListAccountSellResponseDto {
   @ApiProperty({ type: [AccountSellDto] })
   accounts: AccountSellDto[];
+
+  @ApiProperty({ type: PaginationResponseDto })
+  paginationResponse?: PaginationResponseDto;
 }
 
 export class AccountInformationResponseDto {
@@ -179,3 +235,9 @@ export class GetAllAccountByBuyerResponse {
   @ApiProperty({ type: [AccountInformationResponseDto] })
   accounts: AccountInformationResponseDto[]
 }
+
+export class ListAccountSellRequestDto {
+  @ApiProperty({ type: PaginationRequestDto })
+  paginationRequest: PaginationRequestDto;
+}
+
