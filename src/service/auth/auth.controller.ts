@@ -71,7 +71,7 @@ export class AuthController {
     }
     const userRequest = {
       id: authResult.auth_id, 
-      gameName: body.gameName
+      gameName: "admin"
     };
 
     const userResult = await this.userService.handleRegister(userRequest);
