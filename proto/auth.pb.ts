@@ -17,6 +17,7 @@ export interface RegisterRequest {
   password: string;
   email: string;
   realname: string;
+  gameName: string;
 }
 
 export interface RegisterResponse {

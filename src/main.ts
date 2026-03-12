@@ -30,10 +30,15 @@ async function bootstrap() {
   );
 
   // Bật CORS cho phép frontend gọi API
+  // app.enableCors({
+  //   origin: [process.env.WEB_USER_URL,process.env.WEB_ADMIN_URL,process.env.API_GATEWAY_URL,process.env.WEB_USER_URL_DEV], 
+  //   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  //   credentials: true,
+  // });
+
   app.enableCors({
-    origin: [process.env.WEB_USER_URL,process.env.WEB_ADMIN_URL,process.env.API_GATEWAY_URL,process.env.WEB_USER_URL_DEV], 
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    credentials: true,
+    origin: '*',
+    credentials: false,
   });
 
   // interceptor logging

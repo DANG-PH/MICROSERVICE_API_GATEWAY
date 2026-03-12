@@ -20,7 +20,11 @@ import {
   UserServiceClient,
   USER_PACKAGE_NAME,
   USER_SERVICE_NAME,
-  Empty
+  Empty,
+  GetPositionRequest,
+  GetPositionResponse,
+  SavePositionRequest,
+  SavePositionResponse
 } from 'proto/user.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -91,5 +95,13 @@ export class UserService {
 
   async handleGetTop10Vang(req: Empty ) {
     return grpcCall(UserService.name,this.userGrpcService.getTop10ByVang(req));
+  }
+
+  async handleGetPosition(req: GetPositionRequest): Promise<GetPositionResponse> {
+    return grpcCall(UserService.name,this.userGrpcService.getPosition(req))
+  }
+
+  async handleSavePosition(req: SavePositionRequest): Promise<SavePositionResponse> {
+    return grpcCall(UserService.name,this.userGrpcService.savePosition(req))
   }
 }

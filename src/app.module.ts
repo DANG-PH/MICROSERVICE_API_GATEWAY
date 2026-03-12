@@ -26,6 +26,7 @@ import { OpenaiModule } from './service/open-ai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocialNetworkModule } from './service/social_network/social_network.module';
 import { WsChatModule } from './service/chat/ws-chat.module';
+import { WsModule } from './service/ws-for-game/ws.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { WsChatModule } from './service/chat/ws-chat.module';
     PartnerModule,
     ServerModule,
     OpenaiModule,
+    WsModule
   ],
   controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],

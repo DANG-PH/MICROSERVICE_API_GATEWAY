@@ -24,6 +24,11 @@ export class RegisterRequest {
   @ApiProperty({ example: 'phamhaidang28092006@gmail.com', description: 'Email đăng ký' })
   @IsEmail()
   email: string;
+
+  @ApiProperty({ example: 'DZno1st', description: 'Tên nhân vật trong game' })
+  @IsString()
+  @IsNotEmpty({ message: 'Tên game không được để trống' })
+  gameName: string;
 }
 
 export class RegisterResponse {

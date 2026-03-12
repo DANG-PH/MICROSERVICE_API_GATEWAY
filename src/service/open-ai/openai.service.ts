@@ -9,9 +9,9 @@ export class OpenaiService {
 
   async chatCompletion(prompt: string) {
     const response = await this.openai.chat.completions.create({
-      model: String(process.env.MODEL_AI),
+      model: String(process.env.MODEL_AI_GPT),
       messages: [
-        { role: 'system', content: String(process.env.TRAIN_AI) },
+        { role: 'system', content: String(process.env.TRAIN_AI_GPT) },
         { role: 'user', content: prompt },
       ],
     });

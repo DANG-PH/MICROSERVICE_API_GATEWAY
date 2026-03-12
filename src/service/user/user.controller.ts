@@ -1,7 +1,7 @@
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { UserService } from './user.service';
 import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query, Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam, ApiOkResponse } from '@nestjs/swagger';
 import {UseItemAdminRequestDto,AddItemAdminRequestDto,UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
@@ -207,6 +207,7 @@ export class UserController {
 
   @Get('top10-suc-manh')
   @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
+  @ApiOkResponse({ type: UserListResponseDto })
   async getTop10SucManh(@Query() query: EmptyDto) {
     return this.userService.handleGetTop10SucManh(query);
   }

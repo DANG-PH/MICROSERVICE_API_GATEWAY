@@ -42,6 +42,7 @@ message RegisterRequest {
   string password = 2;
   string email = 3;
   string realname = 4;
+  string gameName = 5;
 }
 
 message RegisterResponse {

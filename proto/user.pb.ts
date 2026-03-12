@@ -28,6 +28,7 @@ export interface User {
   coDeTu: boolean;
   danhSachVatPhamWeb: number[];
   auth_id: number;
+  gameName: string;
 }
 
 export interface ItemWeb {
@@ -37,6 +38,7 @@ export interface ItemWeb {
 
 export interface RegisterRequest {
   id: number;
+  gameName: string;
 }
 
 export interface RegisterResponse {
@@ -106,6 +108,28 @@ export interface MessageResponse {
   message: string;
 }
 
+export interface GetPositionRequest {
+  userId: number;
+}
+
+export interface GetPositionResponse {
+  x: number;
+  y: number;
+  map: string;
+  gameName: string;
+}
+
+export interface SavePositionRequest {
+  userId: number;
+  x: number;
+  y: number;
+  map: string;
+}
+
+export interface SavePositionResponse {
+  success: boolean;
+}
+
 export const USER_PACKAGE_NAME = "user";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -138,6 +162,10 @@ export interface UserServiceClient {
   getItemsWeb(request: UsernameRequest, metadata?: Metadata): Observable<ItemListResponse>;
 
   useItemWeb(request: UseItemRequest, metadata?: Metadata): Observable<MessageResponse>;
+
+  getPosition(request: GetPositionRequest, metadata?: Metadata): Observable<GetPositionResponse>;
+
+  savePosition(request: SavePositionRequest, metadata?: Metadata): Observable<SavePositionResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -170,6 +198,10 @@ export interface UserServiceController {
   getItemsWeb(request: UsernameRequest, metadata?: Metadata): Observable<ItemListResponse>;
 
   useItemWeb(request: UseItemRequest, metadata?: Metadata): Observable<MessageResponse>;
+
+  getPosition(request: GetPositionRequest, metadata?: Metadata): Observable<GetPositionResponse>;
+
+  savePosition(request: SavePositionRequest, metadata?: Metadata): Observable<SavePositionResponse>;
 }
 
 export function UserServiceControllerMethods() {
@@ -189,6 +221,8 @@ export function UserServiceControllerMethods() {
       "addItemWeb",
       "getItemsWeb",
       "useItemWeb",
+      "getPosition",
+      "savePosition",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

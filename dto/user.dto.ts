@@ -57,6 +57,11 @@ export class UserDto {
   @IsOptional()
   @IsInt()
   auth_id: number;
+
+  @ApiProperty({ example: 'DZno1st', description: 'Tên nhân vật trong game' })
+  @IsString()
+  @IsNotEmpty({ message: 'Tên game không được để trống' })
+  gameName: string;
 }
 
 export class ItemWebDto {
@@ -114,6 +119,11 @@ export class UserDtoNoId {
   @IsArray()
   @IsInt({ each: true })
   danhSachVatPhamWeb: number[];
+
+  @ApiProperty({ example: 'DZno1st', description: 'Tên nhân vật trong game' })
+  @IsString()
+  @IsNotEmpty({ message: 'Tên game không được để trống' })
+  gameName: string;
 }
 
 // ===== REGISTER =====
@@ -121,6 +131,11 @@ export class RegisterRequestDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   id: number;
+
+  @ApiProperty({ example: 'DZno1st', description: 'Tên game' })
+  @IsString()
+  @IsNotEmpty({ message: 'Tên game không được để trống' })
+  gameName: string;
 }
 
 export class RegisterResponseDto {

@@ -71,6 +71,7 @@ export class AuthController {
     }
     const userRequest = {
       id: authResult.auth_id, 
+      gameName: body.gameName
     };
 
     const userResult = await this.userService.handleRegister(userRequest);
@@ -144,6 +145,7 @@ export class AuthController {
     if (response.register) {
       const userRequest = {
         id: response.auth_id, 
+        gameName: "GOOGLE USER "+response.auth_id
       };
   
       const userResult = await this.userService.handleRegister(userRequest);

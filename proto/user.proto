@@ -18,6 +18,8 @@ service UserService {
   rpc AddItemWeb (AddItemRequest) returns (MessageResponse) {};
   rpc GetItemsWeb (UsernameRequest) returns (ItemListResponse) {};
   rpc UseItemWeb (UseItemRequest) returns (MessageResponse) {};
+  rpc GetPosition (GetPositionRequest) returns (GetPositionResponse) {};
+  rpc SavePosition (SavePositionRequest) returns (SavePositionResponse) {};
 }
 
 // ===== MESSAGES =====
@@ -38,6 +40,7 @@ message User {
   bool coDeTu = 11;
   repeated int32 danhSachVatPhamWeb = 12;
   int32 auth_id = 13;
+  string gameName = 14;
 }
 
 message ItemWeb {
@@ -47,6 +50,7 @@ message ItemWeb {
 
 message RegisterRequest {
   int32 id = 1;
+  string gameName = 5;
 }
 
 message RegisterResponse {
@@ -114,4 +118,26 @@ message UseItemRequest {
 
 message MessageResponse {
   string message = 1;
+}
+
+message GetPositionRequest {
+  int32 userId = 1;
+}
+
+message GetPositionResponse {
+  int32 x = 1;
+  int32 y = 2;
+  string map = 3;
+  string gameName = 4;
+}
+
+message SavePositionRequest {
+  int32 userId = 1;
+  int32 x = 2;
+  int32 y = 3;
+  string map = 4;
+}
+
+message SavePositionResponse {
+  bool success = 1;
 }
