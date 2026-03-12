@@ -362,7 +362,7 @@ services:
   cloudflared:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared
-    command: tunnel --no-autoupdate --url http://host.docker.internal:3000
+    command: tunnel --no-autoupdate --url http://172.17.0.1:3000
     network_mode: bridge
     dns:
       - 1.1.1.1
@@ -372,7 +372,7 @@ services:
   cloudflared1:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared1
-    command: tunnel --no-autoupdate --url http://host.docker.internal:8081
+    command: tunnel --no-autoupdate --url http://172.17.0.1:8081
     network_mode: bridge
     dns:
       - 1.1.1.1
@@ -382,7 +382,7 @@ services:
   cloudflared2:
     image: cloudflare/cloudflared:latest
     container_name: cloudflared2
-    command: tunnel --no-autoupdate --url http://host.docker.internal:3005
+    command: tunnel --no-autoupdate --url http://172.17.0.1:3005
     network_mode: bridge
     dns:
       - 1.1.1.1
