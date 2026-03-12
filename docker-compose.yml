@@ -371,7 +371,7 @@ services:
 
   cloudflared1:
     image: cloudflare/cloudflared:latest
-    container_name: cloudflared
+    container_name: cloudflared1
     command: tunnel --no-autoupdate --url http://host.docker.internal:8081
     network_mode: bridge
     dns:
@@ -381,7 +381,7 @@ services:
   
   cloudflared2:
     image: cloudflare/cloudflared:latest
-    container_name: cloudflared
+    container_name: cloudflared2
     command: tunnel --no-autoupdate --url http://host.docker.internal:3005
     network_mode: bridge
     dns:
