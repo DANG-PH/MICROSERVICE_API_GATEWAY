@@ -264,7 +264,9 @@ export class PlayerManagerController {
     };
   }
 
-  @Cron('0 20 * * *') 
+  @Cron('0 20 * * *', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+  })
   async callApi() {
     return this.authService.handleSendEmailToUser({
       who: "ALL",
@@ -283,7 +285,9 @@ export class PlayerManagerController {
     })
   }
 
-  @Cron('0 0 * * *') 
+  @Cron('0 0 * * *', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+  })
   async logDoanhThu() {
     const doanhThu = await this.financeService.handleGetFinanceSummary({});
     const tienNap = doanhThu.total_nap;
