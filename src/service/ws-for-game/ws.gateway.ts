@@ -416,11 +416,11 @@ export class WsGateway {
 
     await this.redis.set(key, JSON.stringify(current), 'EX', 300);
 
-    // Gửi cho User B để User B render lại items ( tạm thời không cần do tốn băng thông )
-    // this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
-    //   from: userId,
-    //   items: current,
-    // });
+    // Gửi cho User B để User B render lại items 
+    this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
+      from: userId,
+      items: current,
+    });
   }
 
   // Gọi event này lúc bấm vào đồ và chọn bỏ đồ ra ko giao dịch nữa
@@ -453,11 +453,11 @@ export class WsGateway {
 
     await this.redis.set(key, JSON.stringify(next), 'EX', 300);
 
-    // Gửi cho User B để User B render lại items ( tạm thời không cần do tốn băng thông )
-    // this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
-    //   from: userId,
-    //   items: next,
-    // });
+    // Gửi cho User B để User B render lại items 
+    this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
+      from: userId,
+      items: next,
+    });
   }
 
   @SubscribeMessage('trade:lock')

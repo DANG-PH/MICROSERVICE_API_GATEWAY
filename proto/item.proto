@@ -57,6 +57,14 @@ message MessageResponse {
   string message = 1;
 }
 
+message GetItemsByItemIdsRequest {
+  repeated int32 itemIds = 1;
+}
+
+message GetItemsByItemIdsResponse {
+  repeated Item items = 1;
+}
+
 // ===== SERVICE DEFINITION =====
 service ItemService {
   rpc GetItemsByUser (UserIdRequest) returns (ItemsResponse);
@@ -64,4 +72,5 @@ service ItemService {
   rpc UpdateItem (Item) returns (ItemResponse);
   rpc DeleteItem (ItemIdRequest) returns (MessageResponse);
   rpc AddMultipleItems (AddMultipleItemsRequest) returns (ItemsResponse);
+  rpc GetItemsByItemIds (GetItemsByItemIdsRequest) returns (GetItemsByItemIdsResponse);
 }

@@ -14,7 +14,9 @@ import {
     AddItemRequest,
     AddMultipleItemsRequest,
     MessageResponse,
-    UserIdRequest
+    UserIdRequest,
+    GetItemsByItemIdsRequest,
+    GetItemsByItemIdsResponse
 } from 'proto/item.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -49,5 +51,9 @@ export class ItemService {
 
   async handleAddMultiItem(req: AddMultipleItemsRequest): Promise<ItemsResponse> {
     return grpcCall(ItemService.name,this.itemGrpcService.addMultipleItems(req));
+  }
+
+  async handleGetItemsByIds(req: GetItemsByItemIdsRequest): Promise<GetItemsByItemIdsResponse> {
+    return grpcCall(ItemService.name,this.itemGrpcService.getItemsByItemIds(req));
   }
 }

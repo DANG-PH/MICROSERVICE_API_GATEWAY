@@ -2,7 +2,7 @@ import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { ItemService } from './item.service';
 import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
-import {ItemDto, UserIdRequestDto, ItemIdRequestDto, ItemResponseDto, ItemsResponseDto, AddUserItemRequestDto, AddMultipleItemsRequestDto, MessageResponseDto, EmptyDto} from "dto/item.dto"
+import {ItemDto, UserIdRequestDto, ItemIdRequestDto, ItemResponseDto, ItemsResponseDto, AddUserItemRequestDto, AddMultipleItemsRequestDto, MessageResponseDto, EmptyDto, GetItemsByItemIdsRequestDto} from "dto/item.dto"
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
@@ -72,5 +72,14 @@ export class ItemController {
       items: body.items
     }
     return this.itemService.handleAddMultiItem(request);
+  }
+
+  @Post('itemIds')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'User gọi hàm này để fetch data item (USER)(GAME) (ĐÃ DÙNG)' })
+  @ApiBody({ type:  GetItemsByItemIdsRequestDto })
+  async getItemsByIds(@Body() body: GetItemsByItemIdsRequestDto) {
+    return this.itemService.handleGetItemsByIds(body);
   }
 }

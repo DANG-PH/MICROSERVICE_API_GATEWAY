@@ -131,3 +131,14 @@ export class UserIdRequestDto {
   @IsInt()
   user_id: number;
 }
+
+export class GetItemsByItemIdsRequestDto {
+  @ApiProperty({ type: [Number] })
+  itemIds: number[];
+}
+
+export class GetItemsByItemIdsResponseDto {
+  @ApiProperty({ type: [ItemDto] })
+  @IsArray()
+  items: Item[];
+}
