@@ -134,6 +134,8 @@ export class UserIdRequestDto {
 
 export class GetItemsByItemIdsRequestDto {
   @ApiProperty({ type: [Number] })
+  @IsArray()
+  @IsNumber({}, { each: true })
   itemIds: number[];
 }
 
