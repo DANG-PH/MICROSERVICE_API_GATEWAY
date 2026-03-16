@@ -17,21 +17,17 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Bật Helmet bảo mật header HTTP
-  // app.use(
-  //   helmet({
-  //     contentSecurityPolicy: {
-  //       useDefaults: true, // cấu hình mặc định CSP
-  //       directives: { // Custom lại các rule (tránh chặn hình ảnh).
-  //         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-  //         "img-src": ["'self'", "data:", "https:", "http:"],
-  //         "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-  //         "script-src-attr": ["'unsafe-inline'"],  
-  //         "style-src": ["'self'", "'unsafe-inline'"],
-  //         "style-src-attr": ["'unsafe-inline'"],  
-  //       },
-  //     },
-  //   }),
-  // );
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true, // cấu hình mặc định CSP
+        directives: { // Custom lại các rule (tránh chặn hình ảnh).
+          ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+          "img-src": ["'self'", "data:", "https:", "http:"],
+        },
+      },
+    }),
+  );
 
   // Bật CORS cho phép frontend gọi API
   // app.enableCors({
