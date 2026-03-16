@@ -26,6 +26,8 @@ async function bootstrap() {
           "img-src": ["'self'", "data:", "https:", "http:"],
           "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           "script-src-attr": ["'unsafe-inline'"],  
+          "style-src": ["'self'", "'unsafe-inline'"],
+          "style-src-attr": ["'unsafe-inline'"],  
         },
       },
     }),
