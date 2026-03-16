@@ -20,7 +20,7 @@ export class AppController {
     const timestamp = new Date(Date.now()).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
     const env = process.env.NODE_ENV || 'development';
     const uptime = this.formatUptime(process.uptime());
-    const swaggerUrl = `http://api.chienbinhrongthieng.online/api-docs`;
+    const swaggerUrl = `https://api.chienbinhrongthieng.online/api-docs`;
     const frontendUrl = 'https://chienbinhrongthieng.online';
     const adminUrl = 'https://admin.chienbinhrongthieng.online';
 
@@ -206,7 +206,7 @@ export class AppController {
                 <tr><td>Framework</td><td><span class="tag tag-orange">NestJS</span></td></tr>
                 <tr><td>Runtime</td><td><span class="tag tag-green">Node.js</span></td></tr>
                 <tr><td>Docs</td><td><a href="${swaggerUrl}" target="_blank">Swagger UI ↗</a></td></tr>
-                <tr><td>Dashboard</td><td><a href="'http://api.chienbinhrongthieng.online/server/dashboard'" target="_blank">Dashboard ↗</a></td></tr>
+                <tr><td>Dashboard</td><td><a href="'https://api.chienbinhrongthieng.online/server/dashboard'" target="_blank">Dashboard ↗</a></td></tr>
               </table>
             </div>
 
