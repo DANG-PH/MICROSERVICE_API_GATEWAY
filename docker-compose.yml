@@ -353,14 +353,10 @@ services:
     image: nginx:latest
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    network_mode: "host"
     restart: always
-    ports:
-      - "80:80"
-      - "443:443"
   # depends_on:
   #   - api_gateway
-    extra_hosts:
-    - "host.docker.internal:host-gateway"
 
   cloudflared:
     image: cloudflare/cloudflared:latest
