@@ -355,9 +355,10 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     restart: always
     ports:
-      - "2006:80"
-  depends_on:
-    - api_gateway
+      - "80:80"
+      - "443:443"
+  # depends_on:
+  #   - api_gateway
 
   cloudflared:
     image: cloudflare/cloudflared:latest
