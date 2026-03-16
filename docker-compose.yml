@@ -353,8 +353,8 @@ services:
     image: nginx:latest
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt/live:/etc/letsencrypt/live:ro      
-      - /etc/letsencrypt/archive:/etc/letsencrypt/archive:ro
+      - ./fullchain.pem:/etc/letsencrypt/live/api.chienbinhrongthieng.online/fullchain.pem:ro
+      - ./privkey.pem:/etc/letsencrypt/live/api.chienbinhrongthieng.online/privkey.pem:ro
     network_mode: "host"
     restart: always
   # depends_on:
