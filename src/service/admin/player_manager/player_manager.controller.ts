@@ -24,6 +24,7 @@ import { TemporaryBanRequestDto } from 'dto/player_manager.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
 import { winstonLogger } from 'src/logger/logger.config';
+import { PlayerManagerService } from './player_manager.service';
 
 @Controller('player_manager')
 @ApiTags('Api Player Manager') 
@@ -35,7 +36,8 @@ export class PlayerManagerController {
     private deTuService: DeTuService,
     private itemService: ItemService,
     private payService: PayService,
-    private financeService: FinanceService
+    private financeService: FinanceService,
+    private playerManagerService: PlayerManagerService
   ) {}
 
   @Get('user-online-Ver1')
@@ -56,28 +58,7 @@ export class PlayerManagerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG - VER2 NÀY CHÍNH XÁC HƠN VER1)' })
   async getOnlineUsersVer2(): Promise<any> {
-    const store = this.cacheManager.stores[1];
-  
-    const onlineUsers: string[] = [];  // Chỉ lưu username
-    // const onlineUsersData: Record<string, any> = {};  // Lưu cả data
-    
-    if (store.iterator) {
-      for await (const [key, value] of store.iterator(undefined)) {
-        // Chỉ lấy keys bắt đầu với "online:"
-        if (key.startsWith('online:')) {
-          // Extract username từ "online:username" → "username"
-          const username = key.replace('online:', '');
-          
-          onlineUsers.push(username);  // Thêm username vào array
-          // onlineUsersData[username] = value;  // Lưu data (nếu cần)
-        }
-      }
-    }
-    
-    return {
-      total: onlineUsers.length,
-      users: onlineUsers,  
-    };
+    return this.playerManagerService.getOnlineUsersVer2();
   }
 
   // Gọi sang user-service

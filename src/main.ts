@@ -24,6 +24,8 @@ async function bootstrap() {
         directives: { // Custom lại các rule (tránh chặn hình ảnh).
           ...helmet.contentSecurityPolicy.getDefaultDirectives(),
           "img-src": ["'self'", "data:", "https:", "http:"],
+          "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          "script-src-attr": ["'unsafe-inline'"],  
         },
       },
     }),

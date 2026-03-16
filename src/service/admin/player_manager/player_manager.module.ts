@@ -8,10 +8,12 @@ import { ItemModule } from 'src/service/item/item.module';
 import { DeTuModule } from 'src/service/detu/detu.module';
 import { PayModule } from 'src/service/pay/pay/pay.module';
 import { FinanceModule } from 'src/service/pay/finance/finance.module';
+import { PlayerManagerService } from './player_manager.service';
 
 @Module({
   imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule, FinanceModule],
   controllers: [PlayerManagerController],
-  providers: [JwtStrategy,RolesGuard]
+  providers: [JwtStrategy,RolesGuard,PlayerManagerService],
+  exports: [PlayerManagerService],
 })
 export class PlayerManagerModule {}
