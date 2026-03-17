@@ -247,6 +247,9 @@ services:
     container_name: redisinsight
     ports:
       - '5540:5540'
+    environment:
+      - RI_APP_USERNAME=admin
+      - RI_APP_PASSWORD=haidang
     depends_on:
       - redis
 
