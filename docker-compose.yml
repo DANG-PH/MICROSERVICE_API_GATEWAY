@@ -273,11 +273,10 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    network_mode: "host"
+    ports:
+      - '8081:80'
     environment:
-      PMA_HOST: 127.0.0.1      
-      PMA_PORT: 3306
-      APACHE_PORT: 8081
+      PMA_HOST: mysql-nro
       PMA_ABSOLUTE_URI: https://data.chienbinhrongthieng.online/
     depends_on:
       - mysql-nro
