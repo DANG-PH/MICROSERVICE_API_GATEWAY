@@ -359,6 +359,7 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./fullchain.pem:/etc/letsencrypt/live/api.chienbinhrongthieng.online/fullchain.pem:ro
       - ./privkey.pem:/etc/letsencrypt/live/api.chienbinhrongthieng.online/privkey.pem:ro
+      - ./htpasswd:/etc/nginx/.htpasswd:ro
     network_mode: "host"
     restart: always
   # depends_on:
