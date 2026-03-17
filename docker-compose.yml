@@ -269,6 +269,8 @@ services:
       MYSQL_ROOT_PASSWORD: 'Phamhaidang112@'
     volumes:
       - ./configAdmin.sql:/docker-entrypoint-initdb.d/configAdmin.sql
+    networks:
+      - pma-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -280,6 +282,8 @@ services:
       PMA_ABSOLUTE_URI: https://data.chienbinhrongthieng.online/
     depends_on:
       - mysql-nro
+    networks:
+      - pma-network
 
   adminer:
     image: adminer
@@ -391,4 +395,6 @@ services:
       - 8.8.8.8
     restart: unless-stopped
 
-
+networks:
+  pma-network:
+    driver: bridge
