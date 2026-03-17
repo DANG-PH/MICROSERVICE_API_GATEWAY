@@ -277,6 +277,7 @@ services:
     environment:
       PMA_HOST: 127.0.0.1      
       PMA_PORT: 3306
+      APACHE_PORT: 8081
       PMA_ABSOLUTE_URI: https://data.chienbinhrongthieng.online/
     depends_on:
       - mysql-nro
