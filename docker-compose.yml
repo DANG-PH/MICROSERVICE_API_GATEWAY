@@ -284,13 +284,13 @@ services:
     depends_on:
       - mysql-nro
 
-  adminer:
-    image: adminer
-    container_name: adminer
-    ports:
-      - '2809:8080'
-    depends_on:
-      - mysql-nro
+  # adminer:
+  #   image: adminer
+  #   container_name: adminer
+  #   ports:
+  #     - '2809:8080'
+  #   depends_on:
+  #     - mysql-nro
 
   jaeger:
     image: jaegertracing/jaeger:2.11.0
