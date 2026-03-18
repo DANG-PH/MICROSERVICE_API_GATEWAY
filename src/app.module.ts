@@ -62,20 +62,27 @@ export class AppModule implements NestModule {
   }
 }
 
-// [1] Express/Fastify Layer (middleware thô: app.use()) 
-//       ↓
-// [2] Nest Global Middleware (class NestMiddleware)
-//       ↓
-// [3] Guards (CanActivate)
-//       ↓
-// [4] Interceptors (Before)
-//       ↓
-// [5] Pipes (Validation/Transform)
-//       ↓
-// [6] Controller → Service → Repository
-//       ↓
-// [7] Interceptors (After)
-//       ↓
-// [8] Exception Filters
-//       ↓
-// Client Response
+// HTTP Request
+//    ↓
+// Express App (global)
+//    ↓
+// A → (app.use - middleware của bạn)
+//    ↓
+// Express Router (do Nest đăng ký)
+//    ↓
+// B → (middleware qua consumer.apply)
+//    ↓
+// Guards
+//    ↓
+// Interceptors (before)
+//    ↓
+// Pipes
+//    ↓
+// Controller
+//    ↓
+// Interceptors (after)
+//    ↓
+// Response
+
+// middleware tầng express low level hơn nên ít tác vụ phức tạp thì dùng nó
+// middleware tầng nest khi cần dùng DI thì xài ở đây
