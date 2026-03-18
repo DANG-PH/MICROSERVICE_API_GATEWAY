@@ -279,5 +279,12 @@ export class AppController {
     if (h > 0) return `${h} giờ ${m} phút ${s} giây`;
     return `${m} phút ${s} giây`;
   }
+
+  @Get('health')
+  async healthCheck() {
+    return {
+      success: true
+    };
+  }
 }
 
