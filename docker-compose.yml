@@ -246,7 +246,7 @@ services:
     image: redis/redisinsight:latest
     container_name: redisinsight
     ports:
-      - '5540:5540'
+      - '127.0.0.1:5540:5540'
     environment:
       - RI_APP_USERNAME=admin
       - RI_APP_PASSWORD=haidang
@@ -277,7 +277,7 @@ services:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
     ports:
-      - '8081:80'
+      - '127.0.0.1:8081:80'
     environment:
       PMA_HOST: mysql-nro
       PMA_ABSOLUTE_URI: https://data.chienbinhrongthieng.online/
@@ -355,6 +355,7 @@ services:
 
   nginx:
     image: nginx:latest
+    container_name: nginx
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - ./fullchain.pem:/etc/letsencrypt/live/api.chienbinhrongthieng.online/fullchain.pem:ro
@@ -365,34 +366,34 @@ services:
   # depends_on:
   #   - api_gateway
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared
-    command: tunnel --no-autoupdate --url http://172.17.0.1:3000
-    network_mode: bridge
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    restart: unless-stopped
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared
+  #   command: tunnel --no-autoupdate --url http://172.17.0.1:3000
+  #   network_mode: bridge
+  #   dns:
+  #     - 1.1.1.1
+  #     - 8.8.8.8
+  #   restart: unless-stopped
 
-  cloudflared1:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared1
-    command: tunnel --no-autoupdate --url http://172.17.0.1:8081
-    network_mode: bridge
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    restart: unless-stopped
+  # cloudflared1:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared1
+  #   command: tunnel --no-autoupdate --url http://172.17.0.1:8081
+  #   network_mode: bridge
+  #   dns:
+  #     - 1.1.1.1
+  #     - 8.8.8.8
+  #   restart: unless-stopped
   
-  cloudflared2:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflared2
-    command: tunnel --no-autoupdate --url http://172.17.0.1:3005
-    network_mode: bridge
-    dns:
-      - 1.1.1.1
-      - 8.8.8.8
-    restart: unless-stopped
+  # cloudflared2:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: cloudflared2
+  #   command: tunnel --no-autoupdate --url http://172.17.0.1:3005
+  #   network_mode: bridge
+  #   dns:
+  #     - 1.1.1.1
+  #     - 8.8.8.8
+  #   restart: unless-stopped
 
 
