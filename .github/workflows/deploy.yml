@@ -5,9 +5,9 @@ on:
     branches:
       - master
 
-concurrency:
-  group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
-  cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
+# concurrency:
+#   group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
+#   cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
 
 jobs:
   deploy:
@@ -22,15 +22,15 @@ jobs:
       #     npm install
       #     npm run test
 
-      - name: Backup ENV
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            mkdir -p /root/backup
-            cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
+      # - name: Backup ENV
+      #   uses: appleboy/ssh-action@v1.0.0
+      #   with:
+      #     host: ${{ secrets.HOST }}
+      #     username: ${{ secrets.USERNAME }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
+      #       mkdir -p /root/backup
+      #       cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -44,8 +44,6 @@ jobs:
             git pull origin master
             npm install
             npm run build
-            docker compose down
-            docker compose up -d
             pm2 restart api-gateway
 
       - name: Health Check & Rollback
@@ -55,7 +53,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sleep 30
+            sleep 10
             if curl -f http://localhost:3000/health; then
               echo "Health check passed"
             else
