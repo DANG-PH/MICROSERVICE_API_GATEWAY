@@ -28,11 +28,11 @@ jobs:
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="✅ CI/CD Deploy SUCCESS%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
+            -d text="✅ CI/CD SUCCESS%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
 
       - name: Notify Telegram Failure
         if: failure()
         run: |
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="❌ CI/CD Deploy FAILED%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
+            -d text="❌ CI/CD FAILED%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
