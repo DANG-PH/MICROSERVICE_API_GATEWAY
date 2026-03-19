@@ -1,14 +1,31 @@
 import { Injectable, CanActivate, ExecutionContext, Inject, HttpException, HttpStatus } from '@nestjs/common';
-import { Cache } from '@nestjs/cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class TemporaryBanGuard implements CanActivate {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private jwtService: JwtService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // vì Guard này chạy trc JwtAuthGuard nên là k có req.user, phải tự lấy data từ trên token
     const req = context.switchToHttp().getRequest();
-    const userId = req.user?.userId;
+
+    // Tự decode token thay vì phụ thuộc req.user
+    const token = this.extractToken(req);
+    if (!token) return true; // không có token => không check ban
+
+    let userId: string;
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET,
+      });
+      userId = payload.userId;
+    } catch {
+      return true; // token invalid => để JwtAuthGuard xử lý sau
+    }
 
     if (userId) {
       const ban = await this.cacheManager.get(`temporary-ban:${userId}`) as {
@@ -26,5 +43,13 @@ export class TemporaryBanGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private extractToken(req: any): string | null {
+    const authHeader = req.headers?.authorization;
+    if (authHeader?.startsWith('Bearer ')) {
+      return authHeader.substring(7);
+    }
+    return null;
   }
 }
