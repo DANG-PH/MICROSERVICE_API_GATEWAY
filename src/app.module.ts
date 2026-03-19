@@ -20,13 +20,13 @@ import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { AdminModule } from './service/admin/admin/admin.module';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
-import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 import { ServerModule } from './service/server/server.module';
 import { OpenaiModule } from './service/open-ai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocialNetworkModule } from './service/social_network/social_network.module';
 import { WsChatModule } from './service/chat/ws-chat.module';
 import { WsModule } from './service/ws-for-game/ws.module';
+import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 
 @Module({
   imports: [
@@ -54,7 +54,7 @@ import { WsModule } from './service/ws-for-game/ws.module';
     WsModule
   ],
   controllers: [AppController],
-  providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanInterceptor],
+  providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanGuard],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

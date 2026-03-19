@@ -10,8 +10,8 @@ import { LoggingInterceptor } from './interceptor/logger.interceptors';
 import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
-import { TemporaryBanInterceptor } from './interceptor/temporary-ban.interceptors';
 import { bold, green, cyan } from 'chalk';
+import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -41,12 +41,14 @@ async function bootstrap() {
     credentials: false,
   });
 
+  // Global Guard
+  app.useGlobalGuards(app.get(TemporaryBanGuard));
+
   // interceptor logging
   app.useGlobalInterceptors(
     app.get(LoggingInterceptor),
     app.get(OnlineInterceptor),
     app.get(JaegerInterceptor),
-    app.get(TemporaryBanInterceptor)
   );
 
   // Cấu hình Swagger
