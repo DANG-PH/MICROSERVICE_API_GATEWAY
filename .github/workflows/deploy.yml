@@ -59,7 +59,7 @@ jobs:
 
             for i in $(seq 1 $MAX_RETRIES); do
               echo "Health check attempt $i/$MAX_RETRIES..."
-              if curl -sf http://localhost:3006/health; then
+              if curl -sf http://localhost:3000/health; then
                 echo "Health check passed"
                 exit 0
               fi
