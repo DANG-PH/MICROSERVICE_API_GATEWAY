@@ -27,9 +27,13 @@ import { SocialNetworkModule } from './service/social_network/social_network.mod
 import { WsChatModule } from './service/chat/ws-chat.module';
 import { WsModule } from './service/ws-for-game/ws.module';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    JwtModule.register({
+      secret: process.env.JWT_SECRET,
+    }), // Thêm vào để DI và bên temporary ban dùng được
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,           
