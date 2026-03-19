@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+concurrency:
+  group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
+  cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
