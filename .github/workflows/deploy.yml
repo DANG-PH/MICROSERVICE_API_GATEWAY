@@ -10,6 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # - name: Checkout code
+      #   uses: actions/checkout@v3
+
+      # - name: Run Tests
+      #   run: |
+      #     npm install
+      #     npm run test
+
+      - name: Backup ENV
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            mkdir -p /root/backup
+            cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -18,11 +36,34 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /root/MICROSERVICE_API_GATEWAY
+            pm2 stop api-gateway
             git pull origin master
             npm install
             npm run build
-            docker compose up -d --build
-            pm2 restart all
+            docker compose down
+            docker compose up -d
+            pm2 restart api-gateway
+
+      - name: Health Check & Rollback
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sleep 20
+            if curl -f http://localhost:3000/health; then
+              echo "Health check passed"
+            else
+              echo "Health check failed, rolling back..."
+              cd /root/MICROSERVICE_API_GATEWAY
+              git reset --hard HEAD~1
+              npm install
+              npm run build
+              pm2 restart api-gateway
+              exit 1
+            fi
+
       - name: Notify Telegram Success
         if: success()
         run: |
