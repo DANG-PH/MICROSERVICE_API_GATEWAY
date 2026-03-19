@@ -53,18 +53,27 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sleep 10
-            if curl -f http://localhost:3000/health; then
-              echo "Health check passed"
-            else
-              echo "Health check failed, rolling back..."
-              cd /root/MICROSERVICE_API_GATEWAY
-              git reset --hard HEAD~1
-              npm install
-              npm run build
-              pm2 restart api-gateway
-              exit 1
-            fi
+            echo "Waiting for service to start..."
+            MAX_RETRIES=12
+            RETRY_INTERVAL=5
+
+            for i in $(seq 1 $MAX_RETRIES); do
+              echo "Health check attempt $i/$MAX_RETRIES..."
+              if curl -sf http://localhost:3006/health; then
+                echo "Health check passed"
+                exit 0
+              fi
+              echo "Not ready yet, waiting ${RETRY_INTERVAL}s..."
+              sleep $RETRY_INTERVAL
+            done
+
+            echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
+            cd /root/MICROSERVICE_API_GATEWAY
+            git reset --hard HEAD~1
+            npm install
+            npm run build
+            pm2 restart api-gateway
+            exit 1
 
       - name: Notify Telegram Success
         if: success()
