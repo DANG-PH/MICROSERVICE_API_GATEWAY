@@ -11,7 +11,6 @@ import {
 } from '../../../../proto/pay.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { PAY_PACKAGE_NAME, FINANCE_SERVICE_NAME } from '../../../../proto/pay.pb';
-import { winstonLogger } from 'src/logger/logger.config';
 
 @Injectable()
 export class FinanceService {

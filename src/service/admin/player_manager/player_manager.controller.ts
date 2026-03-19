@@ -23,7 +23,7 @@ import { SendEmailToUserRequestDto, SendemailToUserResponseDto } from 'dto/auth.
 import { TemporaryBanRequestDto } from 'dto/player_manager.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
-import { winstonLogger } from 'src/logger/logger.config';
+// import { winstonLogger } from 'src/logger/logger.config';
 import { PlayerManagerService } from './player_manager.service';
 
 @Controller('player_manager')
@@ -277,7 +277,7 @@ export class PlayerManagerController {
     const now = new Date();
     const ngay = now.toLocaleDateString('vi-VN');
     const gio = now.toLocaleTimeString('vi-VN');
-    winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
+    // winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
     return this.authService.handleSendEmailToUser({
       who: "ADMIN",
       title: "Thông kê doanh thu",

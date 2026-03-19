@@ -12,7 +12,6 @@ import {
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { ADMIN_PACKAGE_NAME } from '../../../../proto/admin.pb';
 import { CASHIER_SERVICE_NAME } from '../../../../proto/admin.pb';
-import { winstonLogger } from 'src/logger/logger.config'; 
 
 @Injectable()
 export class CashierService {

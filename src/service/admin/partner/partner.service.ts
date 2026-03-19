@@ -19,7 +19,6 @@ import {
 } from '../../../../proto/admin.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
-import { winstonLogger } from 'src/logger/logger.config';
 
 @Injectable()
 export class PartnerService {
