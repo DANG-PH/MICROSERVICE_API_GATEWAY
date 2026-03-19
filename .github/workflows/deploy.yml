@@ -1,0 +1,25 @@
+name: Deploy VPS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /root/MICROSERVICE_API_GATEWAY
+            git pull origin master
+            npm install
+            npm run build
+            docker compose up -d --build
+            pm2 restart all
