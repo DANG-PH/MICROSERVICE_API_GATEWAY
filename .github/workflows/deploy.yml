@@ -47,7 +47,7 @@ jobs:
 
       - name: Generate Dependency Graph
         run: |
-          GENERATE_GRAPH=true node dist/main.js > graph.mmd
+          GENERATE_GRAPH=true node dist/src/main.js > graph.mmd
 
       - name: Upload Graph Artifact
         uses: actions/upload-artifact@v4
