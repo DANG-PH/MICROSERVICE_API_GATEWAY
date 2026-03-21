@@ -31,53 +31,6 @@ jobs:
       #     script: |
       #       mkdir -p /root/backup
       #       cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build project
-        run: npm run build
-
-      - name: Generate Dependency Graph
-        run: |
-          node dist/src/generate-graph.js > graph.mmd
-
-      - name: Upload Graph Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dependency-graph
-          path: graph.mmd
-
-      # - name: Verify Graph Generated
-      #   run: |
-      #     test -s graph.mmd || (echo "Graph empty" && exit 1)
-
-      - name: Install Mermaid CLI
-        run: npm install -g @mermaid-js/mermaid-cli
-
-      - name: Install Chromium deps
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-
-      - name: Convert Graph to PNG
-        run: |
-          mmdc -i graph.mmd -o graph.png -s 2 -p /usr/bin/chromium
-
-      - name: Send Graph to Telegram
-        if: success()
-        run: |
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendPhoto \
-            -F chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -F photo=@graph.png \
-            -F caption="📊 Dependency Graph%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}"
 
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
@@ -87,14 +40,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /root/MICROSERVICE_API_GATEWAY
-            PREV_COMMIT=$(git rev-parse HEAD)
-            echo $PREV_COMMIT > /tmp/prev_commit.txt
-            pm2 stop api-gateway
-            git fetch origin
-            git checkout ${{ github.sha }}
+            git rev-parse HEAD > /tmp/prev_commit.txt
+            git pull origin master
             npm install
             npm run build
-            pm2 restart api-gateway
+            pm2 reload api-gateway
 
       - name: Health Check & Rollback
         uses: appleboy/ssh-action@v1.0.0
@@ -119,11 +69,10 @@ jobs:
 
             echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
             cd /root/MICROSERVICE_API_GATEWAY
-            PREV_COMMIT=$(cat /tmp/prev_commit.txt)
-            git checkout $PREV_COMMIT
+            git reset --hard $(cat /tmp/prev_commit.txt)
             npm install
             npm run build
-            pm2 restart api-gateway
+            pm2 reload api-gateway
             exit 1
 
       - name: Notify Telegram Success
