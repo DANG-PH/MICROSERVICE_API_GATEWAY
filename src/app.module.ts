@@ -29,10 +29,12 @@ import { WsModule } from './service/ws-for-game/ws.module';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { JwtModule } from '@nestjs/jwt';
 
+const isGraphMode = process.env.GENERATE_GRAPH === 'true';
+
 @Module({
   imports: [
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: process.env.JWT_SECRET || "graph",
     }), // Thêm vào để DI và bên temporary ban dùng được
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
@@ -45,7 +47,6 @@ import { JwtModule } from '@nestjs/jwt';
     WsChatModule,
     ItemModule,
     DeTuModule,
-    RedisModule,
     PayModule,
     AdminModule,
     PlayerManagerModule,
@@ -54,8 +55,12 @@ import { JwtModule } from '@nestjs/jwt';
     EditorModule,
     PartnerModule,
     ServerModule,
-    OpenaiModule,
-    WsModule
+    WsModule,
+
+    ...(!isGraphMode ? [
+      RedisModule,
+      OpenaiModule,
+    ] : []),
   ],
   controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanGuard],

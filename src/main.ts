@@ -12,30 +12,9 @@ import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
 import { bold, green, cyan } from 'chalk';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
-import { SpelunkerModule } from 'nestjs-spelunker';
 
 async function bootstrap() {
-  const shouldGenerateGraph = process.env.GENERATE_GRAPH === 'true';
-
   const app = await NestFactory.create(AppModule);
-
-  if (shouldGenerateGraph) {
-    await app.init();
-
-    const tree = SpelunkerModule.explore(app);
-    const root = SpelunkerModule.graph(tree);
-    const edges = SpelunkerModule.findGraphEdges(root);
-
-    const mermaid = edges.map(
-      (e) => `${e.from.module.name} --> ${e.to.module.name}`,
-    );
-
-    console.log('graph TD');
-    console.log(mermaid.join('\n'));
-
-    await app.close();
-    return;
-  }
 
   // Bật Helmet bảo mật header HTTP
   app.use(
