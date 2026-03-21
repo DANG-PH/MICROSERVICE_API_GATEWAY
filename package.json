@@ -28,6 +28,7 @@
     "@nestjs/common": "^11.1.8",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.8",
+    "@nestjs/devtools-integration": "^0.2.1",
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/microservices": "^11.1.7",
     "@nestjs/passport": "^11.0.5",
