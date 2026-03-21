@@ -50,7 +50,7 @@ jobs:
           GENERATE_GRAPH=true node dist/main.js > graph.mmd
 
       - name: Upload Graph Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-graph
           path: graph.mmd
