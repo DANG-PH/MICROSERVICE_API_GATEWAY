@@ -3,6 +3,8 @@ import * as winston from 'winston';
 import { TelegramTransport } from './telegram.transport';
 import 'winston-mongodb';
 
+const isGraphMode = process.env.GENERATE_GRAPH === 'true';
+
 export const winstonLogger = WinstonModule.createLogger({
   transports: [
     // Log ra console (dev đọc)
@@ -41,18 +43,18 @@ export const winstonLogger = WinstonModule.createLogger({
     }),
 
      // --- MongoDB logging ---
-    new winston.transports.MongoDB({
-      db: String(process.env.MONGODB_URL),
-      collection: 'logs',
-      level: 'info',             // Log từ info trở lên
-      tryReconnect: true,
-      options: {
-        useUnifiedTopology: true,
-      },
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json(),
-      ),
-    }),
+    ...(!isGraphMode ? [
+      new winston.transports.MongoDB({
+        db: String(process.env.MONGODB_URL),
+        collection: 'logs',
+        level: 'info',
+        tryReconnect: true,
+        options: { useUnifiedTopology: true },
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.json(),
+        ),
+      }),
+    ] : []),
   ],
 });
