@@ -9,7 +9,9 @@ export class RateLimitMiddleware implements NestMiddleware {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const ip = req.headers['x-forwarded-for'] || req.ip // tự parse ra socker.remoteAddress ( địa chỉ ip khi kết nối trực tiếp đến backend khi chưa thông qua cloudflare )
+    const ip = req.headers['cf-connecting-ip']
+            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
+            || req.ip;// tự parse ra socker.remoteAddress ( địa chỉ ip khi kết nối trực tiếp đến backend khi chưa thông qua cloudflare )
     const key = `rate_limit_${ip}`;
     const limit = 1000; // Giới hạn 100 request
     const ttl = 60; // trong 60 giây
@@ -30,12 +32,26 @@ export class RateLimitMiddleware implements NestMiddleware {
 }
 
 /*
+  Lấy IP thật của client qua 3 lớp fallback:
 
-ví dụ thêm về req.ip và req.socket.remoteAddress và req.forward header 
-Client (123.45.67.89) → Cloudflare (172.68.22.5) → Express
-req.socket.remoteAddress → 172.68.22.5 (Cloudflare IP ❌)
+  TRƯỜNG HỢP 1: Request đi qua Cloudflare (production)
+  Client (1.2.3.4) → Cloudflare (172.68.x.x) → Nginx → NestJS
+  - req.socket.remoteAddress = 172.68.x.x  (IP Cloudflare ❌)
+  - req.headers['x-forwarded-for'] = "1.2.3.4, 172.68.x.x"
+  - req.headers['cf-connecting-ip'] = "1.2.3.4" ✅
+  → Dùng cf-connecting-ip, do Cloudflare tự thêm, client không giả được
 
-IP thật người dùng là 123.45.67.89 ✅ — nhưng chỉ có trong header x-forwarded-for.
-req.headers['x-forwarded-for'] -> nếu bật trust proxy thì nó sẽ gửi ve 2 ip ở client và cloud flare luôn
+  TRƯỜNG HỢP 2: Request đi qua Nginx nhưng không qua Cloudflare (gọi thẳng IP)
+  Client (1.2.3.4) → Nginx → NestJS
+  - req.headers['cf-connecting-ip'] = undefined (không có Cloudflare ❌)
+  - req.headers['x-forwarded-for'] = "1.2.3.4" ✅ (do nginx set proxy_set_header X-Forwarded-For)
+  - split(',')[0].trim() để lấy IP đầu tiên phòng trường hợp có nhiều proxy
+  → Dùng x-forwarded-for
 
+  TRƯỜNG HỢP 3: Gọi thẳng vào NestJS không qua Nginx (local dev / test)
+  Client (1.2.3.4) → NestJS
+  - req.headers['cf-connecting-ip'] = undefined ❌
+  - req.headers['x-forwarded-for'] = undefined ❌
+  - req.ip = "1.2.3.4" ✅ (Express tự parse từ socket.remoteAddress)
+  → Dùng req.ip
 */
