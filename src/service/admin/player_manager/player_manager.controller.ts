@@ -274,7 +274,7 @@ export class PlayerManagerController {
     const tienNap = doanhThu.total_nap;
     const tienRut = doanhThu.total_rut;
     const tienLai = doanhThu.balance;
-    const now = new Date();
+    const now = new Date(Date.now() + 7 * 60 * 60 * 1000);
     const ngay = now.toLocaleDateString('vi-VN');
     const gio = now.toLocaleTimeString('vi-VN');
     // winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
