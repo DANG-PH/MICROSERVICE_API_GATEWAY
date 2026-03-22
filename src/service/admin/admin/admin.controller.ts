@@ -4,7 +4,6 @@ import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import {ItemDto, ItemIdRequestDto, AddUserItemRequestDto} from "dto/item.dto"
