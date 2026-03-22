@@ -9,16 +9,17 @@ export class RateLimitMiddleware implements NestMiddleware {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    console.log('cf-connecting-ip:', req.headers['cf-connecting-ip']);
-    console.log('x-forwarded-for:', req.headers['x-forwarded-for']);
-    console.log('req.ip:', req.ip);
-    console.log('all headers:', req.headers);
-    const ip = req.headers['cf-connecting-ip'] as string
-            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
-            || req.ip;// tự parse ra socker.remoteAddress ( địa chỉ ip khi kết nối trực tiếp đến backend khi chưa thông qua cloudflare )
-    const key = `rate_limit_${ip}`;
-    const limit = 1000; // Giới hạn 100 request
-    const ttl = 60; // trong 60 giây
+    const authHeader = req.headers['authorization'];
+
+    if (!authHeader) {
+      return next(); // không có token => bỏ qua rate limit
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+    const key = `rate_limit_user_${payload.userId}`;
+    const limit = 1000;
+    const ttl = 60;
 
     let count = (await this.cacheManager.get<number>(key)) || 0;
     count++;
@@ -30,7 +31,7 @@ export class RateLimitMiddleware implements NestMiddleware {
       );
     }
 
-    await this.cacheManager.set(key, count, ttl * 1000); // TTL tính bằng mili giây
+    await this.cacheManager.set(key, count, ttl * 1000);
     next();
   }
 }
@@ -58,4 +59,16 @@ export class RateLimitMiddleware implements NestMiddleware {
   - req.headers['x-forwarded-for'] = undefined ❌
   - req.ip = "1.2.3.4" ✅ (Express tự parse từ socket.remoteAddress)
   → Dùng req.ip
+
+  TRƯỜNG HỢP 4: FE deploy Vercel SSR → gọi sang backend (hiện tại)
+  Browser (1.2.3.4) → Vercel server (3.236.118.101) → Cloudflare → Nginx → NestJS
+  - req.headers['cf-connecting-ip'] = "3.236.118.101" ❌ (IP Vercel server, không phải browser)
+  - req.headers['x-forwarded-for'] = "3.236.118.101, 162.158.78.159" ❌ (vẫn là Vercel + Cloudflare)
+  - IP browser thật bị mất hoàn toàn ở bước Vercel, backend không bao giờ nhìn thấy
+  → Rate limit theo IP vô nghĩa, phải dùng userId
+  → Cách khắc phục:
+     A. Tắt SSR Vercel — dùng Static Export, browser gọi thẳng vào backend
+        next.config.js: output: 'export'  (chỉ dùng được nếu không cần SSR/API routes)
+     B. Deploy FE lên VPS — browser → Cloudflare → Nginx → NestJS, cf-connecting-ip là IP thật
+     C. Giữ Vercel SSR nhưng rate limit theo userId thay vì IP
 */

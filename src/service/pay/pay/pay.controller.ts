@@ -81,10 +81,7 @@ export class PayController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR ) (ALL)(WEB) (ĐÃ DÙNG)' })
   async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: RequestWithUser): Promise<QrResponseDto> {
-    const ip = req.headers['cf-connecting-ip']
-            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
-            || req.ip;
-    const key = `qr_rate_limit_${ip}`;
+    const key = `qr_rate_limit_user_${req.user.userId}`;
     const limit = 1;  // 1 lần
     const ttl = 60;   // trong 60 giây
 

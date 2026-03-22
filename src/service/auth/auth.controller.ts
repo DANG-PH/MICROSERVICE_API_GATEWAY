@@ -48,10 +48,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng ký tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG) ' })
   @ApiBody({ type:  RegisterRequest })
   async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
-    const ip = req.headers['cf-connecting-ip']
-            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
-            || req.ip;
-    const key = `register_rate_limit_${ip}`;
+    const key = `register_rate_limit_${req.user.userId}`;
     const limit = 10;  // 10 lần
     const ttl = 60;   // trong 60 giây
 
@@ -88,10 +85,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng nhập tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  LoginRequest })
   async login(@Body() body: LoginRequest, @Req() req: RequestWithUser) {
-    const ip = req.headers['cf-connecting-ip']
-            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
-            || req.ip;
-    const key = `login_rate_limit_${ip}`;
+    const key = `login_rate_limit_${req.user.userId}`;
     const limit = 6;  // 6 lần
     const ttl = 60;   // trong 60 giây
 
@@ -121,10 +115,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng nhập tài khoản user bằng google (USER)(WEB) (CHƯA DÙNG)' })
   @ApiBody({ type:  LoginWithGoogleRequestDto })
   async loginWithGoogle(@Body() body: LoginWithGoogleRequestDto, @Req() req: RequestWithUser) {
-    const ip = req.headers['cf-connecting-ip']
-            || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
-            || req.ip;
-    const key = `login_rate_limit_${ip}`;
+    const key = `login_rate_limit_${req.user.userId}`;
     const limit = 6;  // 6 lần
     const ttl = 60;   // trong 60 giây
 
