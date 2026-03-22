@@ -5,9 +5,9 @@ on:
     branches:
       - master
 
-# concurrency:
-#   group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
-#   cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
+concurrency:
+  group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
+  cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
 
 jobs:
   deploy:
@@ -40,9 +40,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd /root/MICROSERVICE_API_GATEWAY
-            git rev-parse HEAD > /tmp/prev_commit.txt
+            git rev-parse HEAD > /tmp/prev_commit_api_gateway.txt              
+            PREV=$(cat /tmp/prev_commit_api_gateway.txt)
             git pull origin master
-            npm install
+            if git diff $PREV HEAD -- package-lock.json | grep -q .; then
+              echo "Dependencies changed → npm install"
+              npm install 
+            else
+              echo "No changes → skip npm install"
+            fi
             npm run build
             pm2 reload api-gateway
 
@@ -69,7 +75,7 @@ jobs:
 
             echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
             cd /root/MICROSERVICE_API_GATEWAY
-            git reset --hard $(cat /tmp/prev_commit.txt)
+            git reset --hard $(cat /tmp/prev_commit_api_gateway.txt)
             npm install
             npm run build
             pm2 reload api-gateway
