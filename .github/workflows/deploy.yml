@@ -1,142 +1,28 @@
-name: Deploy VPS
+name: Trigger Deploy
 
 on:
   push:
     branches:
       - master
 
-concurrency:
-  group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
-  cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
-
 jobs:
-  deploy:
+  trigger:
     runs-on: ubuntu-latest
-
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v3
-
-      # - name: Run Tests
-      #   run: |
-      #     npm install
-      #     npm run test
-
-      # - name: Backup ENV
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.HOST }}
-      #     username: ${{ secrets.USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: |
-      #       mkdir -p /root/backup
-      #       cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
-
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /root/MICROSERVICE_API_GATEWAY
-            git rev-parse HEAD > /tmp/prev_commit_api_gateway.txt              
-            PREV=$(cat /tmp/prev_commit_api_gateway.txt)
-            git pull origin master
-            if git diff $PREV HEAD -- package-lock.json | grep -q .; then
-              echo "Dependencies changed → npm install"
-              npm install 
-            else
-              echo "No changes → skip npm install"
-            fi
-            npm run build
-            pm2 reload api-gateway
-
-      - name: Health Check & Rollback
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "Waiting for service to start..."
-            MAX_RETRIES=12
-            RETRY_INTERVAL=5
-
-            for i in $(seq 1 $MAX_RETRIES); do
-              echo "Health check attempt $i/$MAX_RETRIES..."
-              if curl -sf http://localhost:3000/health; then
-                echo "Health check passed"
-                exit 0
-              fi
-              echo "Not ready yet, waiting ${RETRY_INTERVAL}s..."
-              sleep $RETRY_INTERVAL
-            done
-
-            echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
-            cd /root/MICROSERVICE_API_GATEWAY
-            git reset --hard $(cat /tmp/prev_commit_api_gateway.txt)
-            npm install
-            npm run build
-            pm2 reload api-gateway
-            exit 1
-
-      - name: Notify Telegram Success
-        if: success()
+      - name: Trigger MICROSERVICE_DEPLOY
         run: |
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="✅ CI/CD SUCCESS%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
-
-      - name: Notify Telegram Failure
-        if: failure()
-        run: |
-          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
-            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-            -d text="❌ CI/CD FAILED%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
-
-      - name: Notify Discord Success
-        if: success()
-        run: |
-          curl --retry 3 --retry-delay 2 \
-          -H "Content-Type: application/json" \
-          -X POST \
-          -d '{
-            "content": "✅ CI/CD SUCCESS",
-            "embeds": [{
-              "title": "Deploy thành công 🚀",
-              "color": 5763719,
-              "fields": [
-                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
-                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
-                { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
-                { "name": "Message", "value": "${{ github.event.head_commit.message }}", "inline": false },
-                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
-                { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
-              ]
-            }]
-          }' \
-          ${{ secrets.DISCORD_WEBHOOK_URL }}
-
-      - name: Notify Discord Failure
-        if: failure()
-        run: |
-          curl --retry 3 --retry-delay 2 \
-          -H "Content-Type: application/json" \
-          -X POST \
-          -d '{
-            "content": "❌ CI/CD FAILED",
-            "embeds": [{
-              "title": "Deploy thất bại 💥",
-              "color": 15548997,
-              "fields": [
-                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
-                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
-                { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
-                { "name": "Message", "value": "${{ github.event.head_commit.message }}", "inline": false },
-                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
-                { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
-              ]
-            }]
-          }' \
-          ${{ secrets.DISCORD_WEBHOOK_URL }}
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.DEPLOY_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/DANG-PH/MICROSERVICE_DEPLOY/dispatches \
+            -d '{
+              "event_type": "deploy",
+              "client_payload": {
+                "service": "api-gateway",
+                "dir": "/root/MICROSERVICE_API_GATEWAY",
+                "port": "3000",
+                "actor": "${{ github.actor }}",
+                "commit": "${{ github.sha }}",
+                "message": "${{ github.event.head_commit.message }}"
+              }
+            }'
