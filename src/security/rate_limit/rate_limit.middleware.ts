@@ -9,7 +9,7 @@ export class RateLimitMiddleware implements NestMiddleware {
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const ip = req.headers['cf-connecting-ip']
+    const ip = req.headers['cf-connecting-ip'] as string
             || req.headers['x-forwarded-for']?.toString().split(',')[0].trim()
             || req.ip;// tự parse ra socker.remoteAddress ( địa chỉ ip khi kết nối trực tiếp đến backend khi chưa thông qua cloudflare )
     const key = `rate_limit_${ip}`;
