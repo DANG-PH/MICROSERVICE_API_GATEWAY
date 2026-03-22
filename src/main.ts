@@ -100,7 +100,7 @@ bootstrap();
 
 //
 
-// >>> Request in >>>
+// >> Request in >>
 
 // [ Express middleware @ main.ts ]
 //         ↓
@@ -118,4 +118,4 @@ bootstrap();
 //         ↓
 // [ Filters ]
 //         ↓
-// <<< Response out <<<
+// << Response out <<
