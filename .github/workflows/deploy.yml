@@ -21,6 +21,7 @@ jobs:
                 "service": "api-gateway",
                 "dir": "/root/MICROSERVICE_API_GATEWAY",
                 "port": "3000",
+                "skip_health_check": "false",
                 "actor": "${{ github.actor }}",
                 "commit": "${{ github.sha }}",
                 "message": "${{ github.event.head_commit.message }}"
