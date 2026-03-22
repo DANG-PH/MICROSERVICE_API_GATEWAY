@@ -5,9 +5,9 @@ on:
     branches:
       - master
 
-# concurrency:
-#   group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
-#   cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
+concurrency:
+  group: deploy-vps # đặt tên nhóm, GitHub sẽ gom tất cả workflow có cùng tên group lại, dù khác repo cũng xếp hàng chờ nhau
+  cancel-in-progress: false # khi có workflow đang chạy, cái mới vào chờ, không hủy cái đang chạy
 
 jobs:
   deploy:
@@ -32,6 +32,12 @@ jobs:
       #       mkdir -p /root/backup
       #       cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
 
+      - name: Prepare commit message
+        id: vars
+        run: |
+          MESSAGE=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
+          echo "message=$MESSAGE" >> $GITHUB_OUTPUT
+
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -39,12 +45,14 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            set -e
             cd /root/MICROSERVICE_API_GATEWAY
             git rev-parse HEAD > /tmp/prev_commit.txt
-            git pull origin master
-            npm install
+            git fetch origin
+            git reset --hard origin/master
+            npm ci
             npm run build
-            pm2 reload api-gateway
+            pm2 reload api-gateway --update-env
 
       - name: Health Check & Rollback
         uses: appleboy/ssh-action@v1.0.0
@@ -69,10 +77,11 @@ jobs:
 
             echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
             cd /root/MICROSERVICE_API_GATEWAY
+            set -e
             git reset --hard $(cat /tmp/prev_commit.txt)
-            npm install
+            npm ci
             npm run build
-            pm2 reload api-gateway
+            pm2 reload api-gateway --update-env
             exit 1
 
       - name: Notify Telegram Success
@@ -88,3 +97,48 @@ jobs:
           curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
             -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
             -d text="❌ CI/CD FAILED%0ARepo: ${{ github.repository }}%0ABranch: ${{ github.ref_name }}%0ACommit: ${{ github.sha }}%0AMessage: ${{ github.event.head_commit.message }}%0ADeployed by: ${{ github.actor }}"
+
+      - name: Notify Discord Success
+        if: success()
+        run: |
+          curl --retry 3 --retry-delay 2 \
+          -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+            "content": "✅ CI/CD SUCCESS",
+            "embeds": [{
+              "title": "Deploy thành công 🚀",
+              "color": 5763719,
+              "fields": [
+                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
+                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
+                { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
+                { "name": "Message", "value": ${{ steps.vars.outputs.message }}, "inline": false },
+                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
+                { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
+              ]
+            }]
+          }' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Notify Discord Failure
+        if: failure()
+        run: |
+          curl --retry 3 --retry-delay 2 \
+          -H "Content-Type: application/json" \
+          -X POST \
+          -d '{
+            "content": "❌ CI/CD FAILED",
+            "embeds": [{
+              "title": "Deploy thất bại 💥",
+              "color": 15548997,
+              "fields": [
+                { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
+                { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
+                { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
+                { "name": "Message", "value": ${{ steps.vars.outputs.message }}, "inline": false },
+                { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
+                { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
+              ]
+            }]
+          }' \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
