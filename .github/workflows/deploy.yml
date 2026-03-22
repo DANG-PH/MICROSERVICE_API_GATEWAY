@@ -32,12 +32,6 @@ jobs:
       #       mkdir -p /root/backup
       #       cp /root/MICROSERVICE_API_GATEWAY/.env /root/backup/.env.$(date +%Y%m%d%H%M%S)
 
-      - name: Prepare commit message
-        id: vars
-        run: |
-          MESSAGE=$(echo "${{ github.event.head_commit.message }}" | jq -Rs .)
-          echo "message=$MESSAGE" >> $GITHUB_OUTPUT
-
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -45,20 +39,12 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            set -e
             cd /root/MICROSERVICE_API_GATEWAY
             git rev-parse HEAD > /tmp/prev_commit.txt
-            PREV=$(cat /tmp/prev_commit.txt)
-            git fetch origin
-            git reset --hard origin/master
-            if git diff $PREV HEAD -- package-lock.json | grep -q .; then
-              echo "Dependencies changed → npm install"
-              npm install
-            else
-              echo "No dependency changes → skip"
-            fi
+            git pull origin master
+            npm install
             npm run build
-            pm2 reload api-gateway --update-env
+            pm2 reload api-gateway
 
       - name: Health Check & Rollback
         uses: appleboy/ssh-action@v1.0.0
@@ -82,11 +68,11 @@ jobs:
             done
 
             echo "Health check failed after $((MAX_RETRIES * RETRY_INTERVAL))s, rolling back..."
-            set -e
             cd /root/MICROSERVICE_API_GATEWAY
             git reset --hard $(cat /tmp/prev_commit.txt)
+            npm install
             npm run build
-            pm2 reload api-gateway --update-env
+            pm2 reload api-gateway
             exit 1
 
       - name: Notify Telegram Success
@@ -118,13 +104,14 @@ jobs:
                 { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
                 { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
                 { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
-                { "name": "Message", "value": ${{ steps.vars.outputs.message }}, "inline": false },
+                { "name": "Message", "value": "${{ github.event.head_commit.message }}", "inline": false },
                 { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
                 { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
               ]
             }]
           }' \
           ${{ secrets.DISCORD_WEBHOOK_URL }}
+
       - name: Notify Discord Failure
         if: failure()
         run: |
@@ -140,7 +127,7 @@ jobs:
                 { "name": "Repo", "value": "${{ github.repository }}", "inline": true },
                 { "name": "Branch", "value": "${{ github.ref_name }}", "inline": true },
                 { "name": "Commit", "value": "${{ github.sha }}", "inline": false },
-                { "name": "Message", "value": ${{ steps.vars.outputs.message }}, "inline": false },
+                { "name": "Message", "value": "${{ github.event.head_commit.message }}", "inline": false },
                 { "name": "Actor", "value": "${{ github.actor }}", "inline": true },
                 { "name": "Run", "value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "inline": false }
               ]
