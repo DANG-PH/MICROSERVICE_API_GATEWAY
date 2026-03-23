@@ -48,22 +48,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng ký tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG) ' })
   @ApiBody({ type:  RegisterRequest })
   async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
-    const key = `register_rate_limit_${req.user.userId}`;
-    const limit = 10;  // 10 lần
-    const ttl = 60;   // trong 60 giây
-
-    let count = (await this.cacheManager.get<number>(key)) || 0;
-    count++;
-
-    if (count > limit) {
-      throw new HttpException(
-        'Bạn đang gửi yêu cầu nạp tiền, vui lòng thử lại sau 1 phút.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    await this.cacheManager.set(key, count, ttl * 1000);
-
     const authResult = await this.authService.handleRegister(body); 
     if (!authResult.success) {
       return { success: false, message: 'Đăng ký auth thất bại' };
@@ -85,26 +69,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng nhập tài khoản user (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type:  LoginRequest })
   async login(@Body() body: LoginRequest, @Req() req: RequestWithUser) {
-    const key = `login_rate_limit_${req.user.userId}`;
-    const limit = 6;  // 6 lần
-    const ttl = 60;   // trong 60 giây
-
-    let count = (await this.cacheManager.get<number>(key)) || 0;
-    count++;
-
-    if (count > limit) {
-      throw new HttpException(
-        'Bạn đăng nhập quá nhiều lần, vui lòng thử lại sau 1 phút.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    await this.cacheManager.set(key, count, ttl * 1000);
-
-    const ua = req.headers?.['user-agent'];;
-
     const metadata = new Metadata();
-
     const platform = String(req.headers['x-platform'] || 'web');
     metadata.set('platform', platform);
 
@@ -115,26 +80,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Đăng nhập tài khoản user bằng google (USER)(WEB) (CHƯA DÙNG)' })
   @ApiBody({ type:  LoginWithGoogleRequestDto })
   async loginWithGoogle(@Body() body: LoginWithGoogleRequestDto, @Req() req: RequestWithUser) {
-    const key = `login_rate_limit_${req.user.userId}`;
-    const limit = 6;  // 6 lần
-    const ttl = 60;   // trong 60 giây
-
-    let count = (await this.cacheManager.get<number>(key)) || 0;
-    count++;
-
-    if (count > limit) {
-      throw new HttpException(
-        'Bạn đăng nhập quá nhiều lần, vui lòng thử lại sau 1 phút.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    await this.cacheManager.set(key, count, ttl * 1000);
-
-    const ua = req.headers?.['user-agent'];;
-
     const metadata = new Metadata();
-
     const platform = String(req.headers['x-platform'] || 'web');
     metadata.set('platform', platform);
     
