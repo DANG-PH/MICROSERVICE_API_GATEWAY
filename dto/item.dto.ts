@@ -139,7 +139,7 @@ export class UserIdRequestDto {
 export class GetItemsByItemUuidsRequestDto {
   @ApiProperty({ type: [String] })
   @IsArray()
-  @IsNumber({}, { each: true })
+  @IsString({ each: true })
   itemUuids: string[];
 }
 
