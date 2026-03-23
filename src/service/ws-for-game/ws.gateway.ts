@@ -427,7 +427,6 @@ export class WsGateway {
     this.server.to(`Game:${userId}`).emit('notification', { tinNhan: "Giao dịch đã bị hủy" });
   }
 
-  // Gọi event để thêm đồ vào giao dịch
   @SubscribeMessage('trade:offer:add')
   async tradeOfferAdd(
     @ConnectedSocket() client: Socket,
@@ -450,24 +449,23 @@ export class WsGateway {
     const locked = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${userId}`);
     if (locked) return;
 
-    // TODO: validate inventory thật sự thuộc userId ( Gọi item-service để check )
-
-    // Sau khi check đúng thì gửi items id vào save vào redis
     const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
     const current = JSON.parse((await this.redis.get(key)) || '[]');
 
-    current.push({ itemUuid });
+    // Tránh add trùng ngay tại server
+    if (current.some(i => i.itemUuid === itemUuid)) return;
 
+    current.push({ itemUuid });
     await this.redis.set(key, JSON.stringify(current), 'EX', 300);
 
-    // Gửi cho User B để User B render lại items 
+    // Chỉ gửi đúng 1 item mới + action
     this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
       from: userId,
-      items: current,
+      action: 'add',
+      itemUuid,
     });
   }
 
-  // Gọi event này lúc bấm vào đồ và chọn bỏ đồ ra ko giao dịch nữa
   @SubscribeMessage('trade:offer:remove')
   async tradeOfferRemove(
     @ConnectedSocket() client: Socket,
@@ -492,15 +490,15 @@ export class WsGateway {
 
     const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
     const current = JSON.parse((await this.redis.get(key)) || '[]');
-
     const next = current.filter(i => i.itemUuid !== itemUuid);
 
     await this.redis.set(key, JSON.stringify(next), 'EX', 300);
 
-    // Gửi cho User B để User B render lại items 
+    // Remove không cần gửi data item, client tự xóa theo uuid
     this.server.to(`Game:${withUserId}`).emit('trade:offer:update', {
       from: userId,
-      items: next,
+      action: 'remove',
+      itemUuid,
     });
   }
 
