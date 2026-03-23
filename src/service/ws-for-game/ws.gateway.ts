@@ -410,10 +410,10 @@ export class WsGateway {
   @SubscribeMessage('trade:offer:add')
   async tradeOfferAdd(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: { withUserId: number; itemId: number },
+    @MessageBody() body: { withUserId: number; itemUuid: string },
   ) {
     const userId = client.data.user.userId;
-    const { withUserId, itemId } = body;
+    const { withUserId, itemUuid } = body;
 
     let sessionId: string;
     let state: string;
@@ -435,7 +435,7 @@ export class WsGateway {
     const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
     const current = JSON.parse((await this.redis.get(key)) || '[]');
 
-    current.push({ itemId });
+    current.push({ itemUuid });
 
     await this.redis.set(key, JSON.stringify(current), 'EX', 300);
 
@@ -450,10 +450,10 @@ export class WsGateway {
   @SubscribeMessage('trade:offer:remove')
   async tradeOfferRemove(
     @ConnectedSocket() client: Socket,
-    @MessageBody() body: { withUserId: number; itemId: number },
+    @MessageBody() body: { withUserId: number; itemUuid: string },
   ) {
     const userId = client.data.user.userId;
-    const { withUserId, itemId } = body;
+    const { withUserId, itemUuid } = body;
 
     let sessionId: string;
     let state: string;
@@ -472,7 +472,7 @@ export class WsGateway {
     const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
     const current = JSON.parse((await this.redis.get(key)) || '[]');
 
-    const next = current.filter(i => i.itemId !== itemId);
+    const next = current.filter(i => i.itemUuid !== itemUuid);
 
     await this.redis.set(key, JSON.stringify(next), 'EX', 300);
 
