@@ -21,6 +21,7 @@ message Item {
   string viTri = 15;
   string chiso = 16; 
   int32 userId = 17;
+  string uuid = 18;
 }
 
 // Request messages
@@ -57,11 +58,11 @@ message MessageResponse {
   string message = 1;
 }
 
-message GetItemsByItemIdsRequest {
-  repeated int32 itemIds = 1;
+message GetItemsByItemUuidsRequest {
+  repeated string itemUuids = 1;
 }
 
-message GetItemsByItemIdsResponse {
+message GetItemsByItemUuidsResponse {
   repeated Item items = 1;
 }
 
@@ -72,5 +73,5 @@ service ItemService {
   rpc UpdateItem (Item) returns (ItemResponse);
   rpc DeleteItem (ItemIdRequest) returns (MessageResponse);
   rpc AddMultipleItems (AddMultipleItemsRequest) returns (ItemsResponse);
-  rpc GetItemsByItemIds (GetItemsByItemIdsRequest) returns (GetItemsByItemIdsResponse);
+  rpc GetItemsByItemUuids (GetItemsByItemUuidsRequest) returns (GetItemsByItemUuidsResponse);
 }

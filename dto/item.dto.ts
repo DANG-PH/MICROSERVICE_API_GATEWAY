@@ -72,6 +72,10 @@ export class ItemDto {
   @ApiProperty({ example: 1 })
   @IsInt()
   userId: number;
+
+  @ApiProperty({ example: 'dang' })
+  @IsString()
+  uuid: string;
 }
 
 // ===== ADD ITEM REQUEST =====
@@ -132,14 +136,14 @@ export class UserIdRequestDto {
   user_id: number;
 }
 
-export class GetItemsByItemIdsRequestDto {
-  @ApiProperty({ type: [Number] })
+export class GetItemsByItemUuidsRequestDto {
+  @ApiProperty({ type: [String] })
   @IsArray()
   @IsNumber({}, { each: true })
-  itemIds: number[];
+  itemUuids: string[];
 }
 
-export class GetItemsByItemIdsResponseDto {
+export class GetItemsByItemUuidsResponseDto {
   @ApiProperty({ type: [ItemDto] })
   @IsArray()
   items: Item[];

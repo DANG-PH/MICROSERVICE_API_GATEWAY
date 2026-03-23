@@ -16,6 +16,9 @@ import { SocialNetworkService } from '../social_network/social-network.service';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
 import { Double } from 'mongodb';
+import { Item } from 'proto/item.pb';
+import { v4 as uuidv4 } from 'uuid';
+import { ClientProxy } from '@nestjs/microservices';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -29,7 +32,8 @@ export class WsGateway {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
   }
@@ -292,6 +296,25 @@ export class WsGateway {
       userId,
       message: cleanMessage,
     });
+  }
+
+  @SubscribeMessage('add-item')
+  async handleAddItem(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { tmpId:number, item: Item }
+  ) {
+    const { userId } = client.data.user;
+
+    if (!body.item) return;
+
+    const uuid = uuidv4();
+
+    body.item.uuid = uuid;
+    body.item.userId = userId;
+
+    this.queueClient.emit('save_item', { data: body.item });
+
+    client.emit('addItem', { tmpId: body.tmpId, uuid: uuid });
   }
 
   @SubscribeMessage('send-notification')

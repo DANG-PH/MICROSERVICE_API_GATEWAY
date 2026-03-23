@@ -30,6 +30,7 @@ export interface Item {
   viTri: string;
   chiso: string;
   userId: number;
+  uuid: string;
 }
 
 /** Request messages */
@@ -67,11 +68,11 @@ export interface MessageResponse {
   message: string;
 }
 
-export interface GetItemsByItemIdsRequest {
-  itemIds: number[];
+export interface GetItemsByItemUuidsRequest {
+  itemUuids: string[];
 }
 
-export interface GetItemsByItemIdsResponse {
+export interface GetItemsByItemUuidsResponse {
   items: Item[];
 }
 
@@ -90,7 +91,10 @@ export interface ItemServiceClient {
 
   addMultipleItems(request: AddMultipleItemsRequest, metadata?: Metadata): Observable<ItemsResponse>;
 
-  getItemsByItemIds(request: GetItemsByItemIdsRequest, metadata?: Metadata): Observable<GetItemsByItemIdsResponse>;
+  getItemsByItemUuids(
+    request: GetItemsByItemUuidsRequest,
+    metadata?: Metadata,
+  ): Observable<GetItemsByItemUuidsResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -106,7 +110,10 @@ export interface ItemServiceController {
 
   addMultipleItems(request: AddMultipleItemsRequest, metadata?: Metadata): Observable<ItemsResponse>;
 
-  getItemsByItemIds(request: GetItemsByItemIdsRequest, metadata?: Metadata): Observable<GetItemsByItemIdsResponse>;
+  getItemsByItemUuids(
+    request: GetItemsByItemUuidsRequest,
+    metadata?: Metadata,
+  ): Observable<GetItemsByItemUuidsResponse>;
 }
 
 export function ItemServiceControllerMethods() {
@@ -117,7 +124,7 @@ export function ItemServiceControllerMethods() {
       "updateItem",
       "deleteItem",
       "addMultipleItems",
-      "getItemsByItemIds",
+      "getItemsByItemUuids",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
