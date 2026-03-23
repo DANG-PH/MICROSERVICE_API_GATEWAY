@@ -19,6 +19,7 @@ import { Double } from 'mongodb';
 import { Item } from 'proto/item.pb';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
+import { notEqual } from 'assert';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -239,6 +240,8 @@ export class WsGateway {
 
     const map = client.data.map;
 
+    const now = Date.now();
+
     this.redis.hset(`GAME:PLAYER:${userId}`, {
       x: body.x,
       y: body.y,
@@ -266,6 +269,7 @@ export class WsGateway {
       userId,
       x: body.x,
       y: body.y,
+      time: now,
       trangthai: body.trangthai,
       dir: body.dir,
       dau: body.dau,
