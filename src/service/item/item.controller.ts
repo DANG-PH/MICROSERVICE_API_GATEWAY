@@ -60,10 +60,10 @@ export class ItemController {
   //   return this.itemService.handleDeleteItem(body);
   // }
 
-  @Post('items')
+  @Put('items')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User trong game goi khi muon add nhieu item (USER)(GAME) (ĐÃ DÙNG)' })
+  @ApiOperation({ summary: 'User trong game khi thoat game (USER)(GAME) (ĐÃ DÙNG)' })
   @ApiBody({ type:  AddMultipleItemsRequestDto })
   async addItems(@Body() body: AddMultipleItemsRequestDto, @Req() req: any) {
     const userId = req.user.userId;
