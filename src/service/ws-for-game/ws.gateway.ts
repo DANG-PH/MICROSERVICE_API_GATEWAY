@@ -303,9 +303,13 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { tmpId:number, item: Item }
   ) {
+    console.log('Received add-item:', JSON.stringify(body)); 
     const { userId } = client.data.user;
 
-    if (!body.item) return;
+    if (!body.item) {
+      console.log('Item is null/undefined, returning early')
+      return;
+    }
 
     const uuid = uuidv4();
 
