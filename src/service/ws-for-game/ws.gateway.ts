@@ -29,6 +29,7 @@ export class WsGateway {
   @WebSocketServer()
   server: Server;
   private redis: Redis;
+  private lastSaveTime = new Map<number, number>();
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -240,36 +241,41 @@ export class WsGateway {
 
     const map = client.data.map;
 
+    // chỉ save Redis mỗi 100ms
     const now = Date.now();
+    const last = this.lastSaveTime.get(userId) || 0;
 
-    this.redis.hset(`GAME:PLAYER:${userId}`, {
-      x: body.x,
-      y: body.y,
-      trangthai: body.trangthai,
-      dir: body.dir,
-      dau: body.dau,
-      than: body.than,
-      chan: body.chan,
-      timeChoHienBay: body.timeChoHienBay,
-      lechDauX: body.lechDauX,
-      lechDauY: body.lechDauY,
-      lechThanX: body.lechThanX,
-      lechThanY: body.lechThanY,
-      lechChanX: body.lechChanX,
-      lechChanY: body.lechChanY,
-      frameVanBay: body.frameVanBay,
-      dangMangVanBay: body.dangMangVanBay,
-      tenVanBay: body.tenVanBay,
-      rong: body.rong,
-      cao: body.cao,
-      avatar: body.avatar,
-    });
+    if (now - last > 200) {
+      this.lastSaveTime.set(userId, now);
+
+      this.redis.hset(`GAME:PLAYER:${userId}`, {
+        x: body.x,
+        y: body.y,
+        trangthai: body.trangthai,
+        dir: body.dir,
+        dau: body.dau,
+        than: body.than,
+        chan: body.chan,
+        timeChoHienBay: body.timeChoHienBay,
+        lechDauX: body.lechDauX,
+        lechDauY: body.lechDauY,
+        lechThanX: body.lechThanX,
+        lechThanY: body.lechThanY,
+        lechChanX: body.lechChanX,
+        lechChanY: body.lechChanY,
+        frameVanBay: body.frameVanBay,
+        dangMangVanBay: body.dangMangVanBay,
+        tenVanBay: body.tenVanBay,
+        rong: body.rong,
+        cao: body.cao,
+        avatar: body.avatar,
+      });
+    }
 
     this.server.to(`MAP:${map}`).emit('playerSync', {
       userId,
       x: body.x,
       y: body.y,
-      time: now,
       trangthai: body.trangthai,
       dir: body.dir,
       dau: body.dau,
