@@ -55,7 +55,7 @@ import { JwtModule } from '@nestjs/jwt';
     PartnerModule,
     ServerModule,
     OpenaiModule,
-    WsModule
+    WsModule,
   ],
   controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanGuard],
