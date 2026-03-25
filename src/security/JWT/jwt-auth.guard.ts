@@ -16,6 +16,10 @@ export class JwtAuthGuard extends AuthGuard('jwt-1gio') {
     const { sessionId } = request.user;
 
     const session = await this.cacheManager.get(`session:${sessionId}`);
+
+    console.log("SessionID tu token:"+sessionId)
+    console.log("session"+JSON.stringify(session))
+    
     if (!session) 
         throw new UnauthorizedException('Session hết hạn, vui lòng đăng nhập lại');
 
