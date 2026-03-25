@@ -45,6 +45,8 @@ export class GameController {
         await this.cacheManager.del(`session:${currentSessionId}`);
         await this.cacheManager.del(`session:${currentSessionId}:ws`);
         await this.cacheManager.del(`user:${userId}:gameSession`);
+
+        console.log("PHAT HIEN ONLINE DONG THOI")
     }
 
     // 4. Gán session này là đang chơi

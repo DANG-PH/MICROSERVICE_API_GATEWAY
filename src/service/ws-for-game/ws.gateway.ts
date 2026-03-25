@@ -780,7 +780,9 @@ export class WsGateway {
 
   async kickSocket(socketId: string) {
     const socket = this.server.sockets.sockets.get(socketId);
+    console.log("EMITTING force_logout to socket", socket.id);
     if (socket) {
+      console.log("PHAT HIEN ONLINE DONG THOI 3, co socket ID")
       // TODO: Client flow event này
       socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
       socket.disconnect();
