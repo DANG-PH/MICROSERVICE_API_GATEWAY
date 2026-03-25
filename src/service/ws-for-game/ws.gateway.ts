@@ -72,6 +72,16 @@ export class WsGateway {
           return;
       }
 
+      const currentSessionId = await this.cacheManager.get<string>(
+        `user:${payload.userId}:gameSession`
+      );
+
+      if (currentSessionId !== payload.sessionId) {
+          // session cũ → đá luôn
+          this.kickSocket(client.id);
+          return;
+      }
+
       // map socketId vào Redis để /play có thể kick
       await this.cacheManager.set(
         `session:${payload.sessionId}:ws`,
