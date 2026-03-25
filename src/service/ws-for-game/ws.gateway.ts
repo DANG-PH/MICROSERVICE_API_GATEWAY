@@ -778,6 +778,7 @@ export class WsGateway {
       if (!this.server) return;
       const socket = this.server.sockets.get(socketId);
       if (socket) {
+          console.log("KICK SOCKET ID: "+socketId)
           socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
           setTimeout(() => socket.disconnect(), 50);
       }
