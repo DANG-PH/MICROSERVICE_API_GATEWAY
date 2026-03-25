@@ -66,7 +66,7 @@ export class WsGateway {
       );
 
       if (currentSessionId && currentSessionId !== payload.sessionId) {
-          client.disconnect();
+          this.kickSocket(client.id)
           return;
       }
 
