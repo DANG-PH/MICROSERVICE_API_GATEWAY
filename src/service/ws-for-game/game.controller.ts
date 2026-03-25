@@ -34,9 +34,7 @@ export class GameController {
         `user:${userId}:gameSession`
     );
 
-    console.log("Check xem có session game khác đang chơi: "+currentSessionId)
-
-    if (currentSessionId && currentSessionId !== sessionId) {
+    if (currentSessionId) {
         // 3. Kick session cũ
         const socketId = await this.cacheManager.get<string>(
         `session:${currentSessionId}:ws`
@@ -47,8 +45,6 @@ export class GameController {
         await this.cacheManager.del(`session:${currentSessionId}`);
         await this.cacheManager.del(`session:${currentSessionId}:ws`);
         await this.cacheManager.del(`user:${userId}:gameSession`);
-
-        console.log("PHAT HIEN ONLINE DONG THOI")
     }
 
     // 4. Gán session này là đang chơi
@@ -57,12 +53,6 @@ export class GameController {
         sessionId,
         24 * 60 * 60 * 1000,
     );
-
-    const sessionGame = await this.cacheManager.get<string>(
-        `user:${userId}:gameSession`
-    );
-
-    console.log("Session sau khi đã lưu: "+sessionGame)
 
     // 5. Update state => playing
     await this.cacheManager.set(
