@@ -68,18 +68,7 @@ export class WsGateway {
       const session = await this.cacheManager.get<SessionData>(`session:${payload.sessionId}`);
 
       if (!session || session.kicked) {
-          client.emit('force_logout');
-          client.disconnect();
-          return;
-      }
-
-      const currentSessionId = await this.cacheManager.get(
-          `user:${payload.userId}:gameSession`
-      );
-
-      if (currentSessionId && currentSessionId !== payload.sessionId) {
-          client.emit('force_logout');
-          client.disconnect();
+          this.kickSocket(client.id);
           return;
       }
 
@@ -786,25 +775,12 @@ export class WsGateway {
   }
 
   async kickSocket(socketId: string) {
-    if (!this.server) return;
-
-    const socket = this.server.sockets.get(socketId);
-    if (socket) {
-        const sessionId = socket.data.user?.sessionId;
-        if (sessionId) {
-            await this.markSessionKicked(sessionId); 
-        }
-
-        socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-        setTimeout(() => socket.disconnect(), 100); 
-    }
-  }
-
-  private async markSessionKicked(sessionId: string, ttlMs = 5 * 60 * 1000) {
-    const session = await this.cacheManager.get<Record<string, any>>(`session:${sessionId}`);
-    if (session) {
-      await this.cacheManager.set(`session:${sessionId}`, { ...session, kicked: true }, ttlMs);
-    }
+      if (!this.server) return;
+      const socket = this.server.sockets.get(socketId);
+      if (socket) {
+          socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
+          setTimeout(() => socket.disconnect(), 50);
+      }
   }
 }
 
