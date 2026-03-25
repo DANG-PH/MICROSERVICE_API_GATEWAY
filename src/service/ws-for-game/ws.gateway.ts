@@ -21,6 +21,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
 import { notEqual } from 'assert';
 
+export interface SessionData {
+  userId: number;
+  username: string;
+  role: string;
+  platform: string;
+  kicked?: boolean;
+  state?: 'idle' | 'playing';
+}
+
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/ws-game',
@@ -56,17 +65,21 @@ export class WsGateway {
       const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
 
       // check session Redis còn tồn tại không
-      const session = await this.cacheManager.get<Record<string, any>>(
-        `session:${payload.sessionId}`
-      );
-      if (!session) { client.disconnect(); return; }
+      const session = await this.cacheManager.get<SessionData>(`session:${payload.sessionId}`);
+
+      if (!session || session.kicked) {
+          client.emit('force_logout');
+          client.disconnect();
+          return;
+      }
 
       const currentSessionId = await this.cacheManager.get(
           `user:${payload.userId}:gameSession`
       );
 
       if (currentSessionId && currentSessionId !== payload.sessionId) {
-          this.kickSocket(client.id)
+          client.emit('force_logout');
+          client.disconnect();
           return;
       }
 
@@ -792,7 +805,7 @@ export class WsGateway {
           }
 
           socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-          setTimeout(() => socket.disconnect(), 2000);
+          setTimeout(() => socket.disconnect(), 50);
       }
   }
 }
