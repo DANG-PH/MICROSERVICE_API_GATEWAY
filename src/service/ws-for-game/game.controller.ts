@@ -28,8 +28,6 @@ export class GameController {
     );
     if (!session) throw new UnauthorizedException('Session không hợp lệ');
 
-    if (session.kicked) throw new UnauthorizedException('Session đã bị thu hồi');
-
     const currentSessionId = await this.cacheManager.get<string>(
         `user:${userId}:gameSession`
     );
@@ -38,27 +36,11 @@ export class GameController {
         const socketId = await this.cacheManager.get<string>(
             `session:${currentSessionId}:ws`
         );
-
-        // 1. kick WS nếu còn
         if (socketId) {
             await this.wsGateway.kickSocket(socketId);
         }
 
-        // 2. lấy session cũ
-        const oldSession = await this.cacheManager.get<Record<string, any>>(
-            `session:${currentSessionId}`
-        );
-
-        // 3. đánh dấu kicked (QUAN TRỌNG)
-        if (oldSession) {
-            await this.cacheManager.set(
-                `session:${currentSessionId}`,
-                { ...oldSession, kicked: true },
-                24 * 60 * 60 * 1000
-            );
-        }
-
-        // 4. cleanup WS mapping (OK)
+        await this.cacheManager.del(`session:${currentSessionId}`)
         await this.cacheManager.del(`session:${currentSessionId}:ws`);
     }
 

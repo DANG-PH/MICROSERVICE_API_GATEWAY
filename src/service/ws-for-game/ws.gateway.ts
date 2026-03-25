@@ -21,15 +21,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
 import { notEqual } from 'assert';
 
-export interface SessionData {
-  userId: number;
-  username: string;
-  role: string;
-  platform: string;
-  kicked?: boolean;
-  state?: 'idle' | 'playing';
-}
-
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/ws-game',
@@ -65,9 +56,9 @@ export class WsGateway {
       const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
 
       // check session Redis còn tồn tại không
-      const session = await this.cacheManager.get<SessionData>(`session:${payload.sessionId}`);
+      const session = await this.cacheManager.get(`session:${payload.sessionId}`);
 
-      if (!session || session.kicked) {
+      if (!session) {
           this.kickSocket(client.id);
           return;
       }
@@ -77,7 +68,6 @@ export class WsGateway {
       );
 
       if (currentSessionId !== payload.sessionId) {
-          // session cũ → đá luôn
           this.kickSocket(client.id);
           return;
       }
