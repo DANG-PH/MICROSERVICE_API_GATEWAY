@@ -172,15 +172,6 @@ export class WsGateway {
     const { sessionId } = client.data.user;
     if (sessionId) {
       await this.cacheManager.del(`session:${sessionId}:ws`);
-
-      // Chỉ xóa gameSession nếu đúng session này đang giữ
-      // Tránh xóa nhầm session mới khi bị kick
-      const currentSessionId = await this.cacheManager.get<string>(
-        `user:${userId}:gameSession`
-      );
-      if (currentSessionId === sessionId) {
-        await this.cacheManager.del(`user:${userId}:gameSession`);
-      }
     }
   }
 
@@ -773,20 +764,26 @@ export class WsGateway {
   }
 
   async kickSocket(socketId: string) {
-      if (!this.server) {
-          console.warn('WS server chưa sẵn sàng');
-          return;
-      }
-
+      if (!this.server) return;
+      
       const socket = this.server.sockets.get(socketId);
       if (socket) {
-          console.log("KICK Socket Success");
+          const sessionId = socket.data.user?.sessionId;
+          if (sessionId) {
+              const session = await this.cacheManager.get<Record<string, any>>(
+                  `session:${sessionId}`
+              );
+              if (session) {
+                  await this.cacheManager.set(
+                      `session:${sessionId}`,
+                      { ...session, kicked: true },
+                      5 * 60 * 1000, // giữ 5 phút để chặn retry
+                  );
+              }
+          }
+
           socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-          setTimeout(() => {
-            socket.disconnect();
-          }, 2000);
-      } else {
-          console.warn(`Socket ${socketId} không tìm thấy (có thể đã disconnect)`);
+          setTimeout(() => socket.disconnect(), 2000);
       }
   }
 }

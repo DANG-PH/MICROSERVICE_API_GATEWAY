@@ -23,21 +23,20 @@ export class GameController {
   async play(@Req() req: any) {
     const { userId, sessionId } = req.user;
 
-    // 1. Lấy session hiện tại của user này (người đang chơi nếu có)
     const session = await this.cacheManager.get<Record<string, any>>(
         `session:${sessionId}`
     );
     if (!session) throw new UnauthorizedException('Session không hợp lệ');
 
-    // 2. Check xem có session game khác đang chơi không
+    if (session.kicked) throw new UnauthorizedException('Session đã bị thu hồi');
+
     const currentSessionId = await this.cacheManager.get<string>(
         `user:${userId}:gameSession`
     );
 
     if (currentSessionId) {
-        // 3. Kick session cũ
         const socketId = await this.cacheManager.get<string>(
-        `session:${currentSessionId}:ws`
+            `session:${currentSessionId}:ws`
         );
         if (socketId) {
             await this.wsGateway.kickSocket(socketId);
@@ -47,14 +46,12 @@ export class GameController {
         await this.cacheManager.del(`user:${userId}:gameSession`);
     }
 
-    // 4. Gán session này là đang chơi
     await this.cacheManager.set(
         `user:${userId}:gameSession`,
         sessionId,
         24 * 60 * 60 * 1000,
     );
 
-    // 5. Update state => playing
     await this.cacheManager.set(
         `session:${sessionId}`,
         { ...session, state: 'playing' },
