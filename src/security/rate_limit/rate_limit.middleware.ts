@@ -3,21 +3,33 @@ import type { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private jwtService: JwtService, 
+  ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
 
-    if (!authHeader) {
-      return next(); // không có token => bỏ qua rate limit
+    let identifier = 'anonymous';
+
+    if (authHeader) {
+      try {
+        const token = authHeader.replace('Bearer ', '');
+        const payload = this.jwtService.verify(token);
+        identifier = `user:${payload.userId}`;
+      } catch {
+        identifier = `ip:${req.ip}`;
+      }
+    } else {
+      identifier = `ip:${req.ip}`;
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
-    const key = `rate_limit_user_${payload.userId}`;
+    const key = `rate_limit:${identifier}`;
     const limit = 1000;
     const ttl = 60;
 
@@ -26,12 +38,13 @@ export class RateLimitMiddleware implements NestMiddleware {
 
     if (count > limit) {
       throw new HttpException(
-        'Bạn gửi quá nhiều request, vui lòng thử lại sau 1 phút.',
+        'Too many requests',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
     await this.cacheManager.set(key, count, ttl * 1000);
+
     next();
   }
 }
