@@ -61,6 +61,15 @@ export class WsGateway {
       );
       if (!session) { client.disconnect(); return; }
 
+      const currentSessionId = await this.cacheManager.get(
+          `user:${payload.userId}:gameSession`
+      );
+
+      if (currentSessionId && currentSessionId !== payload.sessionId) {
+          client.disconnect();
+          return;
+      }
+
       // map socketId vào Redis để /play có thể kick
       await this.cacheManager.set(
         `session:${payload.sessionId}:ws`,
@@ -765,7 +774,7 @@ export class WsGateway {
 
   async kickSocket(socketId: string) {
       if (!this.server) return;
-      
+
       const socket = this.server.sockets.get(socketId);
       if (socket) {
           const sessionId = socket.data.user?.sessionId;
