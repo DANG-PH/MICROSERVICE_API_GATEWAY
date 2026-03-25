@@ -24,6 +24,8 @@ import { notEqual } from 'assert';
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/ws-game',
+  pingTimeout: 10000,   // chờ 10s không có pong → disconnect
+  pingInterval: 5000,   // ping mỗi 5s
 })
 export class WsGateway {
   @WebSocketServer()
@@ -52,6 +54,29 @@ export class WsGateway {
       }
       
       const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
+
+      // check session Redis còn tồn tại không
+      const session = await this.cacheManager.get<Record<string, any>>(
+        `session:${payload.sessionId}`
+      );
+      if (!session) { client.disconnect(); return; }
+
+      // check gameSession pointer khớp không
+      const currentSessionId = await this.cacheManager.get<string>(
+        `user:${payload.userId}:gameSession`
+      );
+      if (!currentSessionId || currentSessionId !== payload.sessionId) {
+        client.disconnect(); 
+        return; 
+      }
+
+      // map socketId vào Redis để /play có thể kick
+      await this.cacheManager.set(
+        `session:${payload.sessionId}:ws`,
+        client.id,
+        24 * 60 * 60 * 1000,
+      );
+
       client.data.user = payload;
 
       const userId = client.data.user.userId;
@@ -148,6 +173,20 @@ export class WsGateway {
     if (map) {
       await this.redis.srem(`GAME:MAP:${map}`, userId);
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
+    }
+
+    const { sessionId } = client.data.user;
+    if (sessionId) {
+      await this.cacheManager.del(`session:${sessionId}:ws`);
+
+      // Chỉ xóa gameSession nếu đúng session này đang giữ
+      // Tránh xóa nhầm session mới khi bị kick
+      const currentSessionId = await this.cacheManager.get<string>(
+        `user:${userId}:gameSession`
+      );
+      if (currentSessionId === sessionId) {
+        await this.cacheManager.del(`user:${userId}:gameSession`);
+      }
     }
   }
 
@@ -737,6 +776,15 @@ export class WsGateway {
         avatar: playerState.avatar,
       };
     }).filter(Boolean);
+  }
+
+  async kickSocket(socketId: string) {
+    const socket = this.server.sockets.sockets.get(socketId);
+    if (socket) {
+      // TODO: Client flow event này
+      socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
+      socket.disconnect();
+    }
   }
 }
 
