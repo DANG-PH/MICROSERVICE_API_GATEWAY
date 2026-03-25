@@ -793,6 +793,7 @@ export class WsGateway {
     const socket = this.server.sockets.sockets.get(socketId);
     if (socket) {
       // TODO: Client flow event này
+      console.log("KICK Socket Success")
       socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
       socket.disconnect();
     }
