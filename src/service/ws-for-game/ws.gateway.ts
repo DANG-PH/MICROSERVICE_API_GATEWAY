@@ -61,21 +61,15 @@ export class WsGateway {
       );
       if (!session) { client.disconnect(); return; }
 
-      // check gameSession pointer khớp không
-      const currentSessionId = await this.cacheManager.get<string>(
-        `user:${payload.userId}:gameSession`
-      );
-      if (!currentSessionId || currentSessionId !== payload.sessionId) {
-        client.disconnect(); 
-        return; 
-      }
-
       // map socketId vào Redis để /play có thể kick
       await this.cacheManager.set(
         `session:${payload.sessionId}:ws`,
         client.id,
         24 * 60 * 60 * 1000,
       );
+
+      // Socket đã map
+      console.log("SOCKET MAP: "+await this.cacheManager.get(`session:${payload.sessionId}:ws`))
 
       client.data.user = payload;
 
@@ -788,7 +782,9 @@ export class WsGateway {
       if (socket) {
           console.log("KICK Socket Success");
           socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-          socket.disconnect();
+          setTimeout(() => {
+            socket.disconnect();
+          }, 2000);
       } else {
           console.warn(`Socket ${socketId} không tìm thấy (có thể đã disconnect)`);
       }
