@@ -18,6 +18,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
   }
 
   async validate(req: Request, payload: any) {
+    const sessionId = payload.sessionId;
+    if (!payload.sessionId)
+    throw new UnauthorizedException('Token không hợp lệ: thiếu sessionId');
+    const session = await this.cacheManager.get(`session:${sessionId}`);
+    if (!session) throw new UnauthorizedException('Session hết hạn, vui lòng đăng nhập lại');
     return {userId: payload.userId, username: payload.username, role: payload.role, platform: payload.platform, sessionId: payload.sessionId }; 
   }
 }
