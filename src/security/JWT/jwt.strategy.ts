@@ -17,7 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-1gio') {
     });
   }
 
-  async validate(req: Request, payload: any) {
+  async validate(payload: any) {
     const sessionId = payload.sessionId;
     if (!payload.sessionId)
     throw new UnauthorizedException('Token không hợp lệ: thiếu sessionId');
