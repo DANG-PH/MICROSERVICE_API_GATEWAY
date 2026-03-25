@@ -179,6 +179,11 @@ export class WsGateway {
       await this.redis.srem(`GAME:MAP:${map}`, userId);
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
     }
+
+    const user = client.data.user;
+    if (user?.sessionId) {
+      await this.cacheManager.del(`session:${user.sessionId}:ws`);
+    }
   }
 
   @SubscribeMessage('setMap')
