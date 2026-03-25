@@ -784,13 +784,7 @@ export class WsGateway {
           return;
       }
 
-      const socketsMap = this.server.sockets?.sockets;
-      if (!socketsMap) {
-          console.warn('WS server.sockets.sockets chưa sẵn sàng');
-          return;
-      }
-
-      const socket = socketsMap.get(socketId);
+      const socket = this.server.sockets.get(socketId);
       if (socket) {
           console.log("KICK Socket Success");
           socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
