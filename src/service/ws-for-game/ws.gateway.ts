@@ -779,24 +779,25 @@ export class WsGateway {
   }
 
   async kickSocket(socketId: string) {
-    if (!this.server) {
-        console.warn('WS server chưa sẵn sàng');
-        return;
-    }
+      if (!this.server) {
+          console.warn('WS server chưa sẵn sàng');
+          return;
+      }
 
-    // Check this.server.sockets
-    if (!this.server.sockets) {
-        console.warn('WS server.sockets chưa sẵn sàng');
-        return;
-    }
-    
-    const socket = this.server.sockets.sockets.get(socketId);
-    if (socket) {
-      // TODO: Client flow event này
-      console.log("KICK Socket Success")
-      socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-      socket.disconnect();
-    }
+      const socketsMap = this.server.sockets?.sockets;
+      if (!socketsMap) {
+          console.warn('WS server.sockets.sockets chưa sẵn sàng');
+          return;
+      }
+
+      const socket = socketsMap.get(socketId);
+      if (socket) {
+          console.log("KICK Socket Success");
+          socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
+          socket.disconnect();
+      } else {
+          console.warn(`Socket ${socketId} không tìm thấy (có thể đã disconnect)`);
+      }
   }
 }
 
