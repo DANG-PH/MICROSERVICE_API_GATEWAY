@@ -1,61 +1,63 @@
+import { randomUUID } from 'crypto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
-import { Controller, Post, Body, UseGuards, Param, Get, Patch, Put, Delete, Query, Req, Inject, UnauthorizedException } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery, ApiParam, ApiOkResponse } from '@nestjs/swagger';
-import {UseItemAdminRequestDto,AddItemAdminRequestDto,UserDto,UpdateBalanceRequestDto,UseBalanceRequestDto,UseItemRequestDto,UserListResponseDto,UserResponseDto,UsernameRequestDto,GetUserRequestDto,EmptyDto,AddItemRequestDto,BalanceResponseDto,MessageResponseDto,RegisterRequestDto,SaveGameRequestDto,ItemListResponseDto,RegisterResponseDto,SaveGameResponseDto,AddBalanceRequestDto} from "dto/user.dto"
-import { Roles } from 'src/security/decorators/role.decorator';
-import { Role } from 'src/enums/role.enum';
-import { RolesGuard } from 'src/security/guard/role.guard';
+import { Controller, Post, UseGuards, Req, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { WsGateway } from './ws.gateway';
+import Redis from 'ioredis';
+
+const PLAY_SCRIPT = `
+  local key = KEYS[1]
+  local newId = ARGV[1]
+  local ttl = tonumber(ARGV[2])
+
+  local oldId = redis.call('GETSET', key, newId)
+  redis.call('EXPIRE', key, ttl)
+
+  if oldId then
+    local wsKey = 'gameSession:' .. oldId .. ':ws'
+    local socketId = redis.call('GET', wsKey)
+    redis.call('DEL', wsKey)
+    return {oldId, socketId}
+  end
+
+  return {false, false}
+`;
 
 @Controller('game')
-@ApiTags('Api Game') 
+@ApiTags('Api Game')
 export class GameController {
+  private readonly redis: Redis;
+
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly wsGateway: WsGateway,
-  ) {}
+  ) {
+    this.redis = new Redis(process.env.REDIS_URL || '');
+  }
 
   @Post('play')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'User vào chơi game sau khi verifyOTP và ở màn hình menu' })
   async play(@Req() req: any) {
-    const { userId, sessionId } = req.user;
+    const { userId } = req.user;
+    const gameSessionId = randomUUID();
 
-    const session = await this.cacheManager.get<Record<string, any>>(
-        `session:${sessionId}`
-    );
-    if (!session) throw new UnauthorizedException('Session không hợp lệ');
+    // Atomic: getset gameSession + expire + lấy socketId cũ + del ws key
+    // Tất cả trong 1 round-trip Redis, không có race condition
+    const [, socketId] = await this.redis.eval(
+      PLAY_SCRIPT,
+      1,
+      `user:${userId}:gameSession`,
+      gameSessionId,
+      '86400',
+    ) as [string | null, string | null];
 
-    const currentSessionId = await this.cacheManager.get<string>(
-        `user:${userId}:gameSession`
-    );
-
-    if (currentSessionId) {
-        const socketId = await this.cacheManager.get<string>(
-            `session:${currentSessionId}:ws`
-        );
-        if (socketId) {
-            await this.wsGateway.kickSocket(socketId);
-        }
-
-        await this.cacheManager.del(`session:${currentSessionId}`)
-        await this.cacheManager.del(`session:${currentSessionId}:ws`);
+    if (socketId) {
+      await this.wsGateway.kickSocket(socketId);
     }
 
-    await this.cacheManager.set(
-        `user:${userId}:gameSession`,
-        sessionId,
-        24 * 60 * 60 * 1000,
-    );
-
-    await this.cacheManager.set(
-        `session:${sessionId}`,
-        { ...session, state: 'playing' },
-        24 * 60 * 60 * 1000,
-    );
-
-    return { success: true };
+    return { success: true, gameSessionId };
   }
 }

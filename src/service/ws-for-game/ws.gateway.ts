@@ -55,38 +55,32 @@ export class WsGateway {
       
       const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_SECRET });
 
-      // check session Redis còn tồn tại không
-      const session = await this.cacheManager.get(`session:${payload.sessionId}`);
-
-      if (!session) {
-          this.kickSocket(client.id);
-          return;
+      // Lấy gameSessionId từ handshake thay vì từ JWT
+      const gameSessionId = client.handshake.auth?.gameSessionId;
+      if (!gameSessionId) {
+        client.disconnect();
+        return;
       }
 
-      const currentSessionId = await this.cacheManager.get<string>(
-        `user:${payload.userId}:gameSession`
-      );
-
-      if (currentSessionId !== payload.sessionId) {
-          this.kickSocket(client.id);
-          return;
+      // Check gameSessionId có match với session đang active của user không
+      const currentGameSessionId = await this.redis.get(`user:${payload.userId}:gameSession`);
+      if (currentGameSessionId !== gameSessionId) {
+        client.disconnect();
+        return;
       }
 
-      // map socketId vào Redis để /play có thể kick
-      await this.cacheManager.set(
-        `session:${payload.sessionId}:ws`,
+      // Map socketId vào Redis để /play có thể kick
+      await this.redis.set(
+        `gameSession:${gameSessionId}:ws`,
         client.id,
-        24 * 60 * 60 * 1000,
+        'EX',
+        86400,
       );
 
-      // Socket đã map
-      console.log("SOCKET MAP: "+await this.cacheManager.get(`session:${payload.sessionId}:ws`))
+      client.data.user = { ...payload, gameSessionId };
 
-      client.data.user = payload;
-
-      const userId = client.data.user.userId;
-
-      const state = await this.userService.handleGetPosition({ userId: userId });
+      const userId = payload.userId;
+      const state = await this.userService.handleGetPosition({ userId });
 
       await this.redis.hset(`GAME:PLAYER:${userId}`, {
         x: state.x,
@@ -146,11 +140,10 @@ export class WsGateway {
         avatar: "nhanvat/traidat/avatar/Goku_base/daudung.png",
       });
 
-      // Join room gửi thông báo
       client.join(`Game:${payload.userId}`);
       client.join(`NotificationGame`);
 
-      if (payload.role == "ADMIN") {
+      if (payload.role === 'ADMIN') {
         client.to(`NotificationGame`).emit('notification', { tinNhan: `Đại đế ${state.gameName} đã online tại ${state.map}` });
       }
     } catch (e) {
@@ -158,14 +151,14 @@ export class WsGateway {
     }
   }
 
-
   async handleDisconnect(client: Socket) {
     const userId = client.data.user?.userId;
     const map = client.data.map;
     if (!userId) return;
 
     const state = await this.redis.hgetall(`GAME:PLAYER:${userId}`);
-    if (!state || !state.x) return; 
+    if (!state || !state.x) return;
+
     await this.userService.handleSavePosition({
       userId,
       x: Number(state.x),
@@ -180,9 +173,10 @@ export class WsGateway {
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
     }
 
-    const user = client.data.user;
-    if (user?.sessionId) {
-      await this.cacheManager.del(`session:${user.sessionId}:ws`);
+    // Xóa ws mapping khi disconnect
+    const gameSessionId = client.data.user?.gameSessionId;
+    if (gameSessionId) {
+      await this.redis.del(`gameSession:${gameSessionId}:ws`);
     }
   }
 
