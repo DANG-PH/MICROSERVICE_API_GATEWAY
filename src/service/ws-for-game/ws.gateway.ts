@@ -761,8 +761,8 @@ export class WsGateway {
     this.server.to(`Game:${userId}`).emit('force_logout', {
       message: 'Tài khoản đăng nhập ở nơi khác',
     });
-
-    // Khác gì setTimeOut thường, setTimeOut thường vẫn chạy dòng sau à
+    
+    // Khác setTimeout thường là nó chặn dòng sau ( có await nên phải data trả về là Promise )
     await new Promise(resolve => setTimeout(resolve, 100));
     // Disconnect socket qua adapter (Socket.IO hỗ trợ sẵn)
     this.server.in(`Game:${userId}`).disconnectSockets(true);
