@@ -7,8 +7,6 @@ import {
   DeletePostRequest,
   UpdatePostStatusRequest,
   GetPostsByEditorRequest,
-  PostResponse,
-  ListPostResponse,
   Empty,
   EditorServiceClient,
 } from '../../../../proto/admin.pb';

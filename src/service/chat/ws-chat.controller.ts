@@ -1,13 +1,11 @@
-import { Controller, UseGuards, Req, Get, Inject, Patch, Post, Body, Param, Query, Delete, Put } from '@nestjs/common';
+import { Controller, UseGuards, Req, Get, Inject, Patch, Post, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
-import { RolesGuard } from 'src/security/guard/role.guard';
-import { HttpException, HttpStatus, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Cache } from '@nestjs/cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { createRoomRequest } from 'dto/auth.dto';
 import Redis from 'ioredis';
-import { AuthService } from '../auth/auth.service';
 import { SocialNetworkService } from '../social_network/social-network.service';
 import { AddUserToGroupRequestDto, AddUserToGroupResponseDto, CreateGroupRequestDto, CreateGroupResponseDto, GetAllGroupResponseDto, GetMessageRequestDto, GetMessageResponseDto } from 'dto/social-network.dto';
 

@@ -15,13 +15,10 @@ const PLAY_SCRIPT = `
   redis.call('EXPIRE', key, ttl)
 
   if oldId then
-    local wsKey = 'gameSession:' .. oldId .. ':ws'
-    local socketId = redis.call('GET', wsKey)
-    redis.call('DEL', wsKey)
-    return {oldId, socketId}
+    return oldId
   end
 
-  return {false, false}
+  return false
 `;
 
 @Controller('game')
@@ -44,18 +41,19 @@ export class GameController {
     const { userId } = req.user;
     const gameSessionId = randomUUID();
 
-    // Atomic: getset gameSession + expire + lấy socketId cũ + del ws key
+    // Atomic
     // Tất cả trong 1 round-trip Redis, không có race condition
-    const [, socketId] = await this.redis.eval(
+    const oldSessionId = await this.redis.eval(
       PLAY_SCRIPT,
       1,
       `user:${userId}:gameSession`,
       gameSessionId,
       '86400',
-    ) as [string | null, string | null];
+    ) as string | null;
 
-    if (socketId) {
-      await this.wsGateway.kickSocket(socketId);
+    if (oldSessionId) {
+      // Kick bằng userId, adapter tự tìm đúng server
+      await this.wsGateway.kickSocket(userId);
     }
 
     return { success: true, gameSessionId };

@@ -12,14 +12,12 @@ import Redis from 'ioredis';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { JwtService } from '@nestjs/jwt';
-import { SocialNetworkService } from '../social_network/social-network.service';
-import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
 import { Double } from 'mongodb';
 import { Item } from 'proto/item.pb';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
-import { notEqual } from 'assert';
+import { createAdapter } from '@socket.io/redis-adapter';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -31,7 +29,6 @@ export class WsGateway {
   @WebSocketServer()
   server: Server;
   private redis: Redis;
-  private lastSaveTime = new Map<number, number>();
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -40,6 +37,20 @@ export class WsGateway {
     @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
+  }
+
+  async afterInit(server: Server) {
+    // Tạo 1 Redis connection để PUBLISH (gửi message)
+    const pubClient = new Redis(process.env.REDIS_URL || '');
+    
+    // Tạo thêm 1 connection nữa để SUBSCRIBE (lắng nghe message)
+    // duplicate() = copy y hệt config, nhưng là connection riêng biệt
+    // duplicate() thay thế cho việc viết tay thế này:
+    // const subClient = new Redis(process.env.REDIS_URL || '');  // y hệt
+    const subClient = pubClient.duplicate();
+
+    // Gắn adapter vào Socket.IO server
+    server.adapter(createAdapter(pubClient, subClient));
   }
 
   async handleConnection(client: Socket) {
@@ -68,14 +79,6 @@ export class WsGateway {
         client.disconnect();
         return;
       }
-
-      // Map socketId vào Redis để /play có thể kick
-      await this.redis.set(
-        `gameSession:${gameSessionId}:ws`,
-        client.id,
-        'EX',
-        86400,
-      );
 
       client.data.user = { ...payload, gameSessionId };
 
@@ -172,12 +175,6 @@ export class WsGateway {
       await this.redis.srem(`GAME:MAP:${map}`, userId);
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
     }
-
-    // Xóa ws mapping khi disconnect
-    const gameSessionId = client.data.user?.gameSessionId;
-    if (gameSessionId) {
-      await this.redis.del(`gameSession:${gameSessionId}:ws`);
-    }
   }
 
   @SubscribeMessage('setMap')
@@ -270,36 +267,28 @@ export class WsGateway {
 
     const map = client.data.map;
 
-    // chỉ save Redis mỗi 100ms
-    const now = Date.now();
-    const last = this.lastSaveTime.get(userId) || 0;
-
-    if (now - last > 200) {
-      this.lastSaveTime.set(userId, now);
-
-      this.redis.hset(`GAME:PLAYER:${userId}`, {
-        x: body.x,
-        y: body.y,
-        trangthai: body.trangthai,
-        dir: body.dir,
-        dau: body.dau,
-        than: body.than,
-        chan: body.chan,
-        timeChoHienBay: body.timeChoHienBay,
-        lechDauX: body.lechDauX,
-        lechDauY: body.lechDauY,
-        lechThanX: body.lechThanX,
-        lechThanY: body.lechThanY,
-        lechChanX: body.lechChanX,
-        lechChanY: body.lechChanY,
-        frameVanBay: body.frameVanBay,
-        dangMangVanBay: body.dangMangVanBay,
-        tenVanBay: body.tenVanBay,
-        rong: body.rong,
-        cao: body.cao,
-        avatar: body.avatar,
-      });
-    }
+    this.redis.hset(`GAME:PLAYER:${userId}`, {
+      x: body.x,
+      y: body.y,
+      trangthai: body.trangthai,
+      dir: body.dir,
+      dau: body.dau,
+      than: body.than,
+      chan: body.chan,
+      timeChoHienBay: body.timeChoHienBay,
+      lechDauX: body.lechDauX,
+      lechDauY: body.lechDauY,
+      lechThanX: body.lechThanX,
+      lechThanY: body.lechThanY,
+      lechChanX: body.lechChanX,
+      lechChanY: body.lechChanY,
+      frameVanBay: body.frameVanBay,
+      dangMangVanBay: body.dangMangVanBay,
+      tenVanBay: body.tenVanBay,
+      rong: body.rong,
+      cao: body.cao,
+      avatar: body.avatar,
+    });
 
     this.server.to(`MAP:${map}`).emit('playerSync', {
       userId,
@@ -768,14 +757,15 @@ export class WsGateway {
     }).filter(Boolean);
   }
 
-  async kickSocket(socketId: string) {
-      if (!this.server) return;
-      const socket = this.server.sockets.get(socketId);
-      if (socket) {
-          console.log("KICK SOCKET ID: "+socketId)
-          socket.emit('force_logout', { message: 'Tài khoản đăng nhập ở nơi khác' });
-          setTimeout(() => socket.disconnect(), 50);
-      }
+  async kickSocket(userId: number) {
+    this.server.to(`Game:${userId}`).emit('force_logout', {
+      message: 'Tài khoản đăng nhập ở nơi khác',
+    });
+
+    // Khác gì setTimeOut thường, setTimeOut thường vẫn chạy dòng sau à
+    await new Promise(resolve => setTimeout(resolve, 100));
+    // Disconnect socket qua adapter (Socket.IO hỗ trợ sẵn)
+    this.server.in(`Game:${userId}`).disconnectSockets(true);
   }
 }
 

@@ -20,7 +20,6 @@ import {
   SendEmailToUserRequest,
   ChangeAvatarRequest,
   GetAllUserRequest,
-  GetAllUserResponse,
   GetRealnameAvatarRequest,
   LoginWithGoogleRequest
 } from 'proto/auth.pb';

@@ -30,7 +30,6 @@ import { PayService } from 'src/service/pay/pay/pay.service';
 import {
   GetAccountsByPartnerRequestDto,
   ListAccountSellResponseDto,
-    GetAllAccountByBuyerRequest,
   GetAllAccountByBuyerResponse,
   PaginationByPartnerRequestDto
 } from 'dto/partner.dto';

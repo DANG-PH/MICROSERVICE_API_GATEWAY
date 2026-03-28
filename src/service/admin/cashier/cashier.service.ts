@@ -4,8 +4,6 @@ import {
   CreateWithdrawRequestt,
   GetWithdrawsByUserRequest,
   UpdateWithdrawStatusRequest,
-  WithdrawResponse,
-  ListWithdrawResponse,
   CashierServiceClient,
   Empty
 } from '../../../../proto/admin.pb';

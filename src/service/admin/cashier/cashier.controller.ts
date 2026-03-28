@@ -5,8 +5,6 @@ import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
-import type { Request } from 'express';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { CashierService } from './cashier.service';
 
 @Controller('cashier')

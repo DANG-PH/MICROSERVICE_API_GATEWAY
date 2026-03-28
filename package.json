@@ -40,6 +40,7 @@
     "@nestjs/websockets": "^11.1.10",
     "@opentelemetry/auto-instrumentations-node": "^0.67.0",
     "@opentelemetry/sdk-node": "^0.208.0",
+    "@socket.io/redis-adapter": "^8.3.0",
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^0.10.9",
     "axios": "^1.13.1",
