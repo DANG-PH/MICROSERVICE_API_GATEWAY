@@ -140,19 +140,13 @@ export class WsGateway {
     }
   }
 
-async handleDisconnect(client: Socket) {
-    console.log('[Disconnect] socketId=' + client.id + ' userId=' + client.data.user?.userId);
+  async handleDisconnect(client: Socket) {
     const userId = client.data.user?.userId;
     const map = client.data.map;
-    
-    console.log('[Disconnect] map=' + map + ' userId=' + userId);
-    
     if (!userId) return;
 
     const state = await this.redis.hgetall(`GAME:PLAYER:${userId}`);
-    console.log('[Disconnect] state=' + JSON.stringify(state));
-    
-    if (!state) return;
+    if (!state || !state.x) return;
 
     await this.userService.handleSavePosition({
       userId,
@@ -162,23 +156,12 @@ async handleDisconnect(client: Socket) {
     });
 
     await this.redis.del(`GAME:PLAYER:${userId}`);
-    // Verify xóa thành công chưa
-    const afterDel = await this.redis.hgetall(`GAME:PLAYER:${userId}`);
-    console.log('[Disconnect] Sau del GAME:PLAYER:' + userId + ' → ' + JSON.stringify(afterDel));
 
     if (map) {
       await this.redis.srem(`GAME:MAP:${map}`, userId);
-      // Verify xóa thành công chưa
-      const afterSrem = await this.redis.smembers(`GAME:MAP:${map}`);
-      console.log('[Disconnect] Sau srem GAME:MAP:' + map + ' → còn lại: ' + JSON.stringify(afterSrem));
-      
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
-    } else {
-      console.log('[Disconnect] map undefined → không xóa GAME:MAP');
     }
-    
-    console.log('DONE DISCONNECT userId=' + userId);
-}
+  }
 
   @SubscribeMessage('setMap')
   async handleSetMap(
