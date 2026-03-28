@@ -4,6 +4,7 @@ import {
   SubscribeMessage,
   ConnectedSocket,
   MessageBody,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { WsJwtGuard } from 'src/security/guard/ws-jwt.guard';
@@ -25,7 +26,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
   pingTimeout: 10000,   // chờ 10s không có pong → disconnect
   pingInterval: 5000,   // ping mỗi 5s
 })
-export class WsGateway {
+export class WsGateway implements OnGatewayInit {
   @WebSocketServer()
   server: Server;
   private redis: Redis;
@@ -39,7 +40,7 @@ export class WsGateway {
     this.redis = new Redis(process.env.REDIS_URL || '')
   }
 
-  async afterInit(server: Server) {
+  async afterInit() {
     // Tạo 1 Redis connection để PUBLISH (gửi message)
     const pubClient = new Redis(process.env.REDIS_URL || '');
     
@@ -50,7 +51,7 @@ export class WsGateway {
     const subClient = pubClient.duplicate();
 
     // Gắn adapter vào Socket.IO server
-    server.adapter(createAdapter(pubClient, subClient));
+    this.server.adapter(createAdapter(pubClient, subClient));
   }
 
   async handleConnection(client: Socket) {
