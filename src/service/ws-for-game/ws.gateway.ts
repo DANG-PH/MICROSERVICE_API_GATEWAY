@@ -141,12 +141,13 @@ export class WsGateway {
   }
 
   async handleDisconnect(client: Socket) {
+    console.log('[Disconnect] socketId=' + client.id + ' userId=' + client.data.user?.userId);
     const userId = client.data.user?.userId;
     const map = client.data.map;
     if (!userId) return;
 
     const state = await this.redis.hgetall(`GAME:PLAYER:${userId}`);
-    if (!state || !state.x) return;
+    if (!state) return;
 
     await this.userService.handleSavePosition({
       userId,
@@ -161,6 +162,7 @@ export class WsGateway {
       await this.redis.srem(`GAME:MAP:${map}`, userId);
       client.to(`MAP:${map}`).emit('playerDespawn', { userId });
     }
+    console.log('DONE DISCONNECT'+ ' userId=' + client.data.user?.userId);
   }
 
   @SubscribeMessage('setMap')
