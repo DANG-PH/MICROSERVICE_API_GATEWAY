@@ -18,7 +18,6 @@ import { Double } from 'mongodb';
 import { Item } from 'proto/item.pb';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
-import { createAdapter } from '@socket.io/redis-adapter';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -26,7 +25,7 @@ import { createAdapter } from '@socket.io/redis-adapter';
   pingTimeout: 10000,   // chờ 10s không có pong → disconnect
   pingInterval: 5000,   // ping mỗi 5s
 })
-export class WsGateway implements OnGatewayInit {
+export class WsGateway {
   @WebSocketServer()
   server: Server;
   private redis: Redis;
@@ -38,20 +37,6 @@ export class WsGateway implements OnGatewayInit {
     @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
-  }
-
-  async afterInit() {
-    // Tạo 1 Redis connection để PUBLISH (gửi message)
-    const pubClient = new Redis(process.env.REDIS_URL || '');
-    
-    // Tạo thêm 1 connection nữa để SUBSCRIBE (lắng nghe message)
-    // duplicate() = copy y hệt config, nhưng là connection riêng biệt
-    // duplicate() thay thế cho việc viết tay thế này:
-    // const subClient = new Redis(process.env.REDIS_URL || '');  // y hệt
-    const subClient = pubClient.duplicate();
-
-    // Gắn adapter vào Socket.IO server
-    this.server.adapter(createAdapter(pubClient, subClient));
   }
 
   async handleConnection(client: Socket) {

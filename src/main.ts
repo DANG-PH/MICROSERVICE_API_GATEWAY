@@ -12,6 +12,7 @@ import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
 import { bold, green, cyan } from 'chalk';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
+import { RedisIoAdapter } from './redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -76,6 +77,10 @@ async function bootstrap() {
     }
     next();
   });
+
+  const redisIoAdapter = new RedisIoAdapter(app);
+  await redisIoAdapter.connectToRedis();
+  app.useWebSocketAdapter(redisIoAdapter);
 
   await app.listen(Number(process.env.PORT), '0.0.0.0');
   console.log(bold(green(`🚀 Server Dashboard: http://${process.env.SERVER_DASHBOARD_URL}`)));
