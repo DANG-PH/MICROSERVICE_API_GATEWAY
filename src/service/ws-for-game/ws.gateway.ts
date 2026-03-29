@@ -18,6 +18,7 @@ import { Double } from 'mongodb';
 import { Item } from 'proto/item.pb';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
+import { ItemService } from '../item/item.service';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -34,6 +35,7 @@ export class WsGateway {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly itemService: ItemService,
     @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
@@ -527,20 +529,20 @@ export class WsGateway {
     await this.redis.set(`GAME:TRADE:LOCK:${sessionId}:${userId}`, 1, 'EX', 300);
 
     // Gửi cho user B để user B đổi hiệu ứng ô gd từ xám thành đen
-    this.server.to(`Game:${body.withUserId}`).emit('trade:locked', { by: userId });
+    // this.server.to(`Game:${body.withUserId}`).emit('trade:locked', { by: userId });
 
-    const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
-    const current = JSON.parse((await this.redis.get(key)) || '[]');
-    this.server.to(`Game:${body.withUserId}`).emit('trade:offer:final', {
-      from: userId,
-      items: current,
-    });
+    // const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
+    // const current = JSON.parse((await this.redis.get(key)) || '[]');
+    // this.server.to(`Game:${body.withUserId}`).emit('trade:offer:final', {
+    //   from: userId,
+    //   items: current,
+    // });
 
     const otherLocked = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${body.withUserId}`);
     if (otherLocked) {
       await this.redis.set(`GAME:TRADE:STATE:${sessionId}`, 'LOCKED', 'EX', 300);
 
-      // Gửi để hiện nút "Xong" ở client khi cả 2 đã khóa (Thay cho "Khóa" và "Đợi" (Trạng thái này k cho click nút nữa))
+      // Gửi để hiện nút "Check..." ở client khi cả 2 đã khóa (Thay cho "Khóa" và "Đợi..." (Trạng thái này k cho click nút nữa))
       this.server.to(`Game:${userId}`).emit('trade:bothLocked');
       this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked');
 
@@ -612,17 +614,15 @@ export class WsGateway {
       120,
     );
 
-    // Tạm thời chưa cần logic đằng sau ( khi nào client cần thông báo sau khi check thành công thì cần )
+    const otherChecked = await this.redis.get(
+      `GAME:TRADE:CHECK_OK:${sessionId}:${withUserId}`,
+    );
 
-    // const otherChecked = await this.redis.get(
-    //   `GAME:TRADE:CHECK_OK:${sessionId}:${withUserId}`,
-    // );
-
-    // // Khi cả 2 đều OK → cho phép confirm
-    // if (otherChecked) {
-    //   this.server.to(`Game:${userId}`).emit('trade:check:ok');
-    //   this.server.to(`Game:${withUserId}`).emit('trade:check:ok');
-    // }
+    // Khi cả 2 đều OK → cho phép confirm
+    if (otherChecked) {
+      this.server.to(`Game:${userId}`).emit('trade:check:ok');
+      this.server.to(`Game:${withUserId}`).emit('trade:check:ok');
+    }
   }
 
   // Sau khi đầy đủ điều kiện có thể confirm giao dịch
@@ -631,11 +631,58 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { withUserId: number },
   ) {
+    const TRADE_CONFIRM_SCRIPT = `
+      local sessionId    = KEYS[1]
+      local userId       = KEYS[2]
+      local withUserId   = KEYS[3]
+
+      local confirmMe    = 'GAME:TRADE:CONFIRM:'  .. sessionId .. ':' .. userId
+      local confirmOther = 'GAME:TRADE:CONFIRM:'  .. sessionId .. ':' .. withUserId
+      local checkMe      = 'GAME:TRADE:CHECK_OK:' .. sessionId .. ':' .. userId
+      local checkOther   = 'GAME:TRADE:CHECK_OK:' .. sessionId .. ':' .. withUserId
+      local executingKey = 'GAME:TRADE:EXECUTING:' .. sessionId
+      local offerMe      = 'GAME:TRADE:OFFER:'    .. sessionId .. ':' .. userId
+      local offerOther   = 'GAME:TRADE:OFFER:'    .. sessionId .. ':' .. withUserId
+
+      redis.call('SET', confirmMe, '1', 'EX', 300)
+
+      if redis.call('GET', confirmOther) == nil then
+        return 'WAIT'
+      end
+
+      if redis.call('GET', checkMe) == nil or redis.call('GET', checkOther) == nil then
+        return 'NOT_READY'
+      end
+
+      if redis.call('SET', executingKey, '1', 'EX', 30, 'NX') == nil then
+        return 'LOCKED'
+      end
+
+      local offerMeData = redis.call('GET', offerMe)
+      if offerMeData == nil then offerMeData = '[]' end
+
+      local offerOtherData = redis.call('GET', offerOther)
+      if offerOtherData == nil then offerOtherData = '[]' end
+
+      redis.call('DEL',
+        'GAME:TRADE:SESSION:'  .. userId,
+        'GAME:TRADE:SESSION:'  .. withUserId,
+        'GAME:TRADE:STATE:'    .. sessionId,
+        offerMe,
+        offerOther,
+        'GAME:TRADE:LOCK:'     .. sessionId .. ':' .. userId,
+        'GAME:TRADE:LOCK:'     .. sessionId .. ':' .. withUserId,
+        confirmMe,
+        confirmOther,
+        executingKey
+      )
+
+      return offerMeData .. '|' .. offerOtherData
+    `;
     const userId = client.data.user.userId;
 
     let sessionId: string;
     let state: string;
-
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
     } catch {
@@ -644,39 +691,62 @@ export class WsGateway {
 
     if (state !== 'LOCKED') return;
 
-    await this.redis.set(`GAME:TRADE:CONFIRM:${sessionId}:${userId}`, 1, 'EX', 300);
+    const result = await this.redis.eval(
+      TRADE_CONFIRM_SCRIPT,
+      3,
+      sessionId,
+      String(userId),
+      String(body.withUserId),
+    ) as string;
 
-    const otherConfirmed = await this.redis.get(
-      `GAME:TRADE:CONFIRM:${sessionId}:${body.withUserId}`,
-    );
+    if (result === 'WAIT') {
+      this.server.to(`Game:${userId}`).emit('notification', { tinNhan: 'Vui lòng đợi đối phương xác nhận' });
+      return;
+    }
 
-    if (!otherConfirmed) return;
+    if (result === 'NOT_READY' || result === 'LOCKED') return;
 
-    const bothChecked = await Promise.all([
-      this.redis.get(`GAME:TRADE:CHECK_OK:${sessionId}:${userId}`),
-      this.redis.get(`GAME:TRADE:CHECK_OK:${sessionId}:${body.withUserId}`),
-    ]);
+    // result = '[...offerMe]|[...offerOther]'
+    const separatorIndex = result.indexOf('|');
+    const offerMe    = JSON.parse(result.substring(0, separatorIndex));
+    const offerOther = JSON.parse(result.substring(separatorIndex + 1));
 
-    if (!bothChecked[0] || !bothChecked[1]) return;
+    this.queueClient.emit('swap', {
+      offers: [
+        { itemUuids: offerMe,    swap_user_id: body.withUserId },
+        { itemUuids: offerOther, swap_user_id: userId },
+      ],
+    });
 
-    // TODO: 1, Thực hiện swap item trong DB (transaction + lock inventory) (call item-service)
-    //       2, Giải quyết bài toán race-condition khi user lợi dụng item vừa giao dịch vừa đăng bán (trên web) cùng lúc nếu sau này có tính năng đó
-
-    await this.redis.multi()
-      .del(`GAME:TRADE:SESSION:${userId}`)
-      .del(`GAME:TRADE:SESSION:${body.withUserId}`)
-      .del(`GAME:TRADE:STATE:${sessionId}`)
-      .del(`GAME:TRADE:OFFER:${sessionId}:${userId}`)
-      .del(`GAME:TRADE:OFFER:${sessionId}:${body.withUserId}`)
-      .del(`GAME:TRADE:LOCK:${sessionId}:${userId}`)
-      .del(`GAME:TRADE:LOCK:${sessionId}:${body.withUserId}`)
-      .del(`GAME:TRADE:CONFIRM:${sessionId}:${userId}`)
-      .del(`GAME:TRADE:CONFIRM:${sessionId}:${body.withUserId}`)
-      .exec();
-
-    // Gửi để tắt popup và thông báo cho cả 2
     this.server.to(`Game:${userId}`).emit('trade:success');
     this.server.to(`Game:${body.withUserId}`).emit('trade:success');
+    this.server.to(`Game:${userId}`).emit('notification', { tinNhan: 'Giao dịch thành công' });
+    this.server.to(`Game:${body.withUserId}`).emit('notification', { tinNhan: 'Giao dịch thành công' });
+
+    /**
+    * Atomic check-and-execute cho trade confirm dùng Redis Lua script.
+    *
+    * TẠI SAO CẦN LUA:
+    * Khi cả 2 user confirm gần như cùng lúc, nếu dùng GET/SET riêng lẻ sẽ xảy ra race condition:
+    *   - User A: SET confirmA → GET confirmB (thấy có) → pass check → chạy swap
+    *   - User B: SET confirmB → GET confirmA (thấy có) → pass check → chạy swap
+    *   → Cả 2 cùng chạy swap → item bị swap 2 lần hoặc lỗi data
+    *
+    * Lua script chạy ATOMIC trên Redis (single-threaded), toàn bộ logic
+    * từ SET confirm → check → acquire executing lock → lấy data → cleanup
+    * xảy ra trong 1 operation duy nhất, Redis không xử lý command nào khác ở giữa.
+    *
+    * EXECUTING LOCK (SET NX):
+    * Dù 2 user gọi đồng thời và đều pass hết các check,
+    * chỉ đúng 1 script thắng được SET NX → script kia return 'LOCKED' và dừng.
+    * Đây là lớp bảo vệ cuối cùng đảm bảo swap chỉ chạy đúng 1 lần.
+    *
+    * CÁC RETURN VALUE:
+    *   'WAIT'      → Người kia chưa confirm, chờ
+    *   'NOT_READY' → Chưa đủ điều kiện (thiếu CHECK_OK)
+    *   'LOCKED'    → Người kia đã acquire lock và đang thực thi, bỏ qua
+    *   '<offerMe>|<offerOther>' → Thắng lock, kèm data offer để đẩy vào queue swap
+    */
   }
 
 

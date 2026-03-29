@@ -16,7 +16,9 @@ import {
     MessageResponse,
     UserIdRequest,
     GetItemsByItemUuidsRequest,
-    GetItemsByItemUuidsResponse
+    GetItemsByItemUuidsResponse,
+    SwapItemRequest,
+    SwapItemResponse
 } from 'proto/item.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 
@@ -55,5 +57,9 @@ export class ItemService {
 
   async handleGetItemsByUuids(req: GetItemsByItemUuidsRequest): Promise<GetItemsByItemUuidsResponse> {
     return grpcCall(ItemService.name,this.itemGrpcService.getItemsByItemUuids(req));
+  }
+
+  async handleSwapItem(req: SwapItemRequest): Promise<SwapItemResponse> {
+    return grpcCall(ItemService.name,this.itemGrpcService.swapItem(req));
   }
 }

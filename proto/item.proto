@@ -66,6 +66,15 @@ message GetItemsByItemUuidsResponse {
   repeated Item items = 1;
 }
 
+message SwapItemRequest {
+  repeated string itemUuids = 1;
+  int32 swap_user_id = 2;
+}
+
+message SwapItemResponse {
+  string message = 1;
+}
+
 // ===== SERVICE DEFINITION =====
 service ItemService {
   rpc GetItemsByUser (UserIdRequest) returns (ItemsResponse);
@@ -74,4 +83,5 @@ service ItemService {
   rpc DeleteItem (ItemIdRequest) returns (MessageResponse);
   rpc AddMultipleItems (AddMultipleItemsRequest) returns (ItemsResponse);
   rpc GetItemsByItemUuids (GetItemsByItemUuidsRequest) returns (GetItemsByItemUuidsResponse);
+  rpc SwapItem (SwapItemRequest) returns (SwapItemResponse);
 }

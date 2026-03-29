@@ -76,6 +76,15 @@ export interface GetItemsByItemUuidsResponse {
   items: Item[];
 }
 
+export interface SwapItemRequest {
+  itemUuids: string[];
+  swap_user_id: number;
+}
+
+export interface SwapItemResponse {
+  message: string;
+}
+
 export const ITEM_PACKAGE_NAME = "item";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -95,6 +104,8 @@ export interface ItemServiceClient {
     request: GetItemsByItemUuidsRequest,
     metadata?: Metadata,
   ): Observable<GetItemsByItemUuidsResponse>;
+
+  swapItem(request: SwapItemRequest, metadata?: Metadata): Observable<SwapItemResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -114,6 +125,8 @@ export interface ItemServiceController {
     request: GetItemsByItemUuidsRequest,
     metadata?: Metadata,
   ): Observable<GetItemsByItemUuidsResponse>;
+
+  swapItem(request: SwapItemRequest, metadata?: Metadata): Observable<SwapItemResponse>;
 }
 
 export function ItemServiceControllerMethods() {
@@ -125,6 +138,7 @@ export function ItemServiceControllerMethods() {
       "deleteItem",
       "addMultipleItems",
       "getItemsByItemUuids",
+      "swapItem",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
