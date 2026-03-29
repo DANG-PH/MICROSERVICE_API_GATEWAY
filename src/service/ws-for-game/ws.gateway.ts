@@ -532,22 +532,16 @@ export class WsGateway {
       return 'BOTH_LOCKED'
     `
     const userId = client.data.user.userId;
-    console.log(`[trade:lock] userId=${userId} withUserId=${body.withUserId}`);
 
     let sessionId: string;
     let state: string;
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
-      console.log(`[trade:lock] sessionId=${sessionId} state=${state}`);
     } catch (e) {
-      console.log(`[trade:lock] getValidSession FAILED`, e);
       return;
     }
 
-    if (state !== 'OPEN') {
-      console.log(`[trade:lock] state không phải OPEN, bỏ qua`);
-      return;
-    }
+    if (state !== 'OPEN' && state !== 'LOCKED') return;
 
     const result = await this.redis.eval(
       TRADE_LOCK_SCRIPT,
@@ -556,8 +550,6 @@ export class WsGateway {
       String(userId),
       String(body.withUserId),
     ) as string;
-
-    console.log(`[trade:lock] lua result=${result}`);
 
     if (result === 'WAIT') return;
 
