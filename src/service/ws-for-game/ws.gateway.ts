@@ -532,16 +532,22 @@ export class WsGateway {
       return 'BOTH_LOCKED'
     `
     const userId = client.data.user.userId;
+    console.log(`[trade:lock] userId=${userId} withUserId=${body.withUserId}`);
 
     let sessionId: string;
     let state: string;
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
-    } catch {
+      console.log(`[trade:lock] sessionId=${sessionId} state=${state}`);
+    } catch (e) {
+      console.log(`[trade:lock] getValidSession FAILED`, e);
       return;
     }
 
-    if (state !== 'OPEN') return;
+    if (state !== 'OPEN') {
+      console.log(`[trade:lock] state không phải OPEN, bỏ qua`);
+      return;
+    }
 
     const result = await this.redis.eval(
       TRADE_LOCK_SCRIPT,
@@ -551,9 +557,11 @@ export class WsGateway {
       String(body.withUserId),
     ) as string;
 
+    console.log(`[trade:lock] lua result=${result}`);
+
     if (result === 'WAIT') return;
 
-    // BOTH_LOCKED → emit cho cả 2
+    console.log(`[trade:lock] emit trade:bothLocked cho ${userId} và ${body.withUserId}`);
     this.server.to(`Game:${userId}`).emit('trade:bothLocked');
     this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked');
   }
