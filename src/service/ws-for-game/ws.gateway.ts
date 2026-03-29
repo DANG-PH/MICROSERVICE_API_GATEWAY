@@ -532,16 +532,22 @@ export class WsGateway {
       return 'BOTH_LOCKED'
     `
     const userId = client.data.user.userId;
+    console.log(`[trade:lock] START userId=${userId} withUserId=${body.withUserId}`);
 
     let sessionId: string;
     let state: string;
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
+      console.log(`[trade:lock] sessionId=${sessionId} state=${state}`);
     } catch (e) {
+      console.log(`[trade:lock] getValidSession FAILED`, e);
       return;
     }
 
-    if (state !== 'OPEN' && state !== 'LOCKED') return;
+    if (state !== 'OPEN' && state !== 'LOCKED') {
+      console.log(`[trade:lock] state=${state} không hợp lệ, bỏ qua`);
+      return;
+    }
 
     const result = await this.redis.eval(
       TRADE_LOCK_SCRIPT,
@@ -551,11 +557,18 @@ export class WsGateway {
       String(body.withUserId),
     ) as string;
 
-    if (result === 'WAIT') return;
+    const lockMe    = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${userId}`);
+    const lockOther = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${body.withUserId}`);
+    console.log(`[trade:lock] lua result=${result} lockMe=${lockMe} lockOther=${lockOther}`);
 
-    console.log(`[trade:lock] emit trade:bothLocked cho ${userId} và ${body.withUserId}`);
-    this.server.to(`Game:${userId}`).emit('trade:bothLocked');
-    this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked');
+    if (result === 'WAIT') {
+      console.log(`[trade:lock] WAIT, đợi người kia khóa`);
+      return;
+    }
+
+    console.log(`[trade:lock] BOTH_LOCKED, emit trade:bothLocked cho ${userId} và ${body.withUserId}`);
+    this.server.to(`Game:${userId}`).emit('trade:bothLocked', { ok: true });
+    this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked', { ok: true });
   }
 
   // Sau khi cả 2 ấn khóa, sẽ tự gọi event này
