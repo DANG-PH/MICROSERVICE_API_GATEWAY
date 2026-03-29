@@ -513,11 +513,28 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { withUserId: number },
   ) {
+    const TRADE_LOCK_SCRIPT = `
+      local sessionId  = KEYS[1]
+      local userId     = KEYS[2]
+      local withUserId = KEYS[3]
+
+      local lockMe    = 'GAME:TRADE:LOCK:' .. sessionId .. ':' .. userId
+      local lockOther = 'GAME:TRADE:LOCK:' .. sessionId .. ':' .. withUserId
+      local stateKey  = 'GAME:TRADE:STATE:' .. sessionId
+
+      redis.call('SET', lockMe, '1', 'EX', 300)
+
+      if redis.call('GET', lockOther) == nil then
+        return 'WAIT'
+      end
+
+      redis.call('SET', stateKey, 'LOCKED', 'EX', 300)
+      return 'BOTH_LOCKED'
+    `
     const userId = client.data.user.userId;
 
     let sessionId: string;
     let state: string;
-
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
     } catch {
@@ -526,28 +543,19 @@ export class WsGateway {
 
     if (state !== 'OPEN') return;
 
-    await this.redis.set(`GAME:TRADE:LOCK:${sessionId}:${userId}`, 1, 'EX', 300);
+    const result = await this.redis.eval(
+      TRADE_LOCK_SCRIPT,
+      3,
+      sessionId,
+      String(userId),
+      String(body.withUserId),
+    ) as string;
 
-    // Gửi cho user B để user B đổi hiệu ứng ô gd từ xám thành đen
-    // this.server.to(`Game:${body.withUserId}`).emit('trade:locked', { by: userId });
+    if (result === 'WAIT') return;
 
-    // const key = `GAME:TRADE:OFFER:${sessionId}:${userId}`;
-    // const current = JSON.parse((await this.redis.get(key)) || '[]');
-    // this.server.to(`Game:${body.withUserId}`).emit('trade:offer:final', {
-    //   from: userId,
-    //   items: current,
-    // });
-
-    const otherLocked = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${body.withUserId}`);
-    if (otherLocked) {
-      await this.redis.set(`GAME:TRADE:STATE:${sessionId}`, 'LOCKED', 'EX', 300);
-
-      // Gửi để hiện nút "Check..." ở client khi cả 2 đã khóa (Thay cho "Khóa" và "Đợi..." (Trạng thái này k cho click nút nữa))
-      this.server.to(`Game:${userId}`).emit('trade:bothLocked');
-      this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked');
-
-      // 2 event này ở client sẽ làm việc là gọi để gửi xem cả 2 người đều đủ ô hành trang để chứa các vật phẩm mới không
-    }
+    // BOTH_LOCKED → emit cho cả 2
+    this.server.to(`Game:${userId}`).emit('trade:bothLocked');
+    this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked');
   }
 
   // Sau khi cả 2 ấn khóa, sẽ tự gọi event này
