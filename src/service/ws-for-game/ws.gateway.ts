@@ -524,31 +524,25 @@ export class WsGateway {
 
       redis.call('SET', lockMe, '1', 'EX', 300)
 
-      local otherVal = redis.call('GET', lockOther)
-
-      if not otherVal then
-        return 'WAIT|lockMe=' .. lockMe .. '|lockOther=' .. lockOther .. '|otherVal=nil'
+      if not redis.call('GET', lockOther) then
+        return 'WAIT'
       end
 
       redis.call('SET', stateKey, 'LOCKED', 'EX', 300)
-      return 'BOTH_LOCKED|lockMe=' .. lockMe .. '|lockOther=' .. lockOther .. '|otherVal=' .. tostring(otherVal)
-    `
+      return 'BOTH_LOCKED'
+    `;
 
     const userId = client.data.user.userId;
-    console.log(`[trade:lock] START userId=${userId} withUserId=${body.withUserId}`);
 
     let sessionId: string;
     let state: string;
     try {
       ({ sessionId, state } = await this.getValidSession(userId, body.withUserId));
-      console.log(`[trade:lock] sessionId=${sessionId} state=${state}`);
     } catch (e) {
-      console.log(`[trade:lock] getValidSession FAILED`, e);
       return;
     }
 
     if (state !== 'OPEN' && state !== 'LOCKED') {
-      console.log(`[trade:lock] state=${state} không hợp lệ, bỏ qua`);
       return;
     }
 
@@ -560,13 +554,9 @@ export class WsGateway {
       String(body.withUserId),
     ) as string;
 
-    console.log(`[trade:lock] raw result=${rawResult}`);
-
     const status = rawResult.split('|')[0];
 
     if (status === 'WAIT') return;
-
-    console.log(`[trade:lock] BOTH_LOCKED, emit trade:bothLocked cho ${userId} và ${body.withUserId}`);
     this.server.to(`Game:${userId}`).emit('trade:bothLocked', { ok: true });
     this.server.to(`Game:${body.withUserId}`).emit('trade:bothLocked', { ok: true });
   }
@@ -667,23 +657,23 @@ export class WsGateway {
 
       redis.call('SET', confirmMe, '1', 'EX', 300)
 
-      if redis.call('GET', confirmOther) == nil then
+      if not redis.call('GET', confirmOther) then
         return 'WAIT'
       end
 
-      if redis.call('GET', checkMe) == nil or redis.call('GET', checkOther) == nil then
+      if not redis.call('GET', checkMe) or not redis.call('GET', checkOther) then
         return 'NOT_READY'
       end
 
-      if redis.call('SET', executingKey, '1', 'EX', 30, 'NX') == nil then
+      if not redis.call('SET', executingKey, '1', 'EX', 30, 'NX') then
         return 'LOCKED'
       end
 
       local offerMeData = redis.call('GET', offerMe)
-      if offerMeData == nil then offerMeData = '[]' end
+      if not offerMeData then offerMeData = '[]' end
 
       local offerOtherData = redis.call('GET', offerOther)
-      if offerOtherData == nil then offerOtherData = '[]' end
+      if not offerOtherData then offerOtherData = '[]' end
 
       redis.call('DEL',
         'GAME:TRADE:SESSION:'  .. userId,
