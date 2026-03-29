@@ -526,7 +526,7 @@ export class WsGateway {
 
       local otherVal = redis.call('GET', lockOther)
 
-      if otherVal == nil then
+      if not otherVal then
         return 'WAIT|lockMe=' .. lockMe .. '|lockOther=' .. lockOther .. '|otherVal=nil'
       end
 
