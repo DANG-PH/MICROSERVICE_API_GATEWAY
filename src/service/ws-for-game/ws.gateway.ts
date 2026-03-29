@@ -524,13 +524,16 @@ export class WsGateway {
 
       redis.call('SET', lockMe, '1', 'EX', 300)
 
-      if redis.call('GET', lockOther) == nil then
-        return 'WAIT'
+      local otherVal = redis.call('GET', lockOther)
+
+      if otherVal == nil then
+        return 'WAIT|lockMe=' .. lockMe .. '|lockOther=' .. lockOther .. '|otherVal=nil'
       end
 
       redis.call('SET', stateKey, 'LOCKED', 'EX', 300)
-      return 'BOTH_LOCKED'
+      return 'BOTH_LOCKED|lockMe=' .. lockMe .. '|lockOther=' .. lockOther .. '|otherVal=' .. tostring(otherVal)
     `
+
     const userId = client.data.user.userId;
     console.log(`[trade:lock] START userId=${userId} withUserId=${body.withUserId}`);
 
@@ -549,7 +552,7 @@ export class WsGateway {
       return;
     }
 
-    const result = await this.redis.eval(
+    const rawResult = await this.redis.eval(
       TRADE_LOCK_SCRIPT,
       3,
       sessionId,
@@ -557,14 +560,11 @@ export class WsGateway {
       String(body.withUserId),
     ) as string;
 
-    const lockMe    = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${userId}`);
-    const lockOther = await this.redis.get(`GAME:TRADE:LOCK:${sessionId}:${body.withUserId}`);
-    console.log(`[trade:lock] lua result=${result} lockMe=${lockMe} lockOther=${lockOther}`);
+    console.log(`[trade:lock] raw result=${rawResult}`);
 
-    if (result === 'WAIT') {
-      console.log(`[trade:lock] WAIT, đợi người kia khóa`);
-      return;
-    }
+    const status = rawResult.split('|')[0];
+
+    if (status === 'WAIT') return;
 
     console.log(`[trade:lock] BOTH_LOCKED, emit trade:bothLocked cho ${userId} và ${body.withUserId}`);
     this.server.to(`Game:${userId}`).emit('trade:bothLocked', { ok: true });
