@@ -105,6 +105,7 @@ export class WsGateway {
 
       const players = await this.getPlayersInMap(state.map);
       client.emit('mapSnapshot', players);
+      await this.syncSkillsToClient(client, state.map);
 
       client.to(`MAP:${state.map}`).emit('playerSpawn', {
         userId,
@@ -218,6 +219,7 @@ export class WsGateway {
 
     const players = await this.getPlayersInMap(body.map);
     client.emit('mapSnapshot', players);
+    await this.syncSkillsToClient(client, body.map);
 
     client.to(`MAP:${body.map}`).emit('playerSpawn', {
       userId,
@@ -300,6 +302,55 @@ export class WsGateway {
       rong: body.rong,
       cao: body.cao,
       avatar: body.avatar,
+    });
+  }
+
+  @SubscribeMessage('use-skill')
+  async handleUseSkill(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { skillId: string, timeSkill: number }
+  ) {
+    const { userId } = client.data.user;
+    const map = client.data.map;
+
+    if (!body.skillId) return;
+
+    // Set Redis TTL để nếu khi gửi rồi mà user khác mới join map thì vẫn sẽ thấy đang cast Skill
+
+    // TimeSkill Client gửi là giây nên set TTL luôn
+    const expireAt = Date.now() + body.timeSkill * 1000;
+    const member = `${userId}:${body.skillId}`;
+
+    await this.redis.set(
+      `GAME:SKILL:${map}:${userId}:${body.skillId}`,
+      JSON.stringify({ userId, skillId: body.skillId, startedAt: Date.now() }),
+      'EX', body.timeSkill
+    );
+
+    await this.redis.zadd(`GAME:SKILL:MAP:${map}`, expireAt, member);
+
+    this.server.to(`MAP:${map}`).emit('useSkill', {
+      userId,
+      skillId: body.skillId
+    });
+  }
+
+  @SubscribeMessage('cancel-skill')
+  async handleCancelSkill(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { skillId: string }
+  ) {
+    const { userId } = client.data.user;
+    const map = client.data.map;
+
+    if (!body.skillId) return;
+
+    await this.redis.del(`GAME:SKILL:${map}:${userId}:${body.skillId}`);
+    await this.redis.zrem(`GAME:SKILL:MAP:${map}`, `${userId}:${body.skillId}`);
+
+    this.server.to(`MAP:${map}`).emit('cancelSkill', {
+      userId,
+      skillId: body.skillId
     });
   }
 
@@ -833,6 +884,28 @@ export class WsGateway {
     await new Promise(resolve => setTimeout(resolve, 100));
     // Disconnect socket qua adapter (Socket.IO hỗ trợ sẵn)
     this.server.in(`Game:${userId}`).disconnectSockets(true);
+  }
+
+  private async syncSkillsToClient(client: Socket, map: string) {
+    const now = Date.now();
+
+    // Clean up luôn
+    await this.redis.zremrangebyscore(`GAME:SKILL:MAP:${map}`, '-inf', now);
+
+    // members = ["userId1:skillA", "userId1:skillB", "userId2:skillC"]
+    const members = await this.redis.zrangebyscore(`GAME:SKILL:MAP:${map}`, now, '+inf');
+    if (!members.length) return;
+
+    // Dùng await Promise để tránh emit cho client mảng Promise vì chưa resolve
+    const skills = await Promise.all(
+      members.map(async (member) => {
+        const [userId, skillId] = member.split(':');
+        const raw = await this.redis.get(`GAME:SKILL:${map}:${userId}:${skillId}`);
+        return JSON.parse(raw!);
+      })
+    ); //concurrent async execution, chạy N Promise cùng lúc, letency xN lần
+
+    client.emit('syncSkills', skills);
   }
 }
 
