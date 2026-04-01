@@ -60,7 +60,12 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     EventEmitterModule.forRoot(), 
   ],
   controllers: [AppController],
-  providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanGuard],
+  providers: [
+    OnlineInterceptor, 
+    // LoggingInterceptor, 
+    JaegerInterceptor, 
+    TemporaryBanGuard
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

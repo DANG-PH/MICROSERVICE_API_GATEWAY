@@ -47,7 +47,7 @@ async function bootstrap() {
 
   // interceptor logging
   app.useGlobalInterceptors(
-    app.get(LoggingInterceptor),
+    // app.get(LoggingInterceptor),
     app.get(OnlineInterceptor),
     app.get(JaegerInterceptor),
   );
