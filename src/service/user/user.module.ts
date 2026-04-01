@@ -6,7 +6,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
-import { WsChatModule } from '../chat/ws-chat.module';
+import { WsModule } from '../ws-for-game/ws.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { WsChatModule } from '../chat/ws-chat.module';
         },
       },
     ]),
-    forwardRef(() => WsChatModule)
+    forwardRef(() => WsModule)
   ],
   controllers: [UserController],
   providers: [UserService,JwtStrategy,RolesGuard],
