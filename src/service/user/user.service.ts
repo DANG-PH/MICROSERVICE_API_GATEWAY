@@ -27,6 +27,8 @@ import {
   SavePositionResponse
 } from 'proto/user.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { LoaiNapTien } from 'src/enums/nap.enum';
 
 @Injectable()
 export class UserService {
@@ -35,6 +37,7 @@ export class UserService {
 
   constructor(
     @Inject(USER_PACKAGE_NAME) private readonly client: ClientGrpc,
+    private eventEmitter: EventEmitter2
   ) {}
 
   onModuleInit() {
@@ -66,11 +69,27 @@ export class UserService {
   }
 
   async handleAddVangWeb(req: AddBalanceRequest ) {
-    return grpcCall(UserService.name,this.userGrpcService.addVangNapTuWeb(req));
+    const result = await grpcCall(UserService.name,this.userGrpcService.addVangNapTuWeb(req));
+    if (result.vangNapTuWeb && result.ngocNapTuWeb) {
+      this.eventEmitter.emit('user.nap_tien', {
+        userId: req.id,
+        type: LoaiNapTien.VANG,
+        amount: req.amount
+      });
+    }
+    return result;
   }
 
   async handleAddNgocWeb(req: AddBalanceRequest ) {
-    return grpcCall(UserService.name,this.userGrpcService.addNgocNapTuWeb(req));
+    const result = await grpcCall(UserService.name,this.userGrpcService.addNgocNapTuWeb(req));
+    if (result.vangNapTuWeb && result.ngocNapTuWeb) {
+      this.eventEmitter.emit('user.nap_tien', {
+        userId: req.id,
+        type: LoaiNapTien.NGOC,
+        amount: req.amount
+      });
+    }
+    return result;
   }
 
   async handleUpdateBalance(req: UpdateBalanceRequest ) {
@@ -78,7 +97,16 @@ export class UserService {
   }
 
   async handleAddItemWeb(req: AddItemRequest ) {
-    return grpcCall(UserService.name,this.userGrpcService.addItemWeb(req));
+    const result = await grpcCall(UserService.name,this.userGrpcService.addItemWeb(req));
+    if (result.message) {
+      this.eventEmitter.emit('user.nap_tien', {
+        userId: req.id,
+        type: LoaiNapTien.ITEM,
+        itemId: req.itemId,
+        quantity: 1
+      });
+    }
+    return result;
   }
 
   async handleUseItemWeb(req: UseItemRequest ) {

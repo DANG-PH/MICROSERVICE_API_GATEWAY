@@ -28,6 +28,7 @@ import { WsChatModule } from './service/chat/ws-chat.module';
 import { WsModule } from './service/ws-for-game/ws.module';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { JwtModule } from '@nestjs/jwt';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { JwtModule } from '@nestjs/jwt';
     ServerModule,
     OpenaiModule,
     WsModule,
+    EventEmitterModule.forRoot(), 
   ],
   controllers: [AppController],
   providers: [OnlineInterceptor, LoggingInterceptor, JaegerInterceptor, TemporaryBanGuard],

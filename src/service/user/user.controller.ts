@@ -88,15 +88,7 @@ export class UserController {
       ...body,
       id: userId
     }
-    const response = await this.userService.handleAddVangWeb(request);
-    if (response.vangNapTuWeb && response.ngocNapTuWeb) {
-      this.wsGateway.handleNapTien({
-        userId: userId,
-        type: LoaiNapTien.VANG,
-        amount: body.amount
-      });
-    }
-    return response;
+    return this.userService.handleAddVangWeb(request);
   }
 
   @Patch('add-ngoc-web')
@@ -110,15 +102,7 @@ export class UserController {
       ...body,
       id: userId
     }
-    const response = await this.userService.handleAddNgocWeb(request);
-    if (response.vangNapTuWeb && response.ngocNapTuWeb) {
-      this.wsGateway.handleNapTien({
-        userId: userId,
-        type: LoaiNapTien.NGOC,
-        amount: body.amount
-      });
-    }
-    return response;
+    return this.userService.handleAddNgocWeb(request);
   }
 
   @Patch('use-vang-web')
@@ -176,20 +160,11 @@ export class UserController {
   @ApiBody({ type:  AddItemRequestDto })  
   async addItemWeb(@Body() body: AddItemRequestDto, @Req() req: any) {
     const userId = req.user.userId;
-    const request = {
+  
+    return this.userService.handleAddItemWeb({
       ...body,
       id: userId
-    }
-    const response = await this.userService.handleAddItemWeb(request);
-    if (response.message) {
-      this.wsGateway.handleNapTien({
-        userId: userId,
-        type: LoaiNapTien.ITEM,
-        itemId: body.itemId,
-        quantity: 1
-      });
-    }
-    return response;
+    });
   }
 
   // @Delete('use-item-web-admin')

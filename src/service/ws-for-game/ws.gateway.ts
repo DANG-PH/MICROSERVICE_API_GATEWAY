@@ -20,7 +20,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
 import { ItemService } from '../item/item.service';
 import { LoaiNapTien } from 'src/enums/nap.enum';
-import { NapTienEvent } from 'src/interface/nap.interface';
+import type { NapTienEvent } from 'src/interface/nap.interface';
+import { OnEvent } from '@nestjs/event-emitter';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -913,6 +914,8 @@ export class WsGateway {
   
   // Client web mua đồ/nạp tiền -> gọi hàm này để gửi thông báo cho client game
   // Client game call api lấy data mới vào thông báo ra màn hình
+  // Sử dụng EventEmitter vì sau này có thể mở rộng thêm, và chỉ cần lắng nghe là đc pub/sub thay vì viết thêm logic vào hàm addItem/addNgoc/addVang
+  @OnEvent('user.nap_tien')
   async handleNapTien(event: NapTienEvent) {
     if (event.type === LoaiNapTien.ITEM) {
       const { userId, itemId, quantity = 1 } = event;
