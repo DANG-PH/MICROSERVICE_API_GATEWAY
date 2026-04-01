@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { USER_PACKAGE_NAME } from 'proto/user.pb';
@@ -6,6 +6,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
+import { WsChatModule } from '../chat/ws-chat.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         },
       },
     ]),
+    forwardRef(() => WsChatModule)
   ],
   controllers: [UserController],
   providers: [UserService,JwtStrategy,RolesGuard],

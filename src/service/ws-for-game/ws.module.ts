@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { SocialNetworkModule } from "../social_network/social_network.module";
 import { WsJwtGuard } from "src/security/guard/ws-jwt.guard";
 import { JwtAuthGuard } from "src/security/JWT/jwt-auth.guard";
@@ -25,8 +25,8 @@ import { ItemModule } from "../item/item.module";
                 },
             },
         ]),
-        UserModule,
-        ItemModule
+        ItemModule,
+        forwardRef(() => UserModule)
     ],
     controllers: [GameController],
     providers: [WsGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService],

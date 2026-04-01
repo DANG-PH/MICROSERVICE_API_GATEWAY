@@ -19,6 +19,8 @@ import { Item } from 'proto/item.pb';
 import { v4 as uuidv4 } from 'uuid';
 import { ClientProxy } from '@nestjs/microservices';
 import { ItemService } from '../item/item.service';
+import { LoaiNapTien } from 'src/enums/nap.enum';
+import { NapTienEvent } from 'src/interface/nap.interface';
 
 @UseGuards(WsJwtGuard)
 @WebSocketGateway({
@@ -907,6 +909,39 @@ export class WsGateway {
 
     client.emit('syncSkills', skills);
   }
+
+  
+  // Client web mua đồ/nạp tiền -> gọi hàm này để gửi thông báo cho client game
+  // Client game call api lấy data mới vào thông báo ra màn hình
+  async handleNapTien(event: NapTienEvent) {
+    if (event.type === LoaiNapTien.ITEM) {
+      const { userId, itemId, quantity = 1 } = event;
+
+      const itemName = getItemName(itemId);
+
+      this.server.to(`Game:${userId}`).emit('notification', {
+        type: 'NAP_TIEN',
+        data: {
+          loai: event.type,
+          itemId,
+          quantity
+        },
+        tinNhan: `Bạn vừa mua x${quantity} ${itemName} từ web`
+      });
+
+    } else {
+      const { userId, amount } = event;
+
+      this.server.to(`Game:${userId}`).emit('notification', {
+        type: 'NAP_TIEN',
+        data: {
+          loai: event.type,
+          soLuong: amount
+        },
+        tinNhan: `Bạn vừa mua ${amount} ${event.type.toLowerCase()} từ web`
+      });
+    }
+  }
 }
 
 function censorMessage(message: string): string {
@@ -919,4 +954,17 @@ function censorMessage(message: string): string {
   }
 
   return result;
+}
+
+function getItemName(itemId: number): string {
+  switch (itemId) {
+    case 1: return "Cải trang Super Black Goku";
+    case 2: return "Trứng đệ tử";
+    case 3: return "Áo vải thô";
+    case 4: return "Quần thần linh";
+    case 5: return "Găng vải thô";
+    case 6: return "Giày vải thô";
+    case 7: return "Nhẫn thần linh";
+    default: return `Item #${itemId}`;
+  }
 }

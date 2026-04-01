@@ -6,11 +6,16 @@ import {UseItemAdminRequestDto,AddItemAdminRequestDto,UserDto,UpdateBalanceReque
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
+import { WsGateway } from '../ws-for-game/ws.gateway';
+import { LoaiNapTien } from 'src/enums/nap.enum';
 
 @Controller('user')
 @ApiTags('Api User') 
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private wsGateway: WsGateway,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản user, Sau khi auth đăng kí sẽ call cái này (BACKEND DEV)(SWAGGER) (ĐÃ DÙNG)' })
@@ -75,7 +80,7 @@ export class UserController {
   @Patch('add-vang-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) (USER)(WEB) (ĐÃ DÙNG)' })
+  @ApiOperation({ summary: 'Thêm vàng ( nạp trên web ) (USER)(WEB) (CHƯA DÙNG)' })
   @ApiBody({ type:  AddBalanceRequestDto })
   async addVangWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -83,13 +88,21 @@ export class UserController {
       ...body,
       id: userId
     }
-    return this.userService.handleAddVangWeb(request);
+    const response = await this.userService.handleAddVangWeb(request);
+    if (response.vangNapTuWeb && response.ngocNapTuWeb) {
+      this.wsGateway.handleNapTien({
+        userId: userId,
+        type: LoaiNapTien.VANG,
+        amount: body.amount
+      });
+    }
+    return response;
   }
 
   @Patch('add-ngoc-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) (USER)(WEB) (ĐÃ DÙNG)' })
+  @ApiOperation({ summary: 'Thêm ngọc ( nạp trên web ) (USER)(WEB) (CHƯA DÙNG)' })
   @ApiBody({ type:  AddBalanceRequestDto })  
   async addNgocWeb(@Body() body: AddBalanceRequestDto, @Req() req: any) {
     const userId = req.user.userId;
@@ -97,7 +110,15 @@ export class UserController {
       ...body,
       id: userId
     }
-    return this.userService.handleAddNgocWeb(request);
+    const response = await this.userService.handleAddNgocWeb(request);
+    if (response.vangNapTuWeb && response.ngocNapTuWeb) {
+      this.wsGateway.handleNapTien({
+        userId: userId,
+        type: LoaiNapTien.NGOC,
+        amount: body.amount
+      });
+    }
+    return response;
   }
 
   @Patch('use-vang-web')
@@ -159,7 +180,16 @@ export class UserController {
       ...body,
       id: userId
     }
-    return this.userService.handleAddItemWeb(request);
+    const response = await this.userService.handleAddItemWeb(request);
+    if (response.message) {
+      this.wsGateway.handleNapTien({
+        userId: userId,
+        type: LoaiNapTien.ITEM,
+        itemId: body.itemId,
+        quantity: 1
+      });
+    }
+    return response;
   }
 
   // @Delete('use-item-web-admin')
