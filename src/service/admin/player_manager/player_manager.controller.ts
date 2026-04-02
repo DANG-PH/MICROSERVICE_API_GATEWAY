@@ -25,10 +25,14 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
 // import { winstonLogger } from 'src/logger/logger.config';
 import { PlayerManagerService } from './player_manager.service';
+import Redlock, { ResourceLockedError } from 'redlock';
+import Redis from 'ioredis';
 
 @Controller('player_manager')
 @ApiTags('Api Player Manager') 
 export class PlayerManagerController {
+  private redlock: Redlock;
+  private redis: Redis;
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private authService: AuthService,
@@ -38,7 +42,10 @@ export class PlayerManagerController {
     private payService: PayService,
     private financeService: FinanceService,
     private playerManagerService: PlayerManagerService
-  ) {}
+  ) {
+    this.redis = new Redis(process.env.REDIS_URL || '')
+    this.redlock = new Redlock([this.redis], { retryCount: 0 }); // 1 node redis
+  }
 
   @Get('user-online-Ver1')
   @ApiBearerAuth()
@@ -249,54 +256,69 @@ export class PlayerManagerController {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async callApi() {
-    return this.authService.handleSendEmailToUser({
-      who: "ALL",
-      title: "Ngọc Rồng Tranh Bá",
-      content: `Sự kiện hằng ngày Ngọc Rồng Sao Đen đã chính thức khởi động. 
-                <br/>
-                Đây là hoạt động thử thách khả năng sinh tồn, phối hợp bang hội và kỹ năng chiến đấu của mỗi chiến binh tham gia.
-                Mỗi ngày, hệ thống sẽ tạo ra một viên Ngọc Rồng Sao Đen duy nhất tại bản đồ sự kiện. Tất cả người chơi đều có thể tham gia tranh đoạt. Khi nhặt được Ngọc Rồng Sao Đen, người chơi sẽ bước vào trạng thái Người Mang Ngọc, trở thành mục tiêu mà toàn bộ khu vực có thể nhìn thấy.
-                <br/>
-                Nhiệm vụ rất đơn giản nhưng vô cùng khắc nghiệt:
-                duy trì việc cầm giữ Ngọc Rồng Sao Đen trong 30 phút liên tục.
-                <br/>
-                Hãy chuẩn bị trang bị mạnh nhất, tổ chức đội hình phù hợp và đừng bỏ lỡ cơ hội khẳng định vị thế của bang hội mình trong sự kiện Ngọc Rồng Sao Đen mỗi ngày.
-                <br/>
-                Chúc bạn may mắn và giành chiến thắng.`
-    })
+    // Để xem tại sao xử lí như này => coi file redlock.md
+    try {
+      await using lock = await this.redlock.acquire(['lock:cron:callApi'], 60_000);
+      return this.authService.handleSendEmailToUser({
+        who: "ALL",
+        title: "Ngọc Rồng Tranh Bá",
+        content: `Sự kiện hằng ngày Ngọc Rồng Sao Đen đã chính thức khởi động. 
+                  <br/>
+                  Đây là hoạt động thử thách khả năng sinh tồn, phối hợp bang hội và kỹ năng chiến đấu của mỗi chiến binh tham gia.
+                  Mỗi ngày, hệ thống sẽ tạo ra một viên Ngọc Rồng Sao Đen duy nhất tại bản đồ sự kiện. Tất cả người chơi đều có thể tham gia tranh đoạt. Khi nhặt được Ngọc Rồng Sao Đen, người chơi sẽ bước vào trạng thái Người Mang Ngọc, trở thành mục tiêu mà toàn bộ khu vực có thể nhìn thấy.
+                  <br/>
+                  Nhiệm vụ rất đơn giản nhưng vô cùng khắc nghiệt:
+                  duy trì việc cầm giữ Ngọc Rồng Sao Đen trong 30 phút liên tục.
+                  <br/>
+                  Hãy chuẩn bị trang bị mạnh nhất, tổ chức đội hình phù hợp và đừng bỏ lỡ cơ hội khẳng định vị thế của bang hội mình trong sự kiện Ngọc Rồng Sao Đen mỗi ngày.
+                  <br/>
+                  Chúc bạn may mắn và giành chiến thắng.`
+      })
+    } catch (err) {
+      if (err instanceof ResourceLockedError) return; // instance khác đang chạy → bỏ qua
+      throw err;
+    }
   }
 
   @Cron('0 0 * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async logDoanhThu() {
-    const doanhThu = await this.financeService.handleGetFinanceSummary({});
-    const tienNap = doanhThu.total_nap;
-    const tienRut = doanhThu.total_rut;
-    const tienLai = doanhThu.balance;
-    const now = new Date(Date.now() + 7 * 60 * 60 * 1000);
-    const ngay = now.toLocaleDateString('vi-VN');
-    const gio = now.toLocaleTimeString('vi-VN');
-    // winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
-    return this.authService.handleSendEmailToUser({
-      who: "ADMIN",
-      title: "Thông kê doanh thu",
-      content: `Báo cáo doanh thu ngày ${ngay} (lúc ${gio})
+    try {
+      await using lock = await this.redlock.acquire(['lock:cron:logDoanhThu'], 30_000);
 
-      Hệ thống đã tổng hợp doanh thu trong ngày với các số liệu sau:
+      // Để xem tại sao xử lí như này => coi file redlock.md
+      const doanhThu = await this.financeService.handleGetFinanceSummary({});
+      const tienNap = doanhThu.total_nap;
+      const tienRut = doanhThu.total_rut;
+      const tienLai = doanhThu.balance;
+      const now = new Date();
+      const ngay = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      const gio = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+      // winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
+      return this.authService.handleSendEmailToUser({
+        who: "ADMIN",
+        title: "Thông kê doanh thu",
+        content: `Báo cáo doanh thu ngày ${ngay} (lúc ${gio})
 
-      <br/>
+        Hệ thống đã tổng hợp doanh thu trong ngày với các số liệu sau:
 
-      • Tổng tiền nạp: ${tienNap.toLocaleString('vi-VN')} VNĐ
-      <br/>
-      • Tổng tiền rút: ${tienRut.toLocaleString('vi-VN')} VNĐ
-      <br/>
-      • Lợi nhuận thực (sau khi trừ rút): ${tienLai.toLocaleString('vi-VN')} VNĐ
-      <br/>
-      <br/>
+        <br/>
 
-      Báo cáo được tạo tự động bởi hệ thống vào lúc ${gio}.
-      Vui lòng kiểm tra lại trên hệ thống nếu cần đối soát chi tiết.`
-    })
+        • Tổng tiền nạp: ${tienNap.toLocaleString('vi-VN')} VNĐ
+        <br/>
+        • Tổng tiền rút: ${tienRut.toLocaleString('vi-VN')} VNĐ
+        <br/>
+        • Lợi nhuận thực (sau khi trừ rút): ${tienLai.toLocaleString('vi-VN')} VNĐ
+        <br/>
+        <br/>
+
+        Báo cáo được tạo tự động bởi hệ thống vào lúc ${gio}.
+        Vui lòng kiểm tra lại trên hệ thống nếu cần đối soát chi tiết.`
+      })
+    } catch (err) {
+      if (err instanceof ResourceLockedError) return;
+      throw err;
+    }
   }
 }
