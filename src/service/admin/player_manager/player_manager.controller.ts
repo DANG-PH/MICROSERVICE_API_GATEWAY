@@ -25,7 +25,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
 // import { winstonLogger } from 'src/logger/logger.config';
 import { PlayerManagerService } from './player_manager.service';
-import Redlock, { ResourceLockedError } from 'redlock';
+import Redlock, { ResourceLockedError, Lock as RLock } from 'redlock';
 import Redis from 'ioredis';
 
 @Controller('player_manager')
@@ -252,15 +252,16 @@ export class PlayerManagerController {
     };
   }
 
-  @Cron('13 9 * * *', {
+  @Cron('* * * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async callApi() {
     // Để xem tại sao xử lí như này => coi file redlock.md
+    let lock: RLock | null = null;
     try {
-      await using lock = await this.redlock.acquire(['lock:cron:callApi'], 60_000);
+      lock = await this.redlock.acquire(['lock:cron:callApi'], 60_000);
       console.log('Lock thành công, bắt đầu gửi email');
-      return this.authService.handleSendEmailToUser({
+      return await this.authService.handleSendEmailToUser({
         who: "ALL",
         title: "Ngọc Rồng Tranh Bá",
         content: `Sự kiện hằng ngày Ngọc Rồng Sao Đen đã chính thức khởi động. 
@@ -283,6 +284,12 @@ export class PlayerManagerController {
 
       console.error('Lỗi trong cron job', err);
       throw err;
+    } finally {
+      if (lock) {
+        await lock.release().catch((e) =>
+          console.warn('Không thể release lock:', e)
+        );
+      }
     }
   }
 
