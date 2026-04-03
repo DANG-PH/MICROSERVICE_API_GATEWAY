@@ -252,7 +252,7 @@ export class PlayerManagerController {
     };
   }
 
-  @Cron('* * * * *', {
+  @Cron('0 20 * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async callApi() {
