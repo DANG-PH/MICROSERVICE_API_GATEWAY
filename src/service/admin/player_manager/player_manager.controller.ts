@@ -288,15 +288,14 @@ export class PlayerManagerController {
     }
   }
 
-  @Cron('* * * * *', {
+  @Cron('0 0 * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async logDoanhThu() {
     let lock: RLock | null = null;
     try {
-      lock = await this.redlock.acquire(['lock:cron:logDoanhThu'], 30_000);
-      console.log('Lock thành công, bắt đầu gửi email');
       // Để xem tại sao xử lí như này => coi file redlock.md
+      lock = await this.redlock.acquire(['lock:cron:logDoanhThu'], 30_000);
       const doanhThu = await this.financeService.handleGetFinanceSummary({});
       const tienNap = doanhThu.total_nap;
       const tienRut = doanhThu.total_rut;
@@ -333,9 +332,7 @@ export class PlayerManagerController {
       throw err;
     } finally {
       if (lock) {
-        await lock.release()
-        .then(() => console.log('Lock released thành công'))
-        .catch((e) => console.warn('Không thể release lock:', e));
+        await lock.release();
       }
     }
   }
