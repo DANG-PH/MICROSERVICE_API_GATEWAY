@@ -305,7 +305,7 @@ export class PlayerManagerController {
       const ngay = now.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
       const gio = now.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
       // winstonLogger.log({ nhiemVu: 'thongBaoDoanhThu', doanhThu: tienLai })
-      return this.authService.handleSendEmailToUser({
+      return await this.authService.handleSendEmailToUser({
         who: "ADMIN",
         title: "Thông kê doanh thu",
         content: `Báo cáo doanh thu ngày ${ngay} (lúc ${gio})
