@@ -15,22 +15,31 @@ export class RateLimitMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
 
-    let identifier = 'anonymous';
+    let identifier: string | null = null;
 
     if (authHeader) {
       try {
         const token = authHeader.replace('Bearer ', '');
-        const payload = this.jwtService.verify(token);
+        const payload = this.jwtService.verify(token, {
+          secret: process.env.JWT_SECRET,
+        });
         identifier = `user:${payload.userId}`;
       } catch {
-        identifier = `ip:${req.ip}`;
+        // JWT invalid — fallthrough to null
       }
-    } else {
-      identifier = `ip:${req.ip}`;
+    }
+
+    // TODO: Anonymous rate limiting bị vô nghĩa ở case Vercel SSR vì
+    // cf-connecting-ip / x-forwarded-for đều trả về IP Vercel server thay vì IP browser thật.
+    // Cần FE gửi kèm header `x-browser-ip` (đọc từ Vercel middleware) hoặc dùng
+    // anonymous session token (`x-anonymous-id`) thì mới xử lý tiếp được.
+    // Tạm thời: bỏ qua request không xác định được userId.
+    if (!identifier) {
+      return next();
     }
 
     const key = `rate_limit:${identifier}`;
-    const limit = 1000;
+    const limit = 100;
     const ttl = 60;
 
     let count = (await this.cacheManager.get<number>(key)) || 0;
