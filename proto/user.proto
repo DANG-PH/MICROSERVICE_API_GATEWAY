@@ -17,7 +17,7 @@ service UserService {
   rpc GetTop10ByVang (Empty) returns (UserListResponse) {};
   rpc AddItemWeb (AddItemRequest) returns (MessageResponse) {};
   rpc GetItemsWeb (UsernameRequest) returns (ItemListResponse) {};
-  rpc UseItemWeb (UseItemRequest) returns (MessageResponse) {};
+  rpc UseItemWeb (UseItemRequest) returns (UseItemResponse) {};
   rpc GetPosition (GetPositionRequest) returns (GetPositionResponse) {};
   rpc SavePosition (SavePositionRequest) returns (SavePositionResponse) {};
 }
@@ -113,7 +113,11 @@ message ItemListResponse {
 
 message UseItemRequest {
   int32 id = 1;
-  int32 itemId = 2;
+  repeated int32 itemIds = 2;
+}
+
+message UseItemResponse {
+  repeated int32 successItemIds = 1;
 }
 
 message MessageResponse {

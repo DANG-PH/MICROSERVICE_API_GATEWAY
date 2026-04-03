@@ -24,7 +24,8 @@ import {
   GetPositionRequest,
   GetPositionResponse,
   SavePositionRequest,
-  SavePositionResponse
+  SavePositionResponse,
+  UseItemResponse
 } from 'proto/user.pb';
 import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -109,7 +110,7 @@ export class UserService {
     return result;
   }
 
-  async handleUseItemWeb(req: UseItemRequest ) {
+  async handleUseItemWeb(req: UseItemRequest ): Promise<UseItemResponse> {
     return grpcCall(UserService.name,this.userGrpcService.useItemWeb(req));
   }
 

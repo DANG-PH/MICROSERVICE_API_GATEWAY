@@ -259,9 +259,10 @@ export class UseItemRequestDto {
   // @IsInt()
   // id: number;
 
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  itemId: number;
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  itemIds: number[];
 }
 
 export class UseItemAdminRequestDto {
@@ -269,9 +270,16 @@ export class UseItemAdminRequestDto {
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 1 })
-  @IsInt()
-  itemId: number;
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @Type(() => Number)
+  itemIds: number[];
+}
+
+export class UseItemResponseDto {
+  @ApiProperty({ type: [Number] })
+  @Type(() => Number)
+  successItemIds: number[];
 }
 
 export class MessageResponseDto {
