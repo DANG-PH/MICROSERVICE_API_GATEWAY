@@ -929,7 +929,7 @@ export class WsGateway {
           itemId,
           quantity
         },
-        tinNhan: `Bạn vừa mua x${quantity} ${itemName} từ web`
+        tinNhan: `Bạn vừa mua\nx${quantity} ${itemName}\ntừ web`
       });
 
     } else {
@@ -941,7 +941,7 @@ export class WsGateway {
           loai: event.type,
           soLuong: amount
         },
-        tinNhan: `Bạn vừa mua ${amount} ${event.type.toLowerCase()} từ web`
+        tinNhan: `Bạn vừa mua\n${amount} ${event.type.toLowerCase()}\ntừ web`
       });
     }
   }
