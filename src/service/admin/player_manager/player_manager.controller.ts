@@ -252,13 +252,14 @@ export class PlayerManagerController {
     };
   }
 
-  @Cron('0 20 * * *', {
+  @Cron('13 9 * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async callApi() {
     // Để xem tại sao xử lí như này => coi file redlock.md
     try {
       await using lock = await this.redlock.acquire(['lock:cron:callApi'], 60_000);
+      console.log('Lock thành công, bắt đầu gửi email');
       return this.authService.handleSendEmailToUser({
         who: "ALL",
         title: "Ngọc Rồng Tranh Bá",
@@ -275,7 +276,12 @@ export class PlayerManagerController {
                   Chúc bạn may mắn và giành chiến thắng.`
       })
     } catch (err) {
-      if (err instanceof ResourceLockedError) return; // instance khác đang chạy → bỏ qua
+      if (err instanceof ResourceLockedError) {
+        console.warn('Cron job bị lock bởi instance khác, bỏ qua');
+        return;
+      }
+
+      console.error('Lỗi trong cron job', err);
       throw err;
     }
   }
