@@ -25,7 +25,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
 // import { winstonLogger } from 'src/logger/logger.config';
 import { PlayerManagerService } from './player_manager.service';
-import Redlock, { ResourceLockedError, Lock as RLock } from 'redlock';
+import Redlock, { ResourceLockedError, ExecutionError, Lock as RLock } from 'redlock';
 import Redis from 'ioredis';
 
 @Controller('player_manager')
@@ -229,7 +229,7 @@ export class PlayerManagerController {
     //   }
     // }
 
-    console.log(store)
+    // console.log(store)
 
     const bans: Array<{
       userId: string,
@@ -260,7 +260,6 @@ export class PlayerManagerController {
     let lock: RLock | null = null;
     try {
       lock = await this.redlock.acquire(['lock:cron:callApi'], 60_000);
-      console.log('Lock thành công, bắt đầu gửi email');
       return await this.authService.handleSendEmailToUser({
         who: "ALL",
         title: "Ngọc Rồng Tranh Bá",
@@ -277,29 +276,26 @@ export class PlayerManagerController {
                   Chúc bạn may mắn và giành chiến thắng.`
       })
     } catch (err) {
-      if (err instanceof ResourceLockedError) {
+      if (err instanceof ExecutionError || err instanceof ResourceLockedError) {
         console.warn('Cron job bị lock bởi instance khác, bỏ qua');
         return;
       }
-
-      console.error('Lỗi trong cron job', err);
       throw err;
     } finally {
       if (lock) {
-        await lock.release().catch((e) =>
-          console.warn('Không thể release lock:', e)
-        );
+        await lock.release();
       }
     }
   }
 
-  @Cron('0 0 * * *', {
+  @Cron('* * * * *', {
     timeZone: 'Asia/Ho_Chi_Minh',
   })
   async logDoanhThu() {
+    let lock: RLock | null = null;
     try {
-      await using lock = await this.redlock.acquire(['lock:cron:logDoanhThu'], 30_000);
-
+      lock = await this.redlock.acquire(['lock:cron:logDoanhThu'], 30_000);
+      console.log('Lock thành công, bắt đầu gửi email');
       // Để xem tại sao xử lí như này => coi file redlock.md
       const doanhThu = await this.financeService.handleGetFinanceSummary({});
       const tienNap = doanhThu.total_nap;
@@ -330,8 +326,17 @@ export class PlayerManagerController {
         Vui lòng kiểm tra lại trên hệ thống nếu cần đối soát chi tiết.`
       })
     } catch (err) {
-      if (err instanceof ResourceLockedError) return;
+      if (err instanceof ExecutionError || err instanceof ResourceLockedError) {
+        console.warn('Cron job bị lock bởi instance khác, bỏ qua');
+        return;
+      }
       throw err;
+    } finally {
+      if (lock) {
+        await lock.release()
+        .then(() => console.log('Lock released thành công'))
+        .catch((e) => console.warn('Không thể release lock:', e));
+      }
     }
   }
 }
