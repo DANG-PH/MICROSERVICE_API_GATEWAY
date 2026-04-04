@@ -4,6 +4,11 @@
 
 Sử dụng Redis lock thông qua thư viện **Redlock** để tránh race condition khi scale nhiều instance, đảm bảo cron job chỉ chạy **đúng 1 lần** tại một thời điểm.
 
+## Áp dụng
+
+Dùng cho cron job hoặc các tác vụ chỉ được thực hiện duy nhất một lần khi scale nhiều instance.
+Ví dụ trong service api-gateway ở player_manager controller
+
 ---
 
 ## So sánh các giải pháp
