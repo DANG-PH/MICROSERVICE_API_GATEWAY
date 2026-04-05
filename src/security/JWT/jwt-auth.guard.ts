@@ -9,7 +9,7 @@ import { status } from '@grpc/grpc-js';
 export class JwtAuthGuard extends AuthGuard('jwt-1gio') {
     constructor(
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-        private readonly authService: AuthService
+        private readonly authService: AuthService // DI được ( đọc comment cuối auth.module.ts )
     ) {
         super(); 
     }
