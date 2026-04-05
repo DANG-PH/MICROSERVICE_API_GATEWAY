@@ -13,9 +13,19 @@ import { jaegerTracer } from 'jaeger';
 import { bold, green, cyan } from 'chalk';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { RedisIoAdapter } from './redis-io.adapter';
+import { XssSanitizePipe } from './pipes/xss-sanitize.pipe';
+import { GlobalExceptionFilter } from './filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  /**
+   * Giới hạn kích thước request body
+   * Tại sao cần: Nếu không giới hạn, attacker có thể gửi body 500MB → server đọc hết vào RAM → hết memory → crash toàn bộ instance (DoS attack)
+   * bodyParser.json() -> parse Content-Type: application/jsonn
+   * đặt TRƯỚC tất cả middleware khác vì nếu đặt sau, NestJS đã đọc body rồi mới check limit -> vô nghĩa
+   */
+  app.use(bodyParser.json({ limit: '10mb' }));
 
   // Bật Helmet bảo mật header HTTP
   app.use(
@@ -65,11 +75,14 @@ async function bootstrap() {
 
 
   // Bật validation cho tất cả request body/query/params
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, // loại bỏ các field không có trong DTO
-    forbidNonWhitelisted: true, // báo lỗi nếu gửi field lạ
-    transform: true, // tự chuyển kiểu dữ liệu nếu cần
-  }));
+  app.useGlobalPipes(
+    new XssSanitizePipe(),
+    new ValidationPipe({
+      whitelist: true, // loại bỏ các field không có trong DTO
+      forbidNonWhitelisted: true, // báo lỗi nếu gửi field lạ
+      transform: true, // tự chuyển kiểu dữ liệu nếu cần
+    })
+  );
 
   app.use((req, res, next) => {
     if (req.headers[String(process.env.HEADER_POST_PATCH)]) {
@@ -77,6 +90,8 @@ async function bootstrap() {
     }
     next();
   });
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   const redisIoAdapter = new RedisIoAdapter(app);
   await redisIoAdapter.connectToRedis();

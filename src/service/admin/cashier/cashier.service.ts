@@ -7,7 +7,7 @@ import {
   CashierServiceClient,
   Empty
 } from '../../../../proto/admin.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 import { ADMIN_PACKAGE_NAME } from '../../../../proto/admin.pb';
 import { CASHIER_SERVICE_NAME } from '../../../../proto/admin.pb';
 

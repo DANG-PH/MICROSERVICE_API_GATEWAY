@@ -27,7 +27,7 @@ import {
   SavePositionResponse,
   UseItemResponse
 } from 'proto/user.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LoaiNapTien } from 'src/enums/nap.enum';
 

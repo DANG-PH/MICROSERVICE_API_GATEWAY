@@ -10,12 +10,20 @@ export class LoggerMiddleware implements NestMiddleware {
     const start = Date.now();
 
     res.on('finish', () => {
-      const duration = Date.now() - start;
+      const duration   = Date.now() - start;
       const statusCode = res.statusCode;
+      const message    = `${method} ${originalUrl} → ${statusCode} (${duration}ms)`;
 
-      this.logger.log(
-        `${method} ${originalUrl} → ${statusCode} (${duration}ms)`,
-      );
+      if (statusCode >= 500) {
+        // 5xx → đỏ, server có vấn đề, cần xem ngay
+        this.logger.error(message);
+      } else if (statusCode >= 400) {
+        // 4xx → vàng, lỗi từ phía client (sai input, không có quyền...)
+        this.logger.warn(message);
+      } else {
+        // 2xx, 3xx → xanh, bình thường
+        this.logger.log(message);
+      }
     });
 
     next();

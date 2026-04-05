@@ -11,7 +11,7 @@ import {
     DETU_PACKAGE_NAME,
     DE_TU_SERVICE_NAME
 } from 'proto/detu.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 
 @Injectable()
 export class DeTuService {

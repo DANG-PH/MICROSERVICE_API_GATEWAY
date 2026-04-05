@@ -53,7 +53,7 @@ import {
   GetNotificationByUserRequest,
   GetNotificationByUserResponse
 } from 'proto/social-network.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 
 @Injectable()
 export class SocialNetworkService {

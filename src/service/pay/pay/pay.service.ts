@@ -13,7 +13,7 @@ import {
     PayServiceClient,
     Pay
 } from 'proto/pay.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 // import { winstonLogger } from 'src/logger/logger.config';
 
 @Injectable()

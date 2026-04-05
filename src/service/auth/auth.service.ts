@@ -23,7 +23,7 @@ import {
   GetRealnameAvatarRequest,
   LoginWithGoogleRequest
 } from 'proto/auth.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 // import { winstonLogger } from 'src/logger/logger.config'; 
 import { Metadata } from '@grpc/grpc-js';
 

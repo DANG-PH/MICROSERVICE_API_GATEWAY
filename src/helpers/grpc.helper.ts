@@ -4,6 +4,7 @@ import { status as grpcStatus } from '@grpc/grpc-js';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
 import { winstonLogger } from 'src/logger/logger.config'; 
 
+// Parse lỗi gRPC sang Http
 export function grpcToHttp(code: number | null) {
   switch (code) {
     case grpcStatus.UNAUTHENTICATED: return 401;
@@ -16,9 +17,6 @@ export function grpcToHttp(code: number | null) {
 }
 
 export function parseGrpcError(err: any) {
-  // log để debug raw error format
-  console.error('⚠ gRPC Error:', err);
-
   // gRPC trả error ở nhiều format khác nhau → xử lý bao quát:
   if (err?.code !== undefined && err?.details) {
     return { code: err.code, message: err.details };

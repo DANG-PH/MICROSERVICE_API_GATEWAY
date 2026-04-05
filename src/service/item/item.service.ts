@@ -20,7 +20,7 @@ import {
     SwapItemRequest,
     SwapItemResponse
 } from 'proto/item.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 
 @Injectable()
 export class ItemService {

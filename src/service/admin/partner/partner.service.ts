@@ -13,7 +13,7 @@ import {
   GetAllAccountByBuyerRequest,
   ListAccountSellRequest
 } from '../../../../proto/admin.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
 
 @Injectable()

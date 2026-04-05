@@ -9,7 +9,7 @@ import {
   Empty,
   FinanceServiceClient,
 } from '../../../../proto/pay.pb';
-import { grpcCall } from 'src/HttpparseException/gRPC_to_Http';
+import { grpcCall } from 'src/helpers/grpc.helper';
 import { PAY_PACKAGE_NAME, FINANCE_SERVICE_NAME } from '../../../../proto/pay.pb';
 
 @Injectable()
