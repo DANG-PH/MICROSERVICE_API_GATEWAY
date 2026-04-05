@@ -25,7 +25,7 @@ export function parseGrpcError(err: any) {
 
   try {
     const parsed = JSON.parse(err.message);
-    return { code: parsed.code ?? null, message: parsed.message ?? parsed };
+    return { code: parsed.status ?? parsed.code ?? null, message: parsed.message ?? parsed };
   } catch {
     return { code: err.code ?? null, message: err.message ?? 'Unknown error' };
   }
