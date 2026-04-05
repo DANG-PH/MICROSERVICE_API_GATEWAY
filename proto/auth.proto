@@ -9,6 +9,7 @@ service AuthService {
   rpc Login (LoginRequest) returns (LoginResponse) {};
   rpc VerifyOTP (VerifyOtpRequest) returns (VerifyOtpResponse) {};
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  rpc GetTokenVersion(GetTokenVersionRequest) returns (GetTokenVersionResponse);
 
   rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {};
   rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {};
@@ -226,4 +227,12 @@ message LoginWithGoogleResponse {
   int32 auth_id = 3;
   string role = 4;
   bool register = 5;
+}
+
+message GetTokenVersionRequest {
+  int32 userId = 1;
+}
+
+message GetTokenVersionResponse {
+  int32 tokenVersion = 1;
 }

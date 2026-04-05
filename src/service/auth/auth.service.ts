@@ -21,7 +21,8 @@ import {
   ChangeAvatarRequest,
   GetAllUserRequest,
   GetRealnameAvatarRequest,
-  LoginWithGoogleRequest
+  LoginWithGoogleRequest,
+  GetTokenVersionRequest
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/helpers/grpc.helper';
 // import { winstonLogger } from 'src/logger/logger.config'; 
@@ -116,5 +117,9 @@ export class AuthService {
 
   async handleLoginWithGoogle(req: LoginWithGoogleRequest, metadata: Metadata) {
     return grpcCall(AuthService.name,this.authGrpcService.loginWithGoogle(req, metadata), true);
+  }
+
+  async handleGetTokenVersion(req: GetTokenVersionRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.getTokenVersion(req), true);
   }
 }
