@@ -512,6 +512,115 @@ async changePassword(userId: string, oldPassword: string, newPassword: string) {
 }
 ```
 
+### 6.5. Chọn TTL hay No-TTL cho cache tokenVersion?
+ 
+Khi cache `tokenVersion` vào Redis, có 2 cách tiếp cận. Phần này phân tích trade-off để chọn đúng.
+ 
+---
+ 
+#### ❌ Cách 1: No TTL (cache vĩnh viễn)
+ 
+```typescript
+await this.redis.set(cacheKey, String(user.tokenVersion));
+// Không có EX → key tồn tại mãi mãi
+```
+ 
+**Vấn đề:**
+ 
+| # | Vấn đề | Giải thích |
+|---|--------|------------|
+| 1 | **Key tích tụ không giới hạn** | Mỗi `userId` tạo 1 key. Hệ thống 1 triệu user → 1 triệu key không bao giờ tự xóa, Redis OOM theo thời gian |
+| 2 | **Không tự sửa sai** | Nếu bước `redis.del()` sau `changePassword` bị lỗi (network blip, Redis restart), key cũ sẽ **tồn tại mãi mãi** → token đã revoke vẫn pass guard |
+| 3 | **Phải tự quản lý vòng đời** | Cần cronjob dọn key của user không active → thêm complexity, dễ bug |
+| 4 | **Không có safety net** | Không có cơ chế nào tự phục hồi khi cache lệch với DB |
+ 
+---
+ 
+#### ✅ Cách 2: TTL 5–15 phút (khuyến nghị)
+ 
+```typescript
+// security/JWT/jwt-auth.guard.ts
+private async getTokenVersion(userId: string): Promise<number> {
+  const cacheKey = `tokenVer:${userId}`;
+ 
+  try {
+    const cached = await this.redis.get(cacheKey);
+    if (cached !== null) return parseInt(cached, 10);
+  } catch {
+    // Redis lỗi → fallback DB, không để auth sập
+  }
+ 
+  // Cache miss → đọc DB → ghi lại cache với TTL
+  const user = await this.userRepository.findOne({
+    where: { id: userId },
+    select: ['tokenVersion'],
+  });
+ 
+  // TTL 5 phút: đủ để giảm tải DB, đủ ngắn để tự sửa sai
+  await this.redis.set(cacheKey, String(user.tokenVersion), 'EX', 300);
+  return user.tokenVersion;
+}
+```
+ 
+**Tại sao TTL 5–15 phút là đủ:**
+ 
+- **Giảm tải DB hiệu quả**: Mỗi user chỉ query DB tối đa 1 lần/5 phút, dù có hàng trăm request/phút (JWT còn hạn).
+- **Tự sửa sai sau mỗi TTL cycle**: Nếu `redis.del()` sau `changePassword` bị lỗi, key cũ sẽ tự expire sau tối đa 5 phút → DB sẽ được đọc lại → version mới được cache → token cũ bị reject.
+- **Redis tự dọn key**: Không cần cronjob, không lo OOM với user không active.
+ 
+---
+ 
+#### So sánh tổng quan
+ 
+```
+Scenario: User đổi mật khẩu → redis.del() bị lỗi mạng
+                                                   
+  No TTL:    [token cũ] ──── pass guard ────────────────────→ mãi mãi ❌
+                                                   
+  TTL 5p:   [token cũ] ── pass guard (≤5 phút) ── cache expire ── DB check ── REJECT ✅
+```
+ 
+| Tiêu chí | No TTL | TTL 5–15 phút |
+|----------|--------|---------------|
+| Tải DB | Thấp hơn | Thấp (1 query/TTL/user) |
+| Tự sửa sai khi del() lỗi | ❌ Không | ✅ Sau mỗi TTL cycle |
+| Quản lý bộ nhớ Redis | ❌ Phải tự dọn | ✅ Tự expire |
+| Window revoke chậm nhất | Ngay lập tức* | ≤ TTL (5–15 phút) |
+| Độ phức tạp vận hành | Cao (cần cronjob) | Thấp |
+ 
+> *No TTL chỉ revoke ngay nếu `redis.del()` thành công 100% — điều không đảm bảo trong thực tế.
+ 
+---
+ 
+#### Chọn TTL bao nhiêu?
+ 
+```typescript
+// Gợi ý theo use case
+const TTL = {
+  // App thông thường: chấp nhận window 5 phút
+  standard: 300,       // 5 phút
+ 
+  // App tài chính / nhạy cảm: window ngắn hơn, tải DB cao hơn một chút  
+  sensitive: 60,       // 1 phút
+ 
+  // Game realtime: token check mỗi WS message → cần cache dài hơn
+  realtime: 900,       // 15 phút (WS guard tách riêng, HTTP guard dùng TTL ngắn hơn)
+};
+```
+ 
+**Nguyên tắc chọn TTL = thời gian bạn chấp nhận token đã revoke vẫn còn hiệu lực trong worst case** (khi `redis.del()` thất bại). Với hầu hết hệ thống, **5 phút là điểm cân bằng tốt nhất**.
+
+> 💡 **Lưu ý:** TTL không phải là độ trễ bắt buộc sau mỗi lần đổi mật khẩu — trong happy path,
+> `redis.del()` thành công ngay và revoke có hiệu lực từ request tiếp theo. TTL chỉ là
+> **thời gian tự sửa sai trong worst case** (khi invalidate cache thất bại): sau tối đa TTL giây,
+> cache tự expire, guard đọc lại DB, token cũ bị reject. Đây là sự đánh đổi có chủ đích giữa
+> **Eventual Consistency** (cache sẽ đồng nhất với DB sau ≤ TTL, không phải ngay lập tức) và
+> **read throughput** (DB chỉ bị query tối đa 1 lần/TTL/user thay vì mỗi request).
+>
+> Thực ra hệ thống này đảm bảo cả hai consistency model: **Read-your-writes** — chính user vừa
+> đổi mật khẩu sẽ thấy hiệu lực revoke ngay lập tức (cache miss → đọc DB → version mới → reject),
+> và **Eventual Consistency (bounded staleness)** — các session/device khác của cùng user sẽ bị
+> revoke sau tối đa TTL, hoặc tự sửa trong worst case khi `redis.del()` thất bại.
 ---
 
 ## 7. Caching & Performance
