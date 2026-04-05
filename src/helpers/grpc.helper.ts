@@ -7,19 +7,20 @@ import { winstonLogger } from 'src/logger/logger.config';
 // Parse lỗi gRPC sang Http
 export function grpcToHttp(code: number | null) {
   switch (code) {
-    case grpcStatus.UNAUTHENTICATED: return 401;
-    case grpcStatus.PERMISSION_DENIED: return 403;
-    case grpcStatus.NOT_FOUND: return 404;
-    case grpcStatus.ALREADY_EXISTS: return 409;
-    case grpcStatus.RESOURCE_EXHAUSTED: return 429;
-    default: return 500;
+    case grpcStatus.OK:                  return 200;  // 0
+    case grpcStatus.INVALID_ARGUMENT:    return 400;  // 3 - dữ liệu đầu vào sai
+    case grpcStatus.NOT_FOUND:           return 404;  // 5 - không tìm thấy
+    case grpcStatus.ALREADY_EXISTS:      return 409;  // 6 - đã tồn tại
+    case grpcStatus.PERMISSION_DENIED:   return 403;  // 7 - không có quyền
+    case grpcStatus.RESOURCE_EXHAUSTED:  return 429;  // 8 - rate limit
+    case grpcStatus.FAILED_PRECONDITION: return 400;  // 9 - điều kiện không thỏa (số dư không đủ,...)
+    case grpcStatus.UNAUTHENTICATED:     return 401;  // 16 - chưa xác thực
+    case grpcStatus.CANCELLED:           return 400;  // 1 - request bị cancel (tự bán acc chính mình,...)
+    default:                             return 500;
   }
 }
 
 export function parseGrpcError(err: any) {
-  // gRPC trả error ở nhiều format khác nhau → xử lý bao quát:
-  console.log('details:', JSON.stringify(err?.details));  // ✅ thêm dòng này
-  console.log('message:', JSON.stringify(err?.message));  // ✅ thêm dòng này
   if (err?.code !== undefined && err?.details) {
     return { code: err.code, message: err.details };
   }
