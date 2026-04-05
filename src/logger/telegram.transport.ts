@@ -29,12 +29,7 @@ export class TelegramTransport extends TransportStream {
           parse_mode: 'Markdown',
         });
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.error('Telegram API error:', error.response?.data);
-          console.error('Status:', error.response?.status);
-        } else {
-          console.error('Unknown error:', error);
-        }
+        console.error('Failed to send Telegram message:', error.message);
       }
     }
 
