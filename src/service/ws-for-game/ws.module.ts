@@ -26,7 +26,7 @@ import { ItemModule } from "../item/item.module";
             },
         ]),
         ItemModule,
-        forwardRef(() => UserModule)
+        forwardRef(() => UserModule),
     ],
     controllers: [GameController],
     providers: [WsGateway, WsJwtGuard, JwtAuthGuard,JwtStrategy, RolesGuard, JwtService],

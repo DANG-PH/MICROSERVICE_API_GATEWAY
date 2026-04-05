@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { WsModule } from '../ws-for-game/ws.module';
+import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { WsModule } from '../ws-for-game/ws.module';
     forwardRef(() => WsModule)
   ],
   controllers: [UserController],
-  providers: [UserService,JwtStrategy,RolesGuard],
+  providers: [UserService,JwtStrategy,JwtAuthGuard,RolesGuard],
   exports: [UserService]
 })
 export class UserModule {}
