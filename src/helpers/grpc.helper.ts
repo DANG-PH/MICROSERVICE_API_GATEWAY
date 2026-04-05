@@ -18,16 +18,10 @@ export function grpcToHttp(code: number | null) {
 
 export function parseGrpcError(err: any) {
   // gRPC trả error ở nhiều format khác nhau → xử lý bao quát:
-  console.error('⚠ gRPC Error:', err);
+  console.log('details:', JSON.stringify(err?.details));  // ✅ thêm dòng này
+  console.log('message:', JSON.stringify(err?.message));  // ✅ thêm dòng này
   if (err?.code !== undefined && err?.details) {
     return { code: err.code, message: err.details };
-  }
-
-  try {
-    const parsed = JSON.parse(err.message);
-    return { code: parsed.status ?? parsed.code ?? null, message: parsed.message ?? parsed };
-  } catch {
-    return { code: err.code ?? null, message: err.message ?? 'Unknown error' };
   }
 }
 
