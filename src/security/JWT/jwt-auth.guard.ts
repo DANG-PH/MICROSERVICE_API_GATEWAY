@@ -1,4 +1,4 @@
-import { Injectable, Inject, ExecutionContext } from '@nestjs/common';
+import { Injectable, Inject, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { AuthService } from 'src/service/auth/auth.service';
@@ -39,7 +39,9 @@ export class JwtAuthGuard extends AuthGuard('jwt-1gio') {
 
         // 3. Check tokenVersion
         const currentVersion = await this.getTokenVersion(user.userId);
-        if (user.tokenVersion !== currentVersion) return false;
+        if (user.tokenVersion !== currentVersion) {
+            throw new UnauthorizedException('Phiên đăng nhập đã hết hạn');
+        }
 
         return true;
     }
