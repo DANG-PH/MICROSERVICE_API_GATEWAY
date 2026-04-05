@@ -19,6 +19,9 @@ import { GlobalExceptionFilter } from './filters/http-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Đặt lên đầu, mấy phần sau lỗi còn bắt lỗi được
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
   /**
    * Giới hạn kích thước request body
    * Tại sao cần: Nếu không giới hạn, attacker có thể gửi body 500MB → server đọc hết vào RAM → hết memory → crash toàn bộ instance (DoS attack)
@@ -90,8 +93,6 @@ async function bootstrap() {
     }
     next();
   });
-
-  app.useGlobalFilters(new GlobalExceptionFilter());
 
   const redisIoAdapter = new RedisIoAdapter(app);
   await redisIoAdapter.connectToRedis();
