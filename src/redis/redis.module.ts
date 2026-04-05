@@ -13,9 +13,9 @@ import { CacheableMemory } from 'cacheable';
       useFactory: async () => {
         return {
           stores: [
-            new Keyv({
-              store: new CacheableMemory({ ttl: 0, lruSize: 5000 }),
-            }),
+            // new Keyv({
+            //   store: new CacheableMemory({ ttl: 0, lruSize: 5000 }),
+            // }),
             new KeyvRedis(process.env.REDIS_URL), // hoặc kết nối cổng 6379 của local
           ],
           ttl: 0,
