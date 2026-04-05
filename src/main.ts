@@ -20,7 +20,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Đặt lên đầu, mấy phần sau lỗi còn bắt lỗi được
-  // app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   /**
    * Giới hạn kích thước request body
@@ -28,7 +28,7 @@ async function bootstrap() {
    * bodyParser.json() -> parse Content-Type: application/jsonn
    * đặt TRƯỚC tất cả middleware khác vì nếu đặt sau, NestJS đã đọc body rồi mới check limit -> vô nghĩa
    */
-  // app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.json({ limit: '10mb' }));
 
   // Bật Helmet bảo mật header HTTP
   app.use(
