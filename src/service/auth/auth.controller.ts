@@ -27,6 +27,7 @@ import { Metadata } from '@grpc/grpc-js';
 import { GetAllUserResponse } from 'proto/auth.pb';
 import { WsChatGateway } from '../chat/ws-chat.gateway';
 import { SocialNetworkService } from '../social_network/social-network.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -36,7 +37,8 @@ export class AuthController {
     private readonly userService: UserService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private wsChatGateway: WsChatGateway,
-    private readonly socialService: SocialNetworkService
+    private readonly socialService: SocialNetworkService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   @Post('register')
@@ -148,7 +150,11 @@ export class AuthController {
 
     const platform = String(req.headers['x-platform'] || 'web');
     metadata.set('platform', platform);
-    return this.authService.handleChangePassword(request, metadata);
+    const result = await this.authService.handleChangePassword(request, metadata);
+    if (result.success) {
+      this.eventEmitter.emit('auth.revoke_all_token', req.user.userId);
+    }
+    return result;
   }
 
   @Patch('change-email')

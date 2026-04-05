@@ -878,6 +878,19 @@ export class WsGateway {
     }).filter(Boolean);
   }
 
+  @OnEvent('auth.revoke_all_token')
+  async handleRevokeAllToken(userId: number) {
+    await this.kickSocket(userId);
+    await this.redis.del(`user:${userId}:gameSession`); // xóa session 
+    // Case này cần xóa session cho clean redis thôi ( và tránh tình trạng data ảo )
+  }
+
+  @OnEvent('auth.kick_socket')
+  async handleKickSocket(userId: number) {
+    await this.kickSocket(userId); // chỉ kick, không xóa session 
+    // Xóa sẽ dẫn đến conflict vì sẽ xóa gameSession mới vừa set luôn
+  }
+
   async kickSocket(userId: number) {
     this.server.to(`Game:${userId}`).emit('force_logout', {
       message: 'Tài khoản đăng nhập ở nơi khác',

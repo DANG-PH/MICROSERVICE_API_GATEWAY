@@ -5,6 +5,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { WsGateway } from './ws.gateway';
 import Redis from 'ioredis';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 const PLAY_SCRIPT = `
   local key = KEYS[1]
@@ -29,6 +30,8 @@ export class GameController {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly wsGateway: WsGateway,
+    private eventEmitter: EventEmitter2
+    
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '');
   }
@@ -53,7 +56,11 @@ export class GameController {
 
     if (oldSessionId) {
       // Kick bằng userId, adapter tự tìm đúng server
-      await this.wsGateway.kickSocket(userId);
+      // Dùng emitter thay vì gọi trực tiếp vì:
+      // K cần kết quả ngay
+      // K cần chờ đợi để chạy dòng tiếp theo
+      // Xử lí bất đồng bộ cùng process
+      this.eventEmitter.emit('auth.kick_socket', userId);
     }
 
     return { success: true, gameSessionId };

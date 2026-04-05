@@ -9,6 +9,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
 import { UserModule } from 'src/service/user/user.module';
 import { SocialNetworkModule } from '../social_network/social_network.module';
 import { WsChatModule } from '../chat/ws-chat.module';
+import { WsModule } from '../ws-for-game/ws.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { WsChatModule } from '../chat/ws-chat.module';
     ]),
     UserModule,
     forwardRef(() => SocialNetworkModule) ,
-    forwardRef(() => WsChatModule)
+    forwardRef(() => WsChatModule),
+    WsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService,JwtStrategy,RolesGuard],
