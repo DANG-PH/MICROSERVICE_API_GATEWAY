@@ -18,6 +18,7 @@ export function grpcToHttp(code: number | null) {
 
 export function parseGrpcError(err: any) {
   // gRPC trả error ở nhiều format khác nhau → xử lý bao quát:
+  console.error('⚠ gRPC Error:', err);
   if (err?.code !== undefined && err?.details) {
     return { code: err.code, message: err.details };
   }
