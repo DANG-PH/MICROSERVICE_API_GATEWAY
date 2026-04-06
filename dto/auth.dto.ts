@@ -364,5 +364,5 @@ export class GetBanRequestDto {
 export class GetBanResponseDto {
   @ApiProperty({ example: true, description: 'Trạng thái bị ban hay không' })
   success: boolean;
-  // success là bị ban
+  // success là không bị ban
 }

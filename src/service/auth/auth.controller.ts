@@ -135,7 +135,9 @@ export class AuthController {
   }
 
   @Get('ban')
-  @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'User gọi khi check vào game, có 2 tác dụng là check server còn sống k và check xem còn quyền vào game k (success tức là k bị ban) (USER)(GAME) (ĐÃ DÙNG)' })
   async getBan(@Req() req: any) {
     const userId = req.user.userId;
     return this.authService.handleGetBan({
