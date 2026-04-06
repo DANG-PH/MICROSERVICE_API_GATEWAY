@@ -27,6 +27,7 @@ import { FinanceService } from 'src/service/pay/finance/finance.service';
 import { PlayerManagerService } from './player_manager.service';
 import Redlock, { ResourceLockedError, ExecutionError, Lock as RLock } from 'redlock';
 import Redis from 'ioredis';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller('player_manager')
 @ApiTags('Api Player Manager') 
@@ -41,7 +42,8 @@ export class PlayerManagerController {
     private itemService: ItemService,
     private payService: PayService,
     private financeService: FinanceService,
-    private playerManagerService: PlayerManagerService
+    private playerManagerService: PlayerManagerService,
+    private eventEmitter: EventEmitter2
   ) {
     this.redis = new Redis(process.env.REDIS_URL || '')
     this.redlock = new Redlock([this.redis], { retryCount: 0 }); // 1 node redis
@@ -181,6 +183,8 @@ export class PlayerManagerController {
     }
 
     const currentBan = await this.cacheManager.get(`temporary-ban:${userId}`);
+    this.eventEmitter.emit('auth.kick_socket', userId);
+    
     if (currentBan) {
       await this.cacheManager.set(`temporary-ban:${userId}`, banData, phut * 60 * 1000);
       return {

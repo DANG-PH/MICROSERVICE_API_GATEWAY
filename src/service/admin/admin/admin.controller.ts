@@ -34,6 +34,7 @@ import {
   PaginationByPartnerRequestDto
 } from 'dto/partner.dto';
 import { PartnerService } from '../partner/partner.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Controller('admin')
 @ApiTags('Api Admin') 
@@ -45,7 +46,8 @@ export class AdminController {
     private deTuService: DeTuService,
     private itemService: ItemService,
     private payService: PayService,
-    private partnerService: PartnerService
+    private partnerService: PartnerService,
+    private eventEmitter: EventEmitter2
   ) {}
 
   // Gọi sang auth-service
@@ -66,7 +68,11 @@ export class AdminController {
   @ApiOperation({ summary: 'Ban user (ADMIN)(WEB) (Quản lí auth) (CHƯA DÙNG)' })
   @ApiBody({ type: BanUserRequestDto })
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
-    return this.authService.handleBanUser(body);
+    const result = await this.authService.handleBanUser(body);
+    if (result.success) {
+      this.eventEmitter.emit('auth.kick_socket', result.userId);
+    } 
+    return result;
   }
 
   @Patch('unban-user')

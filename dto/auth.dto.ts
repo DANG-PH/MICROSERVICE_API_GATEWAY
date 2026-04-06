@@ -235,6 +235,10 @@ export class BanUserRequestDto {
 export class BanUserResponseDto {
   @ApiProperty({ example: true })
   success: boolean;
+
+  @ApiProperty({ example: 1, description: 'UserId của user bị ban' })
+  @IsInt()
+  userId: number;
 }
 
 // Unban User

@@ -102,6 +102,7 @@ export interface BanUserRequest {
 
 export interface BanUserResponse {
   success: boolean;
+  userId: number;
 }
 
 export interface UnbanUserRequest {

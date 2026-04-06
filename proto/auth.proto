@@ -127,6 +127,7 @@ message BanUserRequest {
 
 message BanUserResponse {
   bool success = 1;
+  int32 userId = 2;
 }
 
 message UnbanUserRequest {
