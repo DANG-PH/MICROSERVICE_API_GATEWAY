@@ -277,7 +277,7 @@ export class WsGateway {
     //
     // Kết luận: 600s = 30x safety margin so với batch interval (20s),
     // đủ dài để đảm bảo data, đủ ngắn để Redis tự dọn rác.
-    await this.redis.set(`dirty:${userId}`, Date.now(), 'EX', 600, 'NX');
+    this.redis.set(`dirty:${userId}`, Date.now(), 'EX', 600, 'NX');
 
     const map = client.data.map;
 
@@ -345,13 +345,13 @@ export class WsGateway {
     const expireAt = Date.now() + body.timeSkill * 1000;
     const member = `${userId}:${body.skillId}`;
 
-    await this.redis.set(
+    this.redis.set(
       `GAME:SKILL:${map}:${userId}:${body.skillId}`,
       JSON.stringify({ userId, skillId: body.skillId, startedAt: Date.now() }),
       'EX', body.timeSkill
     );
 
-    await this.redis.zadd(`GAME:SKILL:MAP:${map}`, expireAt, member);
+    this.redis.zadd(`GAME:SKILL:MAP:${map}`, expireAt, member);
 
     this.server.to(`MAP:${map}`).emit('useSkill', {
       userId,
@@ -369,8 +369,8 @@ export class WsGateway {
 
     if (!body.skillId) return;
 
-    await this.redis.del(`GAME:SKILL:${map}:${userId}:${body.skillId}`);
-    await this.redis.zrem(`GAME:SKILL:MAP:${map}`, `${userId}:${body.skillId}`);
+    this.redis.del(`GAME:SKILL:${map}:${userId}:${body.skillId}`);
+    this.redis.zrem(`GAME:SKILL:MAP:${map}`, `${userId}:${body.skillId}`);
 
     this.server.to(`MAP:${map}`).emit('cancelSkill', {
       userId,
