@@ -172,6 +172,7 @@ message GetProfileReponse {
   string role = 1;
   bool biBan = 2;
   string avatarUrl = 3;
+  string username = 4;
 }
 
 message SendEmailToUserRequest {

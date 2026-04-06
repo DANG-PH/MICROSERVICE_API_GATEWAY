@@ -146,6 +146,7 @@ export interface GetProfileReponse {
   role: string;
   biBan: boolean;
   avatarUrl: string;
+  username: string;
 }
 
 export interface SendEmailToUserRequest {

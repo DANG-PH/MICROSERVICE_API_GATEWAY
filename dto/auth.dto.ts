@@ -294,6 +294,11 @@ export class GetProfileReponseDto {
   @IsString()
   @IsNotEmpty()
   avatarUrl: string;
+
+  @ApiProperty({ example: 'dang123', description: 'Tên đăng nhập' })
+  @IsString()
+  @IsNotEmpty({ message: 'Username không được để trống' })
+  username: string;
 }
 
 export class SendEmailToUserRequestDto {
