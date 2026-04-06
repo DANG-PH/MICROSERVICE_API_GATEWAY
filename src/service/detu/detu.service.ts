@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
+import Redis from 'ioredis';
 import {
     SaveGameDeTuRequest,
     SaveGameDeTuResponse,
@@ -17,16 +18,26 @@ import { grpcCall } from 'src/helpers/grpc.helper';
 export class DeTuService {
   private readonly logger = new Logger(DeTuService.name);
   private deTuGrpcService: DeTuServiceClient;
+  private redis: Redis;
 
   constructor(
     @Inject(DETU_PACKAGE_NAME) private readonly client: ClientGrpc,
-  ) {}
+  ) {
+    this.redis = new Redis(process.env.REDIS_URL || '')
+  }
 
   onModuleInit() {
     this.deTuGrpcService = this.client.getService<DeTuServiceClient>(DE_TU_SERVICE_NAME);
   }
 
   async handleSaveDeTu(req: SaveGameDeTuRequest): Promise<SaveGameDeTuResponse> {
+    // Client gọi mỗi 20s — nhưng vẫn check dirty
+    // vì player không có action -> đệ k tăng gì cả (sức mạnh...) nên k save
+    // Sau thêm event nếu mặc đồ cho đệ, tăng sm đệ thì set là dirty
+    const isDirty = await this.redis.exists(`dirty:${req.userId}`);
+    if (!isDirty) {
+      return;
+    }
     return grpcCall(DeTuService.name,this.deTuGrpcService.saveGameDeTu(req));
   }
 

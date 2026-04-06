@@ -62,7 +62,6 @@ export class UserService {
     // vì player có thể idle, không move gì cả -> khỏi write DB thừa
     const isDirty = await this.redis.exists(`dirty:${req.user.auth_id}`);
     if (!isDirty) {
-      console.log("Player không action, không save DB")
       return;
     }
     return grpcCall(UserService.name,this.userGrpcService.saveGame(req));

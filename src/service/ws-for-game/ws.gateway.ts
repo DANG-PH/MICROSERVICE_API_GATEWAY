@@ -260,6 +260,7 @@ export class WsGateway {
     // player-move → SET dirty:{userId} EX 60
     // batch save (20s) → check flag → write → DEL flag
     // Lợi: giảm DB write 60-90% khi player idle
+    // Sau này có thể viết 1 event socket để set dirty để client action hành đồng thì dirty luôn
     const { userId } = client.data.user;
 
     // TTL 600s (10 phút) — cân bằng giữa 2 yếu tố:
