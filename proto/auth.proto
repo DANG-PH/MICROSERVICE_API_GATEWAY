@@ -10,6 +10,7 @@ service AuthService {
   rpc VerifyOTP (VerifyOtpRequest) returns (VerifyOtpResponse) {};
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
   rpc GetTokenVersion(GetTokenVersionRequest) returns (GetTokenVersionResponse);
+  rpc GetBan(GetBanRequest) returns (GetBanResponse);
 
   rpc ChangePassword (ChangePasswordRequest) returns (ChangePasswordResponse) {};
   rpc ResetPassword (ResetPasswordRequest) returns (ResetPasswordResponse) {};
@@ -236,4 +237,12 @@ message GetTokenVersionRequest {
 
 message GetTokenVersionResponse {
   int32 tokenVersion = 1;
+}
+
+message GetBanRequest {
+  int32 userId = 1;
+}
+
+message GetBanResponse {
+  bool success = 1;
 }

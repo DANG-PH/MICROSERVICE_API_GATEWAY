@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth, ApiParam } from '@nestjs/swagger';
 import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,ChangePasswordRequestDto,
   ChangePasswordResponseDto,
   ResetPasswordRequestDto,
@@ -11,7 +11,8 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   ChangeRolePartnerResponseDto,
   ChangeAvatarRequestDto,
   ChangeAvatarResponseDto,
-  LoginWithGoogleRequestDto} from 'dto/auth.dto';
+  LoginWithGoogleRequestDto,
+  BanUserRequestDto} from 'dto/auth.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { Roles } from 'src/security/decorators/role.decorator';
@@ -131,6 +132,15 @@ export class AuthController {
     metadata.set('platform', platform);
 
     return this.authService.handleRefresh(body, metadata);
+  }
+
+  @Get('ban')
+  @ApiOperation({ summary: 'Làm mới Access Token bằng Refresh Token (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  async getBan(@Req() req: any) {
+    const userId = req.user.userId;
+    return this.authService.handleGetBan({
+      userId: userId
+    });
   }
 
   @Patch('change-password')

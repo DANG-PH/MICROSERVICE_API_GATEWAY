@@ -22,7 +22,8 @@ import {
   GetAllUserRequest,
   GetRealnameAvatarRequest,
   LoginWithGoogleRequest,
-  GetTokenVersionRequest
+  GetTokenVersionRequest,
+  GetBanRequest
 } from 'proto/auth.pb';
 import { grpcCall } from 'src/helpers/grpc.helper';
 // import { winstonLogger } from 'src/logger/logger.config'; 
@@ -121,5 +122,9 @@ export class AuthService {
 
   async handleGetTokenVersion(req: GetTokenVersionRequest) {
     return grpcCall(AuthService.name,this.authGrpcService.getTokenVersion(req), true);
+  }
+
+  async handleGetBan(req: GetBanRequest) {
+    return grpcCall(AuthService.name,this.authGrpcService.getBan(req), true);
   }
 }

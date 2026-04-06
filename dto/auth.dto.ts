@@ -356,3 +356,13 @@ export class LoginWithGoogleResponseDto {
   @ApiProperty({ example: true })
   register: boolean;
 }
+
+export class GetBanRequestDto {
+
+}
+
+export class GetBanResponseDto {
+  @ApiProperty({ example: true, description: 'Trạng thái bị ban hay không' })
+  success: boolean;
+  // success là bị ban
+}

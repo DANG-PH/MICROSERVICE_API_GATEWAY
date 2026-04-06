@@ -214,6 +214,14 @@ export interface GetTokenVersionResponse {
   tokenVersion: number;
 }
 
+export interface GetBanRequest {
+  userId: number;
+}
+
+export interface GetBanResponse {
+  success: boolean;
+}
+
 export const AUTH_PACKAGE_NAME = "auth";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -230,6 +238,8 @@ export interface AuthServiceClient {
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
 
   getTokenVersion(request: GetTokenVersionRequest, metadata?: Metadata): Observable<GetTokenVersionResponse>;
+
+  getBan(request: GetBanRequest, metadata?: Metadata): Observable<GetBanResponse>;
 
   changePassword(request: ChangePasswordRequest, metadata?: Metadata): Observable<ChangePasswordResponse>;
 
@@ -288,6 +298,8 @@ export interface AuthServiceController {
 
   getTokenVersion(request: GetTokenVersionRequest, metadata?: Metadata): Observable<GetTokenVersionResponse>;
 
+  getBan(request: GetBanRequest, metadata?: Metadata): Observable<GetBanResponse>;
+
   changePassword(request: ChangePasswordRequest, metadata?: Metadata): Observable<ChangePasswordResponse>;
 
   resetPassword(request: ResetPasswordRequest, metadata?: Metadata): Observable<ResetPasswordResponse>;
@@ -338,6 +350,7 @@ export function AuthServiceControllerMethods() {
       "verifyOtp",
       "refresh",
       "getTokenVersion",
+      "getBan",
       "changePassword",
       "resetPassword",
       "requestResetPassword",
