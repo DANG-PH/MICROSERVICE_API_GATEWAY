@@ -256,7 +256,27 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { x: number, y: number, trangthai: string, dir: number, dau: string, than: string, chan: string, timeChoHienBay: Double, lechDauX: Double, lechDauY: Double, lechThanX: Double, lechThanY: Double, lechChanX: Double, lechChanY: Double, frameVanBay: number, dangMangVanBay: string, tenVanBay: string, rong: Double, cao: Double, avatar: string },
     ) {
+    // Dirty flag pattern: chỉ write DB khi có thay đổi thực sự
+    // player-move → SET dirty:{userId} EX 60
+    // batch save (20s) → check flag → write → DEL flag
+    // Lợi: giảm DB write 60-90% khi player idle
     const { userId } = client.data.user;
+
+    // TTL 600s (10 phút) — cân bằng giữa 2 yếu tố:
+    //
+    // 1. DATA DURABILITY (tính đúng đắn dữ liệu):
+    //    - Batch save chạy mỗi 20s → trong 600s có 30 lần cơ hội flush
+    //    - Nếu server crash, flag vẫn sống đủ lâu để instance mới kịp recover & save
+    //    - TTL quá ngắn (vd: 60s) → flag expire trước khi save → mất data
+    //
+    // 2. MEMORY RECLAMATION (thu hồi bộ nhớ Redis):
+    //    - Nếu batch save crash giữa chừng (sau write DB nhưng trước DEL),
+    //      flag sẽ tự dọn sau 10p thay vì stuck vĩnh viễn → tránh Redis key leak
+    //    - No TTL hoàn toàn: flag zombie tích tụ theo thời gian nếu DEL bị miss
+    //
+    // Kết luận: 600s = 30x safety margin so với batch interval (20s),
+    // đủ dài để đảm bảo data, đủ ngắn để Redis tự dọn rác.
+    await this.redis.set(`dirty:${userId}`, Date.now(), 'EX', 600, 'NX');
 
     const map = client.data.map;
 

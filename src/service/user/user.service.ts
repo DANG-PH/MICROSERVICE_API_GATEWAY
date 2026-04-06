@@ -30,16 +30,20 @@ import {
 import { grpcCall } from 'src/helpers/grpc.helper';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LoaiNapTien } from 'src/enums/nap.enum';
+import Redis from 'ioredis';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   private userGrpcService: UserServiceClient;
+  private redis: Redis
 
   constructor(
     @Inject(USER_PACKAGE_NAME) private readonly client: ClientGrpc,
     private eventEmitter: EventEmitter2
-  ) {}
+  ) {
+    this.redis = new Redis(process.env.REDIS_URL || '')
+  }
 
   onModuleInit() {
     this.userGrpcService = this.client.getService<UserServiceClient>(USER_SERVICE_NAME);
@@ -53,7 +57,14 @@ export class UserService {
     return grpcCall(UserService.name,this.userGrpcService.getProfile(req));
   }
 
-  async handleSaveGame(req: SaveGameRequest) {
+  async handleSaveGame(req: SaveGameRequest): Promise<SaveGameResponse> {
+    // Client gọi mỗi 20s — nhưng vẫn check dirty
+    // vì player có thể idle, không move gì cả -> khỏi write DB thừa
+    const isDirty = await this.redis.exists(`dirty:${req.user.auth_id}`);
+    if (!isDirty) {
+      console.log("Player không action, không save DB")
+      return;
+    }
     return grpcCall(UserService.name,this.userGrpcService.saveGame(req));
   }
 
