@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards,Query,Req } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards,Query,Req, Res } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
@@ -19,8 +19,12 @@ import {
   GetAllAccountByBuyerResponse,
   ListAccountSellRequestDto,
   PaginationRequestDto,
-  PaginationByPartnerRequestDto
+  PaginationByPartnerRequestDto,
+  CreateAccountSellResponseDto,
+  ConfirmAccountSellRequestDto,
+  ConfirmAccountSellResponseDto
 } from 'dto/partner.dto';
+import type { Response as ResExpress } from 'express';
 
 @Controller('partner')
 @ApiTags('Api Partner')
@@ -33,7 +37,7 @@ export class PartnerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Partner/Admin đăng acc cần bán vào kho acc của hệ thống (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: CreateAccountSellRequestDto })
-  async createAccountSell(@Body() body: CreateAccountSellRequestDto, @Req() req: any): Promise<AccountResponseDto> {
+  async createAccountSell(@Body() body: CreateAccountSellRequestDto, @Req() req: any): Promise<CreateAccountSellResponseDto> {
     const userId = req.user.userId;
     const username = req.user.username;
     const request = {
@@ -42,6 +46,21 @@ export class PartnerController {
       partner_username: username
     }
     return this.partnerService.handleCreateAccountSell(request);
+  }
+
+  @Get('confirm-sell')
+  @ApiOperation({ summary: 'Confirm đăng bán account qua email link' })
+  async confirmSell(
+    @Query('token') token: string,
+    @Res() res: ResExpress
+  ) {
+    try {
+      await this.partnerService.handleConfirmSell({ token });
+
+      return res.send(this.renderHtml(true, 'Tài khoản của bạn đã được đăng bán.'));
+    } catch (err: any) {
+      return res.send(this.renderHtml(false, err.message || 'Link không hợp lệ hoặc đã hết hạn'));
+    }
   }
 
   @Patch('update-account-sell')
@@ -145,5 +164,60 @@ export class PartnerController {
       buyer_id: userId
     }
     return this.partnerService.handleGetAllAccountBuyer(request);
+  }
+
+  public renderHtml(success: boolean, message: string) {
+    return `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+        <meta charset="UTF-8">
+        <title>Xác nhận</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            background: #f6f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .card {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+          }
+          .success { color: #16a34a; }
+          .error { color: #dc2626; }
+          .btn {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            background: #2563eb;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h2 class="${success ? 'success' : 'error'}">
+            ${success ? '✔ Xác nhận thành công' : '✖ Xác nhận thất bại'}
+          </h2>
+          <p>
+            ${message}
+          </p>
+          <a class="btn" href="https://ngocrongdark.com">
+            Quay về trang chủ
+          </a>
+        </div>
+      </body>
+      </html>
+      `
   }
 }

@@ -72,6 +72,23 @@ export class CreateAccountSellRequestDto {
   // partner_id: number;
 }
 
+export class CreateAccountSellResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
+export class ConfirmAccountSellRequestDto {
+  @ApiProperty({ example: 'token gui cho user B', description: 'Token gửi cho user B khi user A đăng bán acc user B' })
+  @IsString()
+  @IsNotEmpty()
+  token: string;
+}
+
+export class ConfirmAccountSellResponseDto {
+  @ApiProperty({ example: true })
+  success: boolean;
+}
+
 // ===== UPDATE REQUEST =====
 export class UpdateAccountSellRequestDto {
   @ApiProperty({ example: 1 })

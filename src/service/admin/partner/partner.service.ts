@@ -11,7 +11,9 @@ import {
   PartnerServiceClient,
   BuyAccountRequest,
   GetAllAccountByBuyerRequest,
-  ListAccountSellRequest
+  ListAccountSellRequest,
+  CreateAccountSellResponse,
+  ConfirmAccountSellRequest
 } from '../../../../proto/admin.pb';
 import { grpcCall } from 'src/helpers/grpc.helper';
 import { ADMIN_PACKAGE_NAME, PARTNER_SERVICE_NAME } from '../../../../proto/admin.pb';
@@ -30,7 +32,7 @@ export class PartnerService {
   }
 
   /* Partner đăng acc bán */
-  async handleCreateAccountSell(req: CreateAccountSellRequest) {
+  async handleCreateAccountSell(req: CreateAccountSellRequest): Promise<CreateAccountSellResponse> {
     return grpcCall(PartnerService.name, this.partnerGrpcService.createAccountSell(req));
   }
 
@@ -72,5 +74,9 @@ export class PartnerService {
   /* User xem thông tin acc mình đã mua */
   async handleGetAllAccountBuyer(req: GetAllAccountByBuyerRequest) {
     return grpcCall(PartnerService.name, this.partnerGrpcService.getAllAccountByBuyer(req));
+  }
+
+  async handleConfirmSell(req: ConfirmAccountSellRequest) {
+    return grpcCall(PartnerService.name, this.partnerGrpcService.confirmAccountSell(req));
   }
 }

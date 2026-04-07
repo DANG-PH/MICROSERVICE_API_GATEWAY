@@ -66,6 +66,15 @@ export interface ChangePasswordResponse {
   success: boolean;
 }
 
+export interface SystemChangePasswordRequest {
+  sessionId: string;
+  newPassword: string;
+}
+
+export interface SystemChangePasswordResponse {
+  success: boolean;
+}
+
 export interface ResetPasswordRequest {
   username: string;
   otp: string;
@@ -282,6 +291,13 @@ export interface AuthServiceClient {
   /** Login google */
 
   loginWithGoogle(request: LoginWithGoogleRequest, metadata?: Metadata): Observable<LoginWithGoogleResponse>;
+
+  /** System (api cho hệ thống) */
+
+  systemChangePassword(
+    request: SystemChangePasswordRequest,
+    metadata?: Metadata,
+  ): Observable<SystemChangePasswordResponse>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -341,6 +357,13 @@ export interface AuthServiceController {
   /** Login google */
 
   loginWithGoogle(request: LoginWithGoogleRequest, metadata?: Metadata): Observable<LoginWithGoogleResponse>;
+
+  /** System (api cho hệ thống) */
+
+  systemChangePassword(
+    request: SystemChangePasswordRequest,
+    metadata?: Metadata,
+  ): Observable<SystemChangePasswordResponse>;
 }
 
 export function AuthServiceControllerMethods() {
@@ -368,6 +391,7 @@ export function AuthServiceControllerMethods() {
       "sendEmailToUser",
       "checkAccount",
       "loginWithGoogle",
+      "systemChangePassword",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);

@@ -34,6 +34,9 @@ service AuthService {
 
   // Login google
   rpc LoginWithGoogle (LoginWithGoogleRequest) returns (LoginWithGoogleResponse) {};
+
+  // System (api cho hệ thống)
+  rpc SystemChangePassword (SystemChangePasswordRequest) returns (SystemChangePasswordResponse) {};
 }
 
 // ===== MESSAGES =====
@@ -90,6 +93,15 @@ message ChangePasswordRequest {
 }
 
 message ChangePasswordResponse {
+  bool success = 1;
+}
+
+message SystemChangePasswordRequest {
+  string sessionId = 1;
+  string newPassword = 3;
+}
+
+message SystemChangePasswordResponse {
   bool success = 1;
 }
 

@@ -140,7 +140,10 @@ message ListWithdrawResponse {
 // ===== SERVICE DEFINITION =====
 service PartnerService {
   // Partner đăng acc bán
-  rpc CreateAccountSell (CreateAccountSellRequest) returns (AccountSellResponse);
+  rpc CreateAccountSell (CreateAccountSellRequest) returns (CreateAccountSellResponse);
+
+  // Confirm bán acc
+  rpc ConfirmAccountSell (ConfirmAccountSellRequest) returns (ConfirmAccountSellResponse);
 
   // Partner cập nhật thông tin acc
   rpc UpdateAccountSell (UpdateAccountSellRequest) returns (AccountSellResponse);
@@ -189,6 +192,18 @@ message CreateAccountSellRequest {
   double price = 5;
   int32 partner_id = 6;
   string partner_username = 7;
+}
+
+message CreateAccountSellResponse {
+  bool success = 1;
+}
+
+message ConfirmAccountSellRequest {
+  string token = 1;
+}
+
+message ConfirmAccountSellResponse {
+  bool success = 1;
 }
 
 message UpdateAccountSellRequest {
