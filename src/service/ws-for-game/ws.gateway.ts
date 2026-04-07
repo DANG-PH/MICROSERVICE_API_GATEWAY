@@ -254,12 +254,14 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { x: number, y: number, trangthai: string, dir: number, dau: string, than: string, chan: string, timeChoHienBay: Double, lechDauX: Double, lechDauY: Double, lechThanX: Double, lechThanY: Double, lechChanX: Double, lechChanY: Double, frameVanBay: number, dangMangVanBay: string, tenVanBay: string, rong: Double, cao: Double, avatar: string },
     ) {
+    const map = client.data.map;
+    const { userId } = client.data.user;
+
     // Dirty flag pattern: chỉ write DB khi có thay đổi thực sự
     // player-move → SET dirty:{userId} EX 60
     // batch save (20s) → check flag → write → DEL flag
     // Lợi: giảm DB write 60-90% khi player idle
     // Sau này có thể viết 1 event socket để set dirty để client action hành đồng thì dirty luôn
-    const { userId } = client.data.user;
 
     // TTL 600s (10 phút) — cân bằng giữa 2 yếu tố:
     //
@@ -275,32 +277,32 @@ export class WsGateway {
     //
     // Kết luận: 600s = 30x safety margin so với batch interval (20s),
     // đủ dài để đảm bảo data, đủ ngắn để Redis tự dọn rác.
-    this.redis.set(`dirty:${userId}`, Date.now(), 'EX', 600, 'NX');
 
-    const map = client.data.map;
-
-    this.redis.hset(`GAME:PLAYER:${userId}`, {
-      x: body.x,
-      y: body.y,
-      trangthai: body.trangthai,
-      dir: body.dir,
-      dau: body.dau,
-      than: body.than,
-      chan: body.chan,
-      timeChoHienBay: body.timeChoHienBay,
-      lechDauX: body.lechDauX,
-      lechDauY: body.lechDauY,
-      lechThanX: body.lechThanX,
-      lechThanY: body.lechThanY,
-      lechChanX: body.lechChanX,
-      lechChanY: body.lechChanY,
-      frameVanBay: body.frameVanBay,
-      dangMangVanBay: body.dangMangVanBay,
-      tenVanBay: body.tenVanBay,
-      rong: body.rong,
-      cao: body.cao,
-      avatar: body.avatar,
-    });
+    this.redis.pipeline()
+      .set(`dirty:${userId}`, Date.now(), 'EX', 600, 'NX')
+      .hset(`GAME:PLAYER:${userId}`, {
+        x: body.x,
+        y: body.y,
+        trangthai: body.trangthai,
+        dir: body.dir,
+        dau: body.dau,
+        than: body.than,
+        chan: body.chan,
+        timeChoHienBay: body.timeChoHienBay,
+        lechDauX: body.lechDauX,
+        lechDauY: body.lechDauY,
+        lechThanX: body.lechThanX,
+        lechThanY: body.lechThanY,
+        lechChanX: body.lechChanX,
+        lechChanY: body.lechChanY,
+        frameVanBay: body.frameVanBay,
+        dangMangVanBay: body.dangMangVanBay,
+        tenVanBay: body.tenVanBay,
+        rong: body.rong,
+        cao: body.cao,
+        avatar: body.avatar,
+      })
+      .exec();
 
     this.server.to(`MAP:${map}`).emit('playerSync', {
       userId,
@@ -343,13 +345,14 @@ export class WsGateway {
     const expireAt = Date.now() + body.timeSkill * 1000;
     const member = `${userId}:${body.skillId}`;
 
-    this.redis.set(
-      `GAME:SKILL:${map}:${userId}:${body.skillId}`,
-      JSON.stringify({ userId, skillId: body.skillId, startedAt: Date.now() }),
-      'EX', body.timeSkill
-    );
-
-    this.redis.zadd(`GAME:SKILL:MAP:${map}`, expireAt, member);
+    this.redis.pipeline()
+      .set(
+        `GAME:SKILL:${map}:${userId}:${body.skillId}`,
+        JSON.stringify({ userId, skillId: body.skillId, startedAt: Date.now() }),
+        'EX', body.timeSkill
+      )
+      .zadd(`GAME:SKILL:MAP:${map}`, expireAt, member)
+      .exec();
 
     this.server.to(`MAP:${map}`).emit('useSkill', {
       userId,
@@ -367,8 +370,10 @@ export class WsGateway {
 
     if (!body.skillId) return;
 
-    this.redis.del(`GAME:SKILL:${map}:${userId}:${body.skillId}`);
-    this.redis.zrem(`GAME:SKILL:MAP:${map}`, `${userId}:${body.skillId}`);
+    this.redis.pipeline()
+      .del(`GAME:SKILL:${map}:${userId}:${body.skillId}`)
+      .zrem(`GAME:SKILL:MAP:${map}`, `${userId}:${body.skillId}`)
+      .exec();
 
     this.server.to(`MAP:${map}`).emit('cancelSkill', {
       userId,
@@ -932,14 +937,18 @@ export class WsGateway {
     const members = await this.redis.zrangebyscore(`GAME:SKILL:MAP:${map}`, now, '+inf');
     if (!members.length) return;
 
-    // Dùng await Promise để tránh emit cho client mảng Promise vì chưa resolve
-    const skills = await Promise.all(
-      members.map(async (member) => {
-        const [userId, skillId] = member.split(':');
-        const raw = await this.redis.get(`GAME:SKILL:${map}:${userId}:${skillId}`);
-        return JSON.parse(raw!);
-      })
-    ); //concurrent async execution, chạy N Promise cùng lúc, letency xN lần
+    const pipeline = this.redis.pipeline();
+    members.forEach(member => {
+      const [userId, skillId] = member.split(':');
+      pipeline.get(`GAME:SKILL:${map}:${userId}:${skillId}`);
+    });
+
+    const results = await pipeline.exec();
+    if (!results) return;
+
+    const skills = results
+      .map(([err, raw]) => (!err && raw ? JSON.parse(raw as string) : null))
+      .filter(Boolean);
 
     client.emit('syncSkills', skills);
   }
