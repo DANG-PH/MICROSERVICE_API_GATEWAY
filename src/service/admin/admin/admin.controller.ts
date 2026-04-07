@@ -70,7 +70,7 @@ export class AdminController {
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
     const result = await this.authService.handleBanUser(body);
     if (result.success) {
-      this.eventEmitter.emit('auth.kick_socket', result.userId);
+      this.eventEmitter.emit('auth.revoke_all_token', result.userId);
     } 
     return result;
   }

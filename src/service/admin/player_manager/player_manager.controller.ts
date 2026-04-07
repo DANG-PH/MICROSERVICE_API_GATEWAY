@@ -182,7 +182,7 @@ export class PlayerManagerController {
     }
 
     const currentBan = await this.cacheManager.get(`temporary-ban:${userId}`);
-    this.eventEmitter.emit('auth.kick_socket', userId);
+    this.eventEmitter.emit('auth.revoke_all_token', userId);
     
     if (currentBan) {
       await this.cacheManager.set(`temporary-ban:${userId}`, banData, phut * 60 * 1000);
