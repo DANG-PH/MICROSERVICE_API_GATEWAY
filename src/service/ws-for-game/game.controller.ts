@@ -25,16 +25,13 @@ const PLAY_SCRIPT = `
 @Controller('game')
 @ApiTags('Api Game')
 export class GameController {
-  private readonly redis: Redis;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly wsGateway: WsGateway,
-    private eventEmitter: EventEmitter2
-    
-  ) {
-    this.redis = new Redis(process.env.REDIS_URL || '');
-  }
+    private eventEmitter: EventEmitter2,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
 
   @Post('play')
   @ApiBearerAuth()

@@ -33,7 +33,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 @ApiTags('Api Player Manager') 
 export class PlayerManagerController {
   private redlock: Redlock;
-  private redis: Redis;
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private authService: AuthService,
@@ -43,9 +42,9 @@ export class PlayerManagerController {
     private payService: PayService,
     private financeService: FinanceService,
     private playerManagerService: PlayerManagerService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
     this.redlock = new Redlock([this.redis], { retryCount: 0 }); // 1 node redis
   }
 

@@ -4,6 +4,7 @@ import { redisStore } from 'cache-manager-ioredis-yet';
 import KeyvRedis from '@keyv/redis';
 import { Keyv } from 'keyv';
 import { CacheableMemory } from 'cacheable';
+import Redis from 'ioredis';
 
 
 @Global()
@@ -24,7 +25,11 @@ import { CacheableMemory } from 'cacheable';
       },
     }),
   ],
-  exports: [CacheModule],
+  providers: [{
+    provide: 'REDIS_CLIENT',
+    useFactory: () => new Redis(process.env.REDIS_URL || ''),
+  }],
+  exports: [CacheModule, 'REDIS_CLIENT'],
 })
 export class RedisModule {}
 

@@ -32,7 +32,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 export class WsGateway {
   @WebSocketServer()
   server: Server;
-  private redis: Redis;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -40,9 +39,8 @@ export class WsGateway {
     private readonly userService: UserService,
     private readonly itemService: ItemService,
     @Inject(String(process.env.RABBIT_SERVICE)) private readonly queueClient: ClientProxy,
-  ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
-  }
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
 
   async handleConnection(client: Socket) {
     try {
@@ -903,7 +901,8 @@ export class WsGateway {
   async handleRevokeAllToken(userId: number) {
     await this.kickSocket(userId);
     await this.redis.del(`user:${userId}:gameSession`); // xóa session 
-    // Case này cần xóa session cho clean redis thôi ( và tránh tình trạng data ảo )
+    // Sau này cần implements case user giả tắt mạng 1-2s để lách event kick + handle kết nối lại thì viết thêm interceptor check xem có gameSession thật không, không có thì kick phát nữa
+    // Case này cần xóa session cho clean redis thôi ( và tránh tình trạng data ảo, hoặc user đăng nhập lại )
   }
 
   @OnEvent('auth.kick_socket')

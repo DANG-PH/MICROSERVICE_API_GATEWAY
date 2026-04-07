@@ -36,14 +36,12 @@ import Redis from 'ioredis';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
   private userGrpcService: UserServiceClient;
-  private redis: Redis
 
   constructor(
     @Inject(USER_PACKAGE_NAME) private readonly client: ClientGrpc,
-    private eventEmitter: EventEmitter2
-  ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
-  }
+    private eventEmitter: EventEmitter2,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
 
   onModuleInit() {
     this.userGrpcService = this.client.getService<UserServiceClient>(USER_SERVICE_NAME);

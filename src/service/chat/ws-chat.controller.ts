@@ -12,12 +12,11 @@ import { AddUserToGroupRequestDto, AddUserToGroupResponseDto, CreateGroupRequest
 @Controller('chat')
 @ApiTags('Api Chat') 
 export class ChatController {
-  private redis: Redis;
   constructor(
     private readonly socialService: SocialNetworkService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
   }
 
   @Post('1-1')

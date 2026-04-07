@@ -18,13 +18,11 @@ import { grpcCall } from 'src/helpers/grpc.helper';
 export class DeTuService {
   private readonly logger = new Logger(DeTuService.name);
   private deTuGrpcService: DeTuServiceClient;
-  private redis: Redis;
 
   constructor(
     @Inject(DETU_PACKAGE_NAME) private readonly client: ClientGrpc,
-  ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
-  }
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {}
 
   onModuleInit() {
     this.deTuGrpcService = this.client.getService<DeTuServiceClient>(DE_TU_SERVICE_NAME);

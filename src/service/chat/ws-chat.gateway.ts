@@ -23,15 +23,14 @@ import { AuthService } from '../auth/auth.service';
 export class WsChatGateway {
   @WebSocketServer()
   server: Server;
-  private redis: Redis;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly jwtService: JwtService,
     private readonly socialService: SocialNetworkService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
-    this.redis = new Redis(process.env.REDIS_URL || '')
   }
 
   async handleConnection(client: Socket) {
