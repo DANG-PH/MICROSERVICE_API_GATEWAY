@@ -81,22 +81,6 @@ export class PayController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Lấy thông tin chuyển khoản ( mã QR ) (ALL)(WEB) (ĐÃ DÙNG)' })
   async getQr(@Query() query: CreatePayOrderRequestDto, @Req() req: RequestWithUser): Promise<QrResponseDto> {
-    const key = `qr_rate_limit_user_${req.user.userId}`;
-    const limit = 1;  // 1 lần
-    const ttl = 60;   // trong 60 giây
-
-    let count = (await this.cacheManager.get<number>(key)) || 0;
-    count++;
-
-    if (count > limit) {
-      throw new HttpException(
-        'Bạn đang gửi yêu cầu nạp tiền, vui lòng thử lại sau 1 phút.',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
-
-    await this.cacheManager.set(key, count, ttl * 1000);
-
     const userId = req.user.userId;
     const username = req.user.username;
     const request = {

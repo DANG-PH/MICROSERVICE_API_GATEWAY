@@ -1,20 +1,26 @@
-import { Injectable, NestMiddleware, HttpException, HttpStatus } from '@nestjs/common';
-import type { Cache } from 'cache-manager';
+import {
+  Injectable,
+  NestMiddleware,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import Redis from 'ioredis';
 
 @Injectable()
 export class RateLimitMiddleware implements NestMiddleware {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private jwtService: JwtService, 
+    private jwtService: JwtService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
-
     let identifier: string | null = null;
 
     if (authHeader) {
@@ -38,23 +44,55 @@ export class RateLimitMiddleware implements NestMiddleware {
       return next();
     }
 
-    const key = `rate_limit:${identifier}`;
-    const limit = 100;
-    const ttl = 60;
+    await this.checkRateLimit(identifier);
+    next();
+  }
 
-    let count = (await this.cacheManager.get<number>(key)) || 0;
-    count++;
+  private async checkRateLimit(identifier: string): Promise<void> {
+    const WINDOW_SIZE = 60;  // seconds
+    const LIMIT = 100;       // max requests per window
 
-    if (count > limit) {
+    const now = Math.floor(Date.now() / 1000); // lấy ra giây
+    const currentWindow = Math.floor(now / WINDOW_SIZE); // lấy ra phút
+    const prevWindow = currentWindow - 1; // prev 1 phút trước
+
+    const currentKey = `rl:swc:${identifier}:${currentWindow}`;
+    const prevKey    = `rl:swc:${identifier}:${prevWindow}`;
+
+    // Đọc song song 2 counters, không block nhau
+    const [prevCountStr, currentCountStr] = await Promise.all([
+      this.redis.get(prevKey),
+      this.redis.get(currentKey),
+    ]);
+
+    const prevCount    = parseInt(prevCountStr    || '0', 10); // Hệ thập phân 
+    const currentCount = parseInt(currentCountStr || '0', 10);
+
+    // Tính trọng số: bao nhiêu % của window trước còn nằm trong 60s gần nhất
+    const elapsedInCurrentWindow = now % WINDOW_SIZE; // lấy ra số giây còn thừa 
+    const prevWeight = 1 - elapsedInCurrentWindow / WINDOW_SIZE;
+    // Công thức: count req = count trong window hiện tại + số count window cũ * mức độ ảnh hưởng 
+    // Mức độ ảnh hưởng count của window cũ sẽ giảm theo thời gian khi thời gian của window mới sắp hết
+    // Tức là sao: khi mới qua window mới, thì mức độ ảnh hưởng window cũ xấp xỉ 1 còn khi sắp chuẩn bị qua giai đoạn window kế tiếp mức độ ảnh hưởng win cũ gần như bằng 0
+    // Sliding window mượt mà, gần giống nội suy tuyến tính count_mới + count_cũ * (1-t) 
+    const estimate   = currentCount + prevCount * prevWeight;
+
+    if (estimate >= LIMIT) {
       throw new HttpException(
-        'Too many requests',
+        {
+          statusCode: HttpStatus.TOO_MANY_REQUESTS,
+          message: 'Too many requests. Please slow down.',
+          retryAfter: WINDOW_SIZE - elapsedInCurrentWindow,
+        },
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
-    await this.cacheManager.set(key, count, ttl * 1000);
-
-    next();
+    // Tăng counter hiện tại (atomic INCR) + set TTL
+    const pipeline = this.redis.pipeline();
+    pipeline.incr(currentKey);
+    pipeline.expire(currentKey, WINDOW_SIZE * 2); // *2 để key không expire giữa chừng
+    await pipeline.exec();
   }
 }
 
