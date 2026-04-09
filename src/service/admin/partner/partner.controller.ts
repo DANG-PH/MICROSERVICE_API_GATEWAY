@@ -22,7 +22,8 @@ import {
   PaginationByPartnerRequestDto,
   CreateAccountSellResponseDto,
   ConfirmAccountSellRequestDto,
-  ConfirmAccountSellResponseDto
+  ConfirmAccountSellResponseDto,
+  BuyAccountResponseDto
 } from 'dto/partner.dto';
 import type { Response as ResExpress } from 'express';
 import { ERROR_PAGE, SUCCESS_PAGE } from 'src/template/confirmSell.template';
@@ -143,7 +144,7 @@ export class PartnerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'User mua account trong kho tài khoản của hệ thống (USER)(WEB) (ĐÃ DÙNG)' })
   @ApiBody({ type: BuyAccountRequestDto })
-  async buyAccount(@Body() body: BuyAccountRequestDto, @Req() req: any): Promise<AccountInformationResponseDto> {
+  async buyAccount(@Body() body: BuyAccountRequestDto, @Req() req: any): Promise<BuyAccountResponseDto> {
     const userId = req.user.userId;
     const username = req.user.username;
     const request = {

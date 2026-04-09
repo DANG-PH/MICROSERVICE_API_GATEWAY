@@ -164,7 +164,7 @@ service PartnerService {
   rpc MarkAccountAsSold (UpdateAccountStatusRequest) returns (AccountSellResponse);
 
   // Gọi method này khi user mua acc
-  rpc BuyAccount (BuyAccountRequest) returns (AccountInformationResponse);
+  rpc BuyAccount (BuyAccountRequest) returns (BuyAccountResponse);
 
   rpc GetAllAccountByBuyer (GetAllAccountByBuyerRequest) returns (GetAllAccountByBuyerResponse);
 }
@@ -235,6 +235,10 @@ message BuyAccountRequest {
   int32 id = 1;
   int32 user_id = 2;
   string username = 3;
+}
+
+message BuyAccountResponse {
+  string message = 1;
 }
 
 message GetAllAccountByBuyerRequest {

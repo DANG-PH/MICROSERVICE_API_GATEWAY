@@ -9,6 +9,7 @@ service AuthService {
   rpc Login (LoginRequest) returns (LoginResponse) {};
   rpc VerifyOTP (VerifyOtpRequest) returns (VerifyOtpResponse) {};
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  rpc SetTokenVersion(SetTokenVersionRequest) returns (SetTokenVersionResponse);
   rpc GetTokenVersion(GetTokenVersionRequest) returns (GetTokenVersionResponse);
   rpc GetBan(GetBanRequest) returns (GetBanResponse);
 
@@ -18,6 +19,7 @@ service AuthService {
   rpc ChangeEmail (ChangeEmailRequest) returns (ChangeEmailResponse) {};
   rpc ChangeRolePartner (ChangeRolePartnerRequest) returns (ChangeRolePartnerResponse) {};
   rpc GetEmailUser (GetEmailUserRequest) returns (GetEmailUserResponse) {};
+  rpc GetEmailUserByUsername (GetEmailUserByUsernameRequest) returns (GetEmailUserByUsernameResponse) {};
   rpc GetProfile (GetProfileRequest) returns (GetProfileReponse) {};
   rpc ChangeAvatar (ChangeAvatarRequest) returns (ChangeAvatarResponse) {};
   rpc GetRealnameAvatar (GetRealnameAvatarRequest) returns (GetRealnameAvatarResponse) {};
@@ -176,6 +178,14 @@ message GetEmailUserResponse {
   string email = 1;
 }
 
+message GetEmailUserByUsernameRequest {
+  string username = 1;
+}
+
+message GetEmailUserByUsernameResponse {
+  string email = 1;
+}
+
 message GetProfileRequest {
   int32 id = 1;
 }
@@ -250,6 +260,14 @@ message GetTokenVersionRequest {
 
 message GetTokenVersionResponse {
   int32 tokenVersion = 1;
+}
+
+message SetTokenVersionRequest {
+  string username = 1;
+}
+
+message SetTokenVersionResponse {
+  bool success = 1;
 }
 
 message GetBanRequest {

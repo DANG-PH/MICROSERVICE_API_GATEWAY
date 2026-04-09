@@ -175,6 +175,10 @@ export interface BuyAccountRequest {
   username: string;
 }
 
+export interface BuyAccountResponse {
+  message: string;
+}
+
 export interface GetAllAccountByBuyerRequest {
   buyer_id: number;
 }
@@ -395,7 +399,7 @@ export interface PartnerServiceClient {
 
   /** Gọi method này khi user mua acc */
 
-  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
+  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<BuyAccountResponse>;
 
   getAllAccountByBuyer(
     request: GetAllAccountByBuyerRequest,
@@ -440,7 +444,7 @@ export interface PartnerServiceController {
 
   /** Gọi method này khi user mua acc */
 
-  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<AccountInformationResponse>;
+  buyAccount(request: BuyAccountRequest, metadata?: Metadata): Observable<BuyAccountResponse>;
 
   getAllAccountByBuyer(
     request: GetAllAccountByBuyerRequest,

@@ -147,6 +147,14 @@ export interface GetEmailUserResponse {
   email: string;
 }
 
+export interface GetEmailUserByUsernameRequest {
+  username: string;
+}
+
+export interface GetEmailUserByUsernameResponse {
+  email: string;
+}
+
 export interface GetProfileRequest {
   id: number;
 }
@@ -224,6 +232,14 @@ export interface GetTokenVersionResponse {
   tokenVersion: number;
 }
 
+export interface SetTokenVersionRequest {
+  username: string;
+}
+
+export interface SetTokenVersionResponse {
+  success: boolean;
+}
+
 export interface GetBanRequest {
   userId: number;
 }
@@ -247,6 +263,8 @@ export interface AuthServiceClient {
 
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
 
+  setTokenVersion(request: SetTokenVersionRequest, metadata?: Metadata): Observable<SetTokenVersionResponse>;
+
   getTokenVersion(request: GetTokenVersionRequest, metadata?: Metadata): Observable<GetTokenVersionResponse>;
 
   getBan(request: GetBanRequest, metadata?: Metadata): Observable<GetBanResponse>;
@@ -265,6 +283,11 @@ export interface AuthServiceClient {
   changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
   getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
+
+  getEmailUserByUsername(
+    request: GetEmailUserByUsernameRequest,
+    metadata?: Metadata,
+  ): Observable<GetEmailUserByUsernameResponse>;
 
   getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
 
@@ -313,6 +336,8 @@ export interface AuthServiceController {
 
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
 
+  setTokenVersion(request: SetTokenVersionRequest, metadata?: Metadata): Observable<SetTokenVersionResponse>;
+
   getTokenVersion(request: GetTokenVersionRequest, metadata?: Metadata): Observable<GetTokenVersionResponse>;
 
   getBan(request: GetBanRequest, metadata?: Metadata): Observable<GetBanResponse>;
@@ -331,6 +356,11 @@ export interface AuthServiceController {
   changeRolePartner(request: ChangeRolePartnerRequest, metadata?: Metadata): Observable<ChangeRolePartnerResponse>;
 
   getEmailUser(request: GetEmailUserRequest, metadata?: Metadata): Observable<GetEmailUserResponse>;
+
+  getEmailUserByUsername(
+    request: GetEmailUserByUsernameRequest,
+    metadata?: Metadata,
+  ): Observable<GetEmailUserByUsernameResponse>;
 
   getProfile(request: GetProfileRequest, metadata?: Metadata): Observable<GetProfileReponse>;
 
@@ -373,6 +403,7 @@ export function AuthServiceControllerMethods() {
       "login",
       "verifyOtp",
       "refresh",
+      "setTokenVersion",
       "getTokenVersion",
       "getBan",
       "changePassword",
@@ -381,6 +412,7 @@ export function AuthServiceControllerMethods() {
       "changeEmail",
       "changeRolePartner",
       "getEmailUser",
+      "getEmailUserByUsername",
       "getProfile",
       "changeAvatar",
       "getRealnameAvatar",

@@ -258,3 +258,8 @@ export class ListAccountSellRequestDto {
   paginationRequest: PaginationRequestDto;
 }
 
+export class BuyAccountResponseDto {
+  @ApiProperty({ description: 'Message backend trả' })
+  message: string;
+}
+
