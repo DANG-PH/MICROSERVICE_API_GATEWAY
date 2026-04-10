@@ -221,11 +221,32 @@ export class UserController {
   }
 
   @Get('top10-vang')
-  @ApiOperation({ summary: 'Lấy top 10 user có vàng cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
-  async getTop10Vang(@Query() query: EmptyDto) {
-    const cache = await this.redis.get('leaderboard:top10:vang');
+  async getTop10Vang() {
+    const key = 'leaderboard:top10:vang';
+
+    const cache = await this.redis.get(key);
     if (cache) return JSON.parse(cache);
-    return this.userService.handleGetTop10Vang(query);
+
+    const lock = await this.redis.set(
+      'lock:leaderboard:vang',
+      '1',
+      'EX',
+      5,
+      'NX'
+    );
+
+    if (!lock) {
+      // có thằng khác đang build cache
+      await new Promise(r => setTimeout(r, 50));
+      const retry = await this.redis.get(key);
+      if (retry) return JSON.parse(retry);
+    }
+
+    const data = await this.userService.handleGetTop10Vang({});
+
+    await this.redis.set(key, JSON.stringify(data), 'EX', 35);
+
+    return data;
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS, {
