@@ -3,7 +3,7 @@
  * Target: GET /user/top10-vang
  * CV metric: "Sustained X RPS at p95 < Yms, error < Z%"
  *
- * Chạy: k6 run 01_top10_stress.js
+ * Chạy: k6 run stress.test.js
  * Note lại: max_rps_no_error, p95_at_stable_rps, error_spike_rps
  */
 import http from "k6/http";
