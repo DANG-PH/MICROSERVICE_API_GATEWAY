@@ -44,7 +44,7 @@ export class RateLimitMiddleware implements NestMiddleware {
       return next();
     }
 
-    await this.checkRateLimit(identifier);
+    // await this.checkRateLimit(identifier);
     next();
   }
 
