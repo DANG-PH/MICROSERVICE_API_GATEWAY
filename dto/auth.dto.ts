@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsString, MinLength, Length } from 'class-validator';
 import { IsEnum, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
-import { LoginWithGoogleRequest } from 'proto/auth.pb';
+import { LoginWithGoogleRequest, LogoutRequest, LogoutResponse } from 'proto/auth.pb';
 
 // ===== REGISTER =====
 export class RegisterRequest {
@@ -125,6 +125,21 @@ export class VerifyOtpResponseDto {
     description: 'Auth ID trả về để người dùng truy cập được API bên user'
   })
   auth_id: number;
+}
+
+export class LogoutRequestDto implements LogoutRequest {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI...',
+    description: 'Refresh token cần loại bỏ',
+  })
+  @IsString()
+  @IsNotEmpty({ message: 'Refresh token không được để trống' })
+  refreshToken: string;
+}
+
+export class LogoutResponseDto implements LogoutResponse {
+  @ApiProperty({ example: true })
+  success: boolean;
 }
 
 // ===== USER METHODS =====

@@ -46,6 +46,14 @@ export interface VerifyOtpResponse {
   role: string;
 }
 
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
+export interface LogoutResponse {
+  success: boolean;
+}
+
 export interface RefreshRequest {
   refreshToken: string;
 }
@@ -261,6 +269,8 @@ export interface AuthServiceClient {
 
   verifyOtp(request: VerifyOtpRequest, metadata?: Metadata): Observable<VerifyOtpResponse>;
 
+  logout(request: LogoutRequest, metadata?: Metadata): Observable<LogoutResponse>;
+
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
 
   setTokenVersion(request: SetTokenVersionRequest, metadata?: Metadata): Observable<SetTokenVersionResponse>;
@@ -334,6 +344,8 @@ export interface AuthServiceController {
 
   verifyOtp(request: VerifyOtpRequest, metadata?: Metadata): Observable<VerifyOtpResponse>;
 
+  logout(request: LogoutRequest, metadata?: Metadata): Observable<LogoutResponse>;
+
   refresh(request: RefreshRequest, metadata?: Metadata): Observable<RefreshResponse>;
 
   setTokenVersion(request: SetTokenVersionRequest, metadata?: Metadata): Observable<SetTokenVersionResponse>;
@@ -402,6 +414,7 @@ export function AuthServiceControllerMethods() {
       "register",
       "login",
       "verifyOtp",
+      "logout",
       "refresh",
       "setTokenVersion",
       "getTokenVersion",

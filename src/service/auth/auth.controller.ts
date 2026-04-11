@@ -12,7 +12,8 @@ import { LoginRequest, RegisterRequest, RefreshRequest, VerifyOtpRequestDto,Chan
   ChangeAvatarRequestDto,
   ChangeAvatarResponseDto,
   LoginWithGoogleRequestDto,
-  BanUserRequestDto} from 'dto/auth.dto';
+  BanUserRequestDto,
+  LogoutRequestDto} from 'dto/auth.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { Roles } from 'src/security/decorators/role.decorator';
@@ -118,6 +119,13 @@ export class AuthController {
         await this.cacheManager.set('online_users', onlineUsers, timeConLai);
     }
     return result;
+  }
+
+  @Post('logout')
+  @ApiOperation({ summary: 'Sử dụng khi cần phát triển thêm tính năng logout (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  @ApiBody({ type: VerifyOtpRequestDto })
+  async logout(@Body() body: LogoutRequestDto) {
+    return this.authService.handleLogout(body);
   }
 
   @Post('refresh')

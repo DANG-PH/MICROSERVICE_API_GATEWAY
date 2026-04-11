@@ -8,6 +8,7 @@ service AuthService {
   rpc Register (RegisterRequest) returns (RegisterResponse) {};
   rpc Login (LoginRequest) returns (LoginResponse) {};
   rpc VerifyOTP (VerifyOtpRequest) returns (VerifyOtpResponse) {};
+  rpc Logout (LogoutRequest) returns (LogoutResponse) {};
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
   rpc SetTokenVersion(SetTokenVersionRequest) returns (SetTokenVersionResponse);
   rpc GetTokenVersion(GetTokenVersionRequest) returns (GetTokenVersionResponse);
@@ -76,6 +77,14 @@ message VerifyOtpResponse {
   string refresh_token = 2;
   int32 auth_id = 3;
   string role = 4;
+}
+
+message LogoutRequest {
+  string refreshToken = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
 }
 
 message RefreshRequest {
