@@ -216,36 +216,26 @@ export class UserController {
   @Get('top10-suc-manh')
   @ApiOperation({ summary: 'Lấy top 10 user có sức mạnh cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
   @ApiOkResponse({ type: UserListResponseDto })
-  async getTop10SucManh(@Query() query: EmptyDto) {
-    return this.userService.handleGetTop10SucManh(query);
+  async getTop10SucManh() {
+    const key = 'leaderboard:top10:sucmanh';
+    const cache = await this.redis.get(key);
+    if (cache) return JSON.parse(cache);
+
+    // Chỉ hit DB khi lần đầu chưa có cache
+    const data = await this.userService.handleGetTop10SucManh({});
+    await this.redis.set(key, JSON.stringify(data), 'EX', 35);
+    return data;
   }
 
   @Get('top10-vang')
   async getTop10Vang() {
     const key = 'leaderboard:top10:vang';
-
     const cache = await this.redis.get(key);
     if (cache) return JSON.parse(cache);
 
-    const lock = await this.redis.set(
-      'lock:leaderboard:vang',
-      '1',
-      'EX',
-      5,
-      'NX'
-    );
-
-    if (!lock) {
-      // có thằng khác đang build cache
-      await new Promise(r => setTimeout(r, 50));
-      const retry = await this.redis.get(key);
-      if (retry) return JSON.parse(retry);
-    }
-
+    // Chỉ hit DB khi lần đầu chưa có cache
     const data = await this.userService.handleGetTop10Vang({});
-
     await this.redis.set(key, JSON.stringify(data), 'EX', 35);
-
     return data;
   }
 
@@ -254,10 +244,19 @@ export class UserController {
   })
   async cacheTop() {
     const query: EmptyDto = {};
-    const data = await this.userService.handleGetTop10Vang(query);
+    const [dataVang, dataSucManh] = await Promise.all([
+      this.userService.handleGetTop10Vang(query),
+      this.userService.handleGetTop10SucManh(query),
+    ]);
     await this.redis.set(
       'leaderboard:top10:vang',
-      JSON.stringify(data),
+      JSON.stringify(dataVang),
+      'EX',
+      35 // TTL > cron interval (important)
+    );
+    await this.redis.set(
+      'leaderboard:top10:sucmanh',
+      JSON.stringify(dataSucManh),
       'EX',
       35 // TTL > cron interval (important)
     );
