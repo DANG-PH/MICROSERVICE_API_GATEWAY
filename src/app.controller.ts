@@ -5,12 +5,12 @@ import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
-import { PlayerManagerService } from './service/admin/player_manager/player_manager.service';
+// import { PlayerManagerService } from './service/admin/player_manager/player_manager.service';
 
 @Controller()
 @ApiTags('Api App')
 export class AppController {
-  constructor(private readonly playerManagerService: PlayerManagerService) {}
+  // constructor(private readonly playerManagerService: PlayerManagerService) {}
 
   @Get()
   @ApiExcludeEndpoint()
@@ -27,22 +27,11 @@ export class AppController {
     // Fetch version from GitHub
     let version = '1.0';
     let jarUrl = '#';
-    let onlineCount = 0;
 
-    const [versionRes, onlineRes] = await Promise.allSettled([
-      fetch('https://raw.githubusercontent.com/DANG-PH/NRO_ONLINE/master/version.json'),
-      this.playerManagerService.getOnlineUsersVer2()
-    ]);
-
-    if (versionRes.status === 'fulfilled' && versionRes.value.ok) {
-      const data = await versionRes.value.json();
-      version = data.version || version;
-      jarUrl = data.jar || jarUrl;
-    }
-
-    if (onlineRes.status === 'fulfilled') {
-      onlineCount = onlineRes.value.total ?? 0;
-    }
+    const versionRes = await fetch('https://raw.githubusercontent.com/DANG-PH/NRO_ONLINE/master/version.json')
+    const data = await versionRes.json();
+    version = data.version || version;
+    jarUrl = data.jar || jarUrl;
 
     return `
       <!DOCTYPE html>
@@ -191,7 +180,6 @@ export class AppController {
               <table>
                 <tr><td>Môi trường</td><td><span class="tag tag-orange">${env}</span></td></tr>
                 <tr><td>Trạng thái</td><td><span class="tag tag-green">● Online</span></td></tr>
-                <tr><td>Người chơi</td><td><span class="tag tag-blue">👥 ${onlineCount} online</span></td></tr>
               </table>
 
               <div class="section-title">🖥️ Client</div>
