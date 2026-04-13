@@ -13,6 +13,7 @@ export class TemporaryBanGuard implements CanActivate {
     // vì Guard này chạy trc JwtAuthGuard nên là k có req.user, phải tự lấy data từ trên token
     const req = context.switchToHttp().getRequest();
 
+    // Sau fix chỗ này vì đang làm tăng latency vì decode 2 lần
     // Tự decode token thay vì phụ thuộc req.user
     const token = this.extractToken(req);
     if (!token) return true; // không có token => không check ban

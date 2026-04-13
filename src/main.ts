@@ -6,9 +6,9 @@ import * as bodyParser from 'body-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet'; 
-import { LoggingInterceptor } from './interceptor/logger.interceptors';
-import { OnlineInterceptor } from './interceptor/online.interceptor';
-import { JaegerInterceptor } from './interceptor/tracing.interceptors';
+// import { LoggingInterceptor } from './interceptor/logger.interceptors';
+// import { OnlineInterceptor } from './interceptor/online.interceptor';
+// import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { jaegerTracer } from 'jaeger';
 import { bold, green, cyan } from 'chalk';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
@@ -59,11 +59,11 @@ async function bootstrap() {
   app.useGlobalGuards(app.get(TemporaryBanGuard));
 
   // interceptor logging
-  app.useGlobalInterceptors(
-    // app.get(LoggingInterceptor),
-    app.get(OnlineInterceptor),
-    app.get(JaegerInterceptor),
-  );
+  // app.useGlobalInterceptors(
+  //   // app.get(LoggingInterceptor),
+  //   // app.get(OnlineInterceptor),
+  //   // app.get(JaegerInterceptor),
+  // );
 
   // Cấu hình Swagger
   const config = new DocumentBuilder()

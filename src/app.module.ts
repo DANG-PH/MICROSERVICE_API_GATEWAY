@@ -16,10 +16,10 @@ import { EditorModule } from './service/admin/editor/editor.module';
 import { FinanceModule } from './service/pay/finance/finance.module';
 import { PartnerModule } from './service/admin/partner/partner.module';
 import { PlayerManagerModule } from './service/admin/player_manager/player_manager.module';
-import { LoggingInterceptor } from './interceptor/logger.interceptors';
-import { OnlineInterceptor } from './interceptor/online.interceptor';
+// import { LoggingInterceptor } from './interceptor/logger.interceptors';
+// import { OnlineInterceptor } from './interceptor/online.interceptor';
 import { AdminModule } from './service/admin/admin/admin.module';
-import { JaegerInterceptor } from './interceptor/tracing.interceptors';
+// import { JaegerInterceptor } from './interceptor/tracing.interceptors';
 import { ServerModule } from './service/server/server.module';
 import { OpenaiModule } from './service/open-ai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -61,9 +61,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
   ],
   controllers: [AppController],
   providers: [
-    OnlineInterceptor, 
+    // OnlineInterceptor, 
     // LoggingInterceptor, 
-    JaegerInterceptor, 
+    // JaegerInterceptor, 
     TemporaryBanGuard
   ],
 })

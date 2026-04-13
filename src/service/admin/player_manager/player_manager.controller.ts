@@ -24,7 +24,7 @@ import { TemporaryBanRequestDto } from 'dto/player_manager.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { FinanceService } from 'src/service/pay/finance/finance.service';
 // import { winstonLogger } from 'src/logger/logger.config';
-import { PlayerManagerService } from './player_manager.service';
+// import { PlayerManagerService } from './player_manager.service';
 import Redlock, { ResourceLockedError, ExecutionError, Lock as RLock } from 'redlock';
 import Redis from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -41,33 +41,33 @@ export class PlayerManagerController {
     private itemService: ItemService,
     private payService: PayService,
     private financeService: FinanceService,
-    private playerManagerService: PlayerManagerService,
+    // private playerManagerService: PlayerManagerService,
     private eventEmitter: EventEmitter2,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {
     this.redlock = new Redlock([this.redis], { retryCount: 0 }); // 1 node redis
   }
 
-  @Get('user-online-Ver1')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
-  async getOnlineUsersVer1(): Promise<any> {
-    const value = await this.cacheManager.get('online_users')
-    return {
-      users: value
-    }
-  }
+  // @Get('user-online-Ver1')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
+  // async getOnlineUsersVer1(): Promise<any> {
+  //   const value = await this.cacheManager.get('online_users')
+  //   return {
+  //     users: value
+  //   }
+  // }
 
-  @Get('user-online-Ver2')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG - VER2 NÀY CHÍNH XÁC HƠN VER1)' })
-  async getOnlineUsersVer2(): Promise<any> {
-    return this.playerManagerService.getOnlineUsersVer2();
-  }
+  // @Get('user-online-Ver2')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Admin/Player Manager xem user nào đang online (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG - VER2 NÀY CHÍNH XÁC HƠN VER1)' })
+  // async getOnlineUsersVer2(): Promise<any> {
+  //   return this.playerManagerService.getOnlineUsersVer2();
+  // }
 
   // Gọi sang user-service
   @Get('profile/:id')

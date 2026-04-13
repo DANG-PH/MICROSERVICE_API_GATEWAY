@@ -109,15 +109,15 @@ export class AuthController {
 
     const result = await this.authService.handleVerifyOtp(body, metadata);
 
-    if (result.access_token) {
-        const username = Buffer.from(body.sessionId, 'base64').toString('ascii');
-        let onlineUsers = await this.cacheManager.get<string[]>('online_users') || [];
-        let timeConLai = await this.cacheManager.ttl('online_users'); // trả về time hết hạn
-        if (timeConLai) timeConLai = timeConLai-Date.now();
-        else timeConLai = 60 * 1000;
-        if (!onlineUsers.includes(username)) onlineUsers.push(username);
-        await this.cacheManager.set('online_users', onlineUsers, timeConLai);
-    }
+    // if (result.access_token) {
+    //     const username = Buffer.from(body.sessionId, 'base64').toString('ascii');
+    //     let onlineUsers = await this.cacheManager.get<string[]>('online_users') || [];
+    //     let timeConLai = await this.cacheManager.ttl('online_users'); // trả về time hết hạn
+    //     if (timeConLai) timeConLai = timeConLai-Date.now();
+    //     else timeConLai = 60 * 1000;
+    //     if (!onlineUsers.includes(username)) onlineUsers.push(username);
+    //     await this.cacheManager.set('online_users', onlineUsers, timeConLai);
+    // }
     return result;
   }
 
