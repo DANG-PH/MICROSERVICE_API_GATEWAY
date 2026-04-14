@@ -41,11 +41,8 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async profile(@Req() req: any) {
-    const start = Date.now();
     const userId = req.user.userId;
-    const result = await this.userService.handleProfile({id: userId});
-    console.log(`[Profile trả client] authId=${userId} took ${Date.now() - start}ms`);
-    return result;
+    return this.userService.handleProfile({id: userId});
   }
 
   @Put('save-game')
