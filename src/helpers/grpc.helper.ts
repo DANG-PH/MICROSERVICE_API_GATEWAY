@@ -51,7 +51,7 @@ export async function grpcCall<T>(
   const result = await (useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped));
   
   const duration = Date.now() - start;
-  if (duration > 300) {
+  if (duration > 0) {
     winstonLogger.warn({ 
       message: `⚠️ Slow gRPC call: ${duration}ms`, 
       service: serviceName 
