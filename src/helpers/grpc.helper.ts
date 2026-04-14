@@ -26,21 +26,13 @@ export function parseGrpcError(err: any) {
   }
 }
 
-export async function grpcCall<T>(
-  serviceName = 'UnknownService',
-  obs: Observable<T>,
-  useLastValue = false,
-  metadata?
-): Promise<T> {
-  const start = Date.now();
-
+export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable<T>, useLastValue = false, metadata?): Promise<T> {
   const wrapped = obs.pipe(
     catchError(err => {
       const parsed = parseGrpcError(err);
       const httpStatus = grpcToHttp(parsed.code);
-      const duration = Date.now() - start;
 
-      const message = `🆘 Error → HTTP ${httpStatus}: ${parsed.message} (${duration}ms)`;
+      const message = `🆘 Error → HTTP ${httpStatus}: ${parsed.message}`;
       if (httpStatus >= 500) {
         winstonLogger.error({ message, service: serviceName, admin: process.env.ADMIN_TEST });
       }
@@ -48,15 +40,5 @@ export async function grpcCall<T>(
     })
   );
 
-  const result = await (useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped));
-  
-  const duration = Date.now() - start;
-  if (duration > 0) {
-    winstonLogger.warn({ 
-      message: `⚠️ Slow gRPC call: ${duration}ms`, 
-      service: serviceName 
-    });
-  }
-
-  return result;
+  return useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped);
 }
