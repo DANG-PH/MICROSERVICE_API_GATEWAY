@@ -43,6 +43,14 @@ message User {
   string gameName = 14;
 }
 
+message UserBxh {
+  int64 vang = 1;
+  int64 ngoc = 2;
+  int64 sucManh = 3;
+  string gameName = 4;
+  string avatarUrl = 5;
+}
+
 message ItemWeb {
   int32 itemId = 1;
   int64 price = 2;
@@ -99,7 +107,7 @@ message AddBalanceRequest {
 }
 
 message UserListResponse {
-  repeated User users = 1;
+  repeated UserBxh users = 1;
 }
 
 message AddItemRequest {

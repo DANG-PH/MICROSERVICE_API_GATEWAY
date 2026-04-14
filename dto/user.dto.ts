@@ -64,6 +64,30 @@ export class UserDto {
   gameName: string;
 }
 
+export class UserBxhDto {
+  @ApiProperty({ example: 1000 })
+  @IsNumber()
+  vang: number;
+
+  @ApiProperty({ example: 50 })
+  @IsNumber()
+  ngoc: number;
+
+  @ApiProperty({ example: 200 })
+  @IsNumber()
+  sucManh: number;
+
+  @ApiProperty({ example: 'DZno1st', description: 'Tên nhân vật trong game' })
+  @IsString()
+  @IsNotEmpty({ message: 'Tên game không được để trống' })
+  gameName: string;
+
+  @ApiProperty({})
+  @IsString()
+  @IsNotEmpty({ message: 'Avatar không được trống' })
+  avatartUrl: string;
+}
+
 export class ItemWebDto {
   @ApiProperty({ example: 1 })
   @IsInt()
@@ -224,8 +248,8 @@ export class AddBalanceRequestDto {
 
 // ===== USER LIST =====
 export class UserListResponseDto {
-  @ApiProperty({ type: [UserDto] })
-  users: UserDto[];
+  @ApiProperty({ type: [UserBxhDto] })
+  users: UserBxhDto[];
 }
 
 // ===== ITEM =====

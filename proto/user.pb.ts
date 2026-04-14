@@ -31,6 +31,14 @@ export interface User {
   gameName: string;
 }
 
+export interface UserBxh {
+  vang: number;
+  ngoc: number;
+  sucManh: number;
+  gameName: string;
+  avatarUrl: string;
+}
+
 export interface ItemWeb {
   itemId: number;
   price: number;
@@ -87,7 +95,7 @@ export interface AddBalanceRequest {
 }
 
 export interface UserListResponse {
-  users: User[];
+  users: UserBxh[];
 }
 
 export interface AddItemRequest {
