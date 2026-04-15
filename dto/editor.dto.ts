@@ -127,6 +127,7 @@ export class UpdatePostStatusRequestDto {
 // ===== GET BY EDITOR =====
 export class GetPostsByEditorRequestDto {
   @ApiProperty({ example: 1 })
+  @Type(() => Number)
   @IsInt()
   editor_id: number;
 }
