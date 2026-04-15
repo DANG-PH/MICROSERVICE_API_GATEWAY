@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import {
   CreatePostRequest,
@@ -81,6 +82,7 @@ export class CreatePostRequestDto {
 
 // ===== GET BY ID =====
 export class GetPostByIdRequestDto {
+  @Type(() => Number)
   @ApiProperty({ example: 1 })
   @IsInt()
   id: number;

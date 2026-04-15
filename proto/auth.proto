@@ -109,7 +109,8 @@ message ChangePasswordResponse {
 
 message SystemChangePasswordRequest {
   string sessionId = 1;
-  string newPassword = 3;
+  string newPassword = 2;
+  string idempotencyKey = 3; 
 }
 
 message SystemChangePasswordResponse {
@@ -129,6 +130,7 @@ message ResetPasswordResponse {
 message ChangeEmailRequest {
   string sessionId = 1;
   string newEmail = 2;
+  string idempotencyKey = 3;
 }
 
 message ChangeEmailResponse {

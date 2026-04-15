@@ -30,6 +30,7 @@ import { GetAllUserResponse } from 'proto/auth.pb';
 import { WsChatGateway } from '../chat/ws-chat.gateway';
 import { SocialNetworkService } from '../social_network/social-network.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { randomUUID } from 'crypto';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -188,7 +189,10 @@ export class AuthController {
       ...body,
       sessionId: Buffer.from(username).toString('base64')
     }
-    return this.authService.handleChangeEmail(request);
+    return this.authService.handleChangeEmail({
+      ...request,
+      idempotencyKey: "API_GATEWAY: "+randomUUID()
+    });
   }
 
   @Patch('change-avatar')

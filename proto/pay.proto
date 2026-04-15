@@ -22,6 +22,7 @@ message GetPayByUserIdRequest {
 message UpdateMoneyRequest {
   int32 userId = 1;
   int64 amount = 2;    // số tiền thay đổi, có thể âm hoặc dương
+  string idempotencyKey = 3;
 }
 
 // Request thay đổi trạng thái tài khoản (lock/unlock)

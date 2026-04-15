@@ -35,6 +35,7 @@ import {
 } from 'dto/partner.dto';
 import { PartnerService } from '../partner/partner.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { randomUUID } from 'crypto';
 
 @Controller('admin')
 @ApiTags('Api Admin') 
@@ -166,7 +167,10 @@ export class AdminController {
   @ApiOperation({ summary: 'Update thông tin ví của user bất kì ( tiền trong ví ) (ADMIN)(WEB) (Quản lí ví) (CHƯA DÙNG)' })
   @ApiBody({ type:  UpdateMoneyRequestDto })
   async updateMoney(@Body() body: UpdateMoneyRequestDto): Promise<PayResponseDto> {
-    return this.payService.updateMoney(body);
+    return this.payService.updateMoney({
+      ...body,
+      idempotencyKey: "API_GATEWAY: "+randomUUID()
+    });
   }
 
   @Patch('status')

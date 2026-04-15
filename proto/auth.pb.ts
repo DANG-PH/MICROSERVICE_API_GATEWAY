@@ -77,6 +77,7 @@ export interface ChangePasswordResponse {
 export interface SystemChangePasswordRequest {
   sessionId: string;
   newPassword: string;
+  idempotencyKey: string;
 }
 
 export interface SystemChangePasswordResponse {
@@ -96,6 +97,7 @@ export interface ResetPasswordResponse {
 export interface ChangeEmailRequest {
   sessionId: string;
   newEmail: string;
+  idempotencyKey: string;
 }
 
 export interface ChangeEmailResponse {
