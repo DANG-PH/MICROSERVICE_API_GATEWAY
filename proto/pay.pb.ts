@@ -69,7 +69,7 @@ export interface Empty {
 
 export interface Finance {
   id: number;
-  user_id: number;
+  userId: number;
   /** NAP hoặc RUT */
   type: string;
   amount: number;
@@ -77,14 +77,14 @@ export interface Finance {
 }
 
 export interface CreateFinanceRequest {
-  user_id: number;
+  userId: number;
   /** NAP hoặc RUT */
   type: string;
   amount: number;
 }
 
 export interface GetFinanceByUserRequest {
-  user_id: number;
+  userId: number;
 }
 
 export interface FinanceResponse {

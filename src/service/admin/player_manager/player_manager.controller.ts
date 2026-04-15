@@ -79,25 +79,25 @@ export class PlayerManagerController {
     return this.userService.handleProfile(param);
   }
 
-  @Get('balance-web') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
-  async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetBalanceWeb(query);
-  }
+  // @Get('balance-web') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
+  // async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
+  //   return this.userService.handleGetBalanceWeb(query);
+  // }
 
-  @Get('item-web')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
-  async getItemWebAdmin(@Query() query: UsernameRequestDto) {
-    return this.userService.handleGetItemWeb(query);
-  }
+  // @Get('item-web')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN, Role.PLAYER_MANAGER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN/PLAYER MANAGER)(WEB) (CHƯA DÙNG)' })
+  // async getItemWebAdmin(@Query() query: UsernameRequestDto) {
+  //   return this.userService.handleGetItemWeb(query);
+  // }
   
-  // Gọi sang item-service
+  // // Gọi sang item-service
   @Get('user-items')
   @ApiBearerAuth()
   @Roles(Role.ADMIN, Role.PLAYER_MANAGER)

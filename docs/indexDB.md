@@ -226,7 +226,7 @@ CREATE INDEX idx_orders_created_at ON orders (created_at);
 ### 4.2 Composite Index (Multi-Column)
 
 ```sql
-CREATE INDEX idx_orders_user_status ON orders (user_id, status);
+CREATE INDEX idx_orders_user_status ON orders (userId, status);
 ```
 
 **Quy tắc quan trọng — Leftmost Prefix Rule:**
@@ -253,12 +253,12 @@ Càng lọc mạnh thì càng nên đứng sớm trong index
 ```sql
 -- Query:
 SELECT * FROM orders
-WHERE user_id = 123
+WHERE userId = 123
   AND status = 'pending'
 ORDER BY created_at DESC;
 
 -- Index tốt nhất:
-CREATE INDEX idx ON orders (user_id, status, created_at DESC);
+CREATE INDEX idx ON orders (userId, status, created_at DESC);
 -- Dùng index cho filter VA sort, không cần sort thêm
 ```
 
@@ -308,18 +308,18 @@ Index **chứa tất cả các cột** mà query cần → không cần đọc h
 
 ```sql
 -- Query:
-SELECT user_id, status, total FROM orders WHERE user_id = 123;
+SELECT userId, status, total FROM orders WHERE userId = 123;
 
 -- Index thường (non-covering):
-CREATE INDEX idx ON orders (user_id);
+CREATE INDEX idx ON orders (userId);
 -- Index scan lấy row pointer → đọc heap để lấy status, total
 
 -- Covering index:
-CREATE INDEX idx ON orders (user_id) INCLUDE (status, total);
+CREATE INDEX idx ON orders (userId) INCLUDE (status, total);
 -- PostgreSQL 11+: dùng INCLUDE cho non-key columns
 
 -- Hoặc composite covering:
-CREATE INDEX idx ON orders (user_id, status, total);
+CREATE INDEX idx ON orders (userId, status, total);
 -- Toàn bộ data nằm trong index → Index-Only Scan, không động vào heap
 ```
 
@@ -422,7 +422,7 @@ WHERE DATE(created_at) = '2024-01-01' -- không dùng index
 WHERE created_at >= '2024-01-01' AND created_at < '2025-01-01'
 
 -- 2. Implicit type conversion
-WHERE user_id = '123'  -- user_id là INTEGER, '123' là string → MySQL bỏ qua index
+WHERE userId = '123'  -- userId là INTEGER, '123' là string → MySQL bỏ qua index
 
 -- 3. Leading wildcard
 WHERE name LIKE '%nguyen%'  -- không dùng index
@@ -498,7 +498,7 @@ UPDATE users SET email = 'new@email.com' WHERE id = 1;
 
 -- UPDATE cột là key của composite index → tốn kém nhất
 UPDATE orders SET status = 'shipped' WHERE id = 99;
--- Nếu có index (user_id, status, created_at) → rebuild entry trong index
+-- Nếu có index (userId, status, created_at) → rebuild entry trong index
 ```
 
 ### DELETE và Index Bloat
@@ -543,8 +543,8 @@ SELECT * FROM users WHERE email = ?;  -- email nên được index
 
 **2. Cột dùng trong JOIN condition**
 ```sql
-SELECT * FROM orders o JOIN users u ON o.user_id = u.id;
--- user_id trong orders và id trong users đều nên có index
+SELECT * FROM orders o JOIN users u ON o.userId = u.id;
+-- userId trong orders và id trong users đều nên có index
 ```
 
 **3. Cột dùng trong ORDER BY hoặc GROUP BY** (khi result set lớn)
@@ -560,7 +560,7 @@ SELECT * FROM posts ORDER BY published_at DESC LIMIT 20;
 **5. Foreign Key columns**
 ```sql
 -- Luôn index FK để JOIN và cascade operation nhanh
-CREATE INDEX idx_orders_user_id ON orders (user_id);
+CREATE INDEX idx_orders_userId ON orders (userId);
 ```
 
 **6. Bảng lớn** (> 100K rows) và query chạy thường xuyên
@@ -679,7 +679,7 @@ WHERE status != 'deleted';
 -- Bảng log: write-heavy, đọc theo time range
 CREATE TABLE audit_logs (
     id          BIGSERIAL PRIMARY KEY,
-    user_id     INT,
+    userId     INT,
     action      VARCHAR(100),
     entity_type VARCHAR(50),
     entity_id   BIGINT,
@@ -690,7 +690,7 @@ CREATE TABLE audit_logs (
 -- Chỉ index những gì THỰC SỰ được query:
 
 -- Query 1: Xem log của một user cụ thể
-CREATE INDEX idx_audit_user_time ON audit_logs (user_id, created_at DESC);
+CREATE INDEX idx_audit_user_time ON audit_logs (userId, created_at DESC);
 
 -- Query 2: Xem log của một entity (kiểm tra ai sửa bản ghi nào)
 CREATE INDEX idx_audit_entity ON audit_logs (entity_type, entity_id, created_at DESC);
@@ -712,7 +712,7 @@ FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
 -- Schema
 CREATE TABLE posts (
     id         BIGSERIAL PRIMARY KEY,
-    user_id    INT,
+    userId    INT,
     content    TEXT,
     likes      INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
@@ -727,7 +727,7 @@ CREATE TABLE follows (
 -- Feed query: lấy posts của những người mình follow
 SELECT p.id, p.content, p.created_at
 FROM posts p
-WHERE p.user_id IN (
+WHERE p.userId IN (
     SELECT followed_id FROM follows WHERE follower_id = 123
 )
 ORDER BY p.created_at DESC
@@ -735,13 +735,13 @@ LIMIT 20;
 
 -- Indexes cần thiết:
 CREATE INDEX idx_follows_follower ON follows (follower_id);
-CREATE INDEX idx_posts_user_time ON posts (user_id, created_at DESC);
+CREATE INDEX idx_posts_user_time ON posts (userId, created_at DESC);
 
 -- Vấn đề: IN với subquery có thể không dùng index tốt
 -- Giải pháp với JOIN:
 SELECT p.id, p.content, p.created_at
 FROM posts p
-JOIN follows f ON p.user_id = f.followed_id
+JOIN follows f ON p.userId = f.followed_id
 WHERE f.follower_id = 123
 ORDER BY p.created_at DESC
 LIMIT 20;
@@ -749,14 +749,14 @@ LIMIT 20;
 -- Hoặc: denormalize feed (fan-out on write) để tránh complex query
 -- Mỗi khi user A post → insert vào feed table của mọi follower của A
 CREATE TABLE user_feeds (
-    user_id    INT,
+    userId    INT,
     post_id    BIGINT,
     created_at TIMESTAMP,
-    PRIMARY KEY (user_id, post_id)
+    PRIMARY KEY (userId, post_id)
 );
-CREATE INDEX idx_feeds_user_time ON user_feeds (user_id, created_at DESC);
+CREATE INDEX idx_feeds_user_time ON user_feeds (userId, created_at DESC);
 -- Feed query trở thành:
-SELECT * FROM user_feeds WHERE user_id = 123 ORDER BY created_at DESC LIMIT 20;
+SELECT * FROM user_feeds WHERE userId = 123 ORDER BY created_at DESC LIMIT 20;
 ```
 
 ---
@@ -769,13 +769,13 @@ SELECT * FROM user_feeds WHERE user_id = 123 ORDER BY created_at DESC LIMIT 20;
 
 ```sql
 EXPLAIN ANALYZE
-SELECT * FROM orders WHERE user_id = 123 AND status = 'pending';
+SELECT * FROM orders WHERE userId = 123 AND status = 'pending';
 
 -- Output ví dụ (CÓ index):
 Index Scan using idx_orders_user_status on orders
   (cost=0.43..8.45 rows=3 width=72)
   (actual time=0.052..0.061 rows=3 loops=1)
-  Index Cond: ((user_id = 123) AND (status = 'pending'))
+  Index Cond: ((userId = 123) AND (status = 'pending'))
 Planning Time: 0.5 ms
 Execution Time: 0.1 ms
 
@@ -783,7 +783,7 @@ Execution Time: 0.1 ms
 Seq Scan on orders
   (cost=0.00..42850.00 rows=3 width=72)
   (actual time=120.3..845.2 rows=3 loops=1)
-  Filter: ((user_id = 123) AND (status = 'pending'))
+  Filter: ((userId = 123) AND (status = 'pending'))
   Rows Removed by Filter: 999997
 Planning Time: 0.3 ms
 Execution Time: 845.5 ms
@@ -810,13 +810,13 @@ Execution Time: 845.5 ms
 ### MySQL
 
 ```sql
-EXPLAIN SELECT * FROM orders WHERE user_id = 123;
+EXPLAIN SELECT * FROM orders WHERE userId = 123;
 
 -- Output:
 +----+-------------+--------+-------+-------------+-------------+---------+-------+------+-------+
 | id | select_type | table  | type  | possible_keys | key         | key_len | ref   | rows | Extra |
 +----+-------------+--------+-------+-------------+-------------+---------+-------+------+-------+
-|  1 | SIMPLE      | orders | ref   | idx_user_id | idx_user_id | 4       | const |  142 |       |
+|  1 | SIMPLE      | orders | ref   | idx_userId | idx_userId | 4       | const |  142 |       |
 +----+-------------+--------+-------+-------------+-------------+---------+-------+------+-------+
 
 -- "type" column quan trọng nhất (từ tốt đến xấu):
@@ -871,8 +871,8 @@ VACUUM ANALYZE orders;          -- reclaim dead space + update statistics
 VACUUM FULL orders;             -- rewrite toàn bộ table, reclaim disk (lock table!)
 
 -- Rebuild index bị bloat:
-REINDEX INDEX idx_orders_user_id;                -- lock table
-REINDEX INDEX CONCURRENTLY idx_orders_user_id;   -- không lock (PostgreSQL 12+)
+REINDEX INDEX idx_orders_userId;                -- lock table
+REINDEX INDEX CONCURRENTLY idx_orders_userId;   -- không lock (PostgreSQL 12+)
 ```
 
 ### Cập nhật Statistics
@@ -916,23 +916,23 @@ CREATE INDEX ON users (updated_at);  -- update liên tục, overhead cao
 
 ```sql
 -- Query:
-WHERE status = 'active' AND user_id = 123
+WHERE status = 'active' AND userId = 123
 
 -- Index sai thứ tự:
-CREATE INDEX idx ON orders (status, user_id);
+CREATE INDEX idx ON orders (status, userId);
 -- Nếu status có 3 values, mỗi value ~33% rows → kém hiệu quả
 
 -- Index đúng thứ tự (high cardinality trước):
-CREATE INDEX idx ON orders (user_id, status);
--- user_id filter rất selective → chỉ vài rows còn lại → filter status nhanh
+CREATE INDEX idx ON orders (userId, status);
+-- userId filter rất selective → chỉ vài rows còn lại → filter status nhanh
 ```
 
 ### Anti-pattern 3: Duplicate indexes
 
 ```sql
 -- Đã có:
-CREATE INDEX idx_a ON orders (user_id);
-CREATE INDEX idx_b ON orders (user_id, status);  -- idx_a là redundant
+CREATE INDEX idx_a ON orders (userId);
+CREATE INDEX idx_b ON orders (userId, status);  -- idx_a là redundant
 
 -- idx_a không bao giờ được dùng khi đã có idx_b
 -- idx_b cover mọi query mà idx_a cover được, và nhiều hơn
@@ -944,11 +944,11 @@ CREATE INDEX idx_b ON orders (user_id, status);  -- idx_a là redundant
 ```sql
 CREATE TABLE orders (
     id      BIGSERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id)
+    userId INT REFERENCES users(id)
 );
 
--- Nhớ index orders.user_id để JOIN nhanh:
-CREATE INDEX idx_orders_user_id ON orders (user_id);
+-- Nhớ index orders.userId để JOIN nhanh:
+CREATE INDEX idx_orders_userId ON orders (userId);
 
 -- Lý do ít người biết: DELETE FROM users WHERE id = 123
 -- → Database phải check xem có orders nào reference user 123 không
@@ -988,7 +988,7 @@ CREATE INDEX idx_logs_time ON logs USING BRIN (created_at);
 CREATE INDEX idx_active_users ON users (email) WHERE is_active = TRUE;
 
 -- Covering index với INCLUDE:
-CREATE INDEX idx ON orders (user_id) INCLUDE (status, total);
+CREATE INDEX idx ON orders (userId) INCLUDE (status, total);
 
 -- Expression index:
 CREATE INDEX idx_email_ci ON users (LOWER(email));
@@ -1017,7 +1017,7 @@ ALTER TABLE orders ALTER INDEX idx_status INVISIBLE;
 ALTER TABLE orders DROP INDEX idx_status;
 
 -- Descending index (MySQL 8.0+):
-CREATE INDEX idx ON orders (user_id ASC, created_at DESC);
+CREATE INDEX idx ON orders (userId ASC, created_at DESC);
 
 -- List indexes:
 SHOW INDEX FROM orders;
@@ -1032,7 +1032,7 @@ CREATE CLUSTERED INDEX idx_orders_pk ON orders (id);
 
 -- Non-clustered với INCLUDE:
 CREATE NONCLUSTERED INDEX idx_orders_user
-ON orders (user_id)
+ON orders (userId)
 INCLUDE (status, total, created_at);
 
 -- Filtered index:
@@ -1053,7 +1053,7 @@ SELECT * FROM sys.dm_db_index_usage_stats WHERE database_id = DB_ID();
 db.users.createIndex({ email: 1 });  // 1 = ascending, -1 = descending
 
 // Compound:
-db.orders.createIndex({ user_id: 1, status: 1, created_at: -1 });
+db.orders.createIndex({ userId: 1, status: 1, created_at: -1 });
 
 // Unique:
 db.users.createIndex({ email: 1 }, { unique: true });
@@ -1074,7 +1074,7 @@ db.sessions.createIndex({ created_at: 1 }, { expireAfterSeconds: 3600 });
 db.products.createIndex({ "attributes.$**": 1 });
 
 // Explain:
-db.orders.find({ user_id: 123 }).explain("executionStats");
+db.orders.find({ userId: 123 }).explain("executionStats");
 ```
 
 ---

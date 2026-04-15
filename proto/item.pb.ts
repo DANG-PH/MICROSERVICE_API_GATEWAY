@@ -35,7 +35,7 @@ export interface Item {
 
 /** Request messages */
 export interface UserIdRequest {
-  user_id: number;
+  userId: number;
 }
 
 export interface ItemIdRequest {
@@ -43,12 +43,12 @@ export interface ItemIdRequest {
 }
 
 export interface AddItemRequest {
-  user_id: number;
+  userId: number;
   item: Item | undefined;
 }
 
 export interface AddMultipleItemsRequest {
-  user_id: number;
+  userId: number;
   items: Item[];
 }
 
@@ -78,7 +78,7 @@ export interface GetItemsByItemUuidsResponse {
 
 export interface SwapItemRequest {
   itemUuids: string[];
-  swap_user_id: number;
+  swap_userId: number;
 }
 
 export interface SwapItemResponse {

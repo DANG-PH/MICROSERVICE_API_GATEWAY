@@ -20,22 +20,6 @@ export class UserController {
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 
-  @Post('register')
-  @ApiOperation({ summary: 'Đăng ký tài khoản user, Sau khi auth đăng kí sẽ call cái này (BACKEND DEV)(SWAGGER) (ĐÃ DÙNG)' })
-  @ApiBody({ type:  RegisterRequestDto })
-  async register(@Body() body: RegisterRequestDto) {
-    return this.userService.handleRegister(body);
-  }
-
-  // @Get('profile-admin/:id')
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'Lấy thông tin của 1 user bất kì dựa trên auth id của user đó (ADMIN)(WEB)' })
-  // async profileadmin(@Param() param: UsernameRequestDto) {
-  //   return this.userService.handleProfile(param);
-  // }
-
   @Get('profile/:id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -61,15 +45,6 @@ export class UserController {
     }
     return this.userService.handleSaveGame(request);
   }
-
-  // @Get('balance-web-admin') //dùng @query vì có thể thêm điều kiện sau, còn @Param thì truy vấn nhất định mới nên dùng 
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'Lấy thông tin vàng nạp từ web và ngọc nạp từ web của user (ADMIN)(WEB)' })
-  // async getBalanceWebAdmin(@Query() query: UsernameRequestDto) {
-  //   return this.userService.handleGetBalanceWeb(query);
-  // }
 
   @Get('balance-web') 
   @ApiBearerAuth()
@@ -136,26 +111,6 @@ export class UserController {
     return this.userService.handleUseNgocWeb(request);
   }
 
-  // @Patch('update-balance')
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'Chọn loại tài nguyên ( vang/ngoc ) để thêm or giảm bớt của user (ADMIN)(WEB)' })
-  // @ApiBody({ type:  UpdateBalanceRequestDto })  
-  // async updateBalance(@Body() body: UpdateBalanceRequestDto) {
-  //   return this.userService.handleUpdateBalance(body);
-  // }
-
-  // @Post('add-item-web-admin')
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'Add item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
-  // @ApiBody({ type:  AddItemAdminRequestDto })  
-  // async addItemWebAdmin(@Body() body: AddItemAdminRequestDto) {
-  //   return this.userService.handleAddItemWeb(body);
-  // }
-
   @Post('add-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -170,16 +125,6 @@ export class UserController {
     });
   }
 
-  // @Delete('use-item-web-admin')
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'sử dụng item web ( id đồ ) cho 1 user bất kì (ADMIN)(WEB)' })
-  // @ApiBody({ type:  UseItemAdminRequestDto })  
-  // async useItemWebAdmin(@Body() body: UseItemAdminRequestDto) {
-  //   return this.userService.handleUseItemWeb(body);
-  // }
-
   @Delete('use-item-web')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -193,15 +138,6 @@ export class UserController {
     }
     return this.userService.handleUseItemWeb(request);
   }
-
-  // @Get('item-web-admin')
-  // @ApiBearerAuth()
-  // @Roles(Role.ADMIN)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @ApiOperation({ summary: 'lấy item web của 1 user bất kì (ADMIN)(WEB)' })
-  // async getItemWebAdmin(@Query() query: UsernameRequestDto) {
-  //   return this.userService.handleGetItemWeb(query);
-  // }
 
   @Get('item-web')
   @ApiBearerAuth()
@@ -228,6 +164,8 @@ export class UserController {
   }
 
   @Get('top10-vang')
+  @ApiOperation({ summary: 'Lấy top 10 user có vang cao nhất (ALL)(WEB) (ĐÃ DÙNG)' })
+  @ApiOkResponse({ type: UserListResponseDto })
   async getTop10Vang() {
     const key = 'leaderboard:top10:vang';
     const cache = await this.redis.get(key);
@@ -260,15 +198,5 @@ export class UserController {
       'EX',
       35 // TTL > cron interval (important)
     );
-  }
-
-  @Get('heart-beat')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User gọi hàm này liên tục để check online ( cách thay thế cho websocket ) (USER)(GAME/WEB) (CHƯA DÙNG)' })
-  async heartBeat() {;
-    return {
-      success: true
-    };
   }
 }

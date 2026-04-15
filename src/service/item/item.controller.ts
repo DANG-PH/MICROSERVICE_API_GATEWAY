@@ -27,7 +27,7 @@ export class ItemController {
   @ApiOperation({ summary: 'Lấy tất cả thông tin item của bản thân (USER)(GAME) (ĐÃ DÙNG)' })
   async getUserItem(@Req() req: any) {
     const userId = req.user.userId;
-    return this.itemService.handleGetItemByUser({user_id:userId});
+    return this.itemService.handleGetItemByUser({userId:userId});
   }
 
   // @Post('add-item-admin')
@@ -68,7 +68,7 @@ export class ItemController {
   async addItems(@Body() body: AddMultipleItemsRequestDto, @Req() req: any) {
     const userId = req.user.userId;
     const request = {
-      user_id: userId,
+      userId: userId,
       items: body.items
     }
     return this.itemService.handleAddMultiItem(request);
@@ -82,7 +82,7 @@ export class ItemController {
   async addItem(@Body() body: AddUserItemRequestDto, @Req() req: any) {
     const userId = req.user.userId;
     const request = {
-      user_id: userId,
+      userId: userId,
       item: body.item
     }
     return this.itemService.handleAddItem(request);

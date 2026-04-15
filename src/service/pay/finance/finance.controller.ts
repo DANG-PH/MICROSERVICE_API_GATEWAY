@@ -6,7 +6,6 @@ import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { FinanceService } from './finance.service';
 import {
-  CreateFinanceRequestDto,
   GetFinanceByUserRequestDto,
   FinanceResponseDto,
   ListFinanceResponseDto,
@@ -20,17 +19,17 @@ export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
   // ====== CREATE RECORD ======
-  @Post('create-record')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN, Role.FINANCE)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Ghi lại dòng tiền khi nạp hoặc rút thành công (ADMIN/FINANCE)(WEB) (ĐÃ DÙNG)' })
-  @ApiBody({ type: CreateFinanceRequestDto })
-  async createFinanceRecord(
-    @Body() body: CreateFinanceRequestDto,
-  ): Promise<FinanceResponseDto> {
-    return this.financeService.handleCreateFinanceRecord(body);
-  }
+  // @Post('create-record')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN, Role.FINANCE)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Ghi lại dòng tiền khi nạp hoặc rút thành công (ADMIN/FINANCE)(WEB) (ĐÃ DÙNG)' })
+  // @ApiBody({ type: CreateFinanceRequestDto })
+  // async createFinanceRecord(
+  //   @Body() body: CreateFinanceRequestDto,
+  // ): Promise<FinanceResponseDto> {
+  //   return this.financeService.handleCreateFinanceRecord(body);
+  // }
 
   // ====== GET FINANCE BY USER ======
   @Get('by-user')
@@ -41,7 +40,9 @@ export class FinanceController {
   async getFinanceByUser(
     @Query() query: GetFinanceByUserRequestDto,
   ): Promise<ListFinanceResponseDto> {
-    return this.financeService.handleGetFinanceByUser(query);
+    return this.financeService.handleGetFinanceByUser({
+      userId: query.userId
+    });
   }
 
   // ====== GET ALL FINANCE (ADMIN) ======

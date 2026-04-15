@@ -96,7 +96,7 @@ service CashierService {
 
 message Withdraw {
   int32 id = 1;
-  int32 user_id = 2;
+  int32 userId = 2;
   double amount = 3;
   string bank_name = 4;
   string bank_number = 5;
@@ -110,7 +110,7 @@ message Withdraw {
 // --- REQUESTS ---
 
 message CreateWithdrawRequestt {
-  int32 user_id = 1;
+  int32 userId = 1;
   double amount = 2;
   string bank_name = 3;
   string bank_number = 4;
@@ -118,7 +118,7 @@ message CreateWithdrawRequestt {
 }
 
 message GetWithdrawsByUserRequest {
-  int32 user_id = 1;
+  int32 userId = 1;
 }
 
 message UpdateWithdrawStatusRequest {
@@ -233,7 +233,7 @@ message UpdateAccountStatusRequest {
 
 message BuyAccountRequest {
   int32 id = 1;
-  int32 user_id = 2;
+  int32 userId = 2;
   string username = 3;
 }
 

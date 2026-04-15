@@ -82,7 +82,7 @@ export class ItemDto {
 export class AddUserItemRequestDto {
   @ApiProperty({ example: 1 })
   @IsInt()
-  user_id: number;
+  userId: number;
 
   @ApiProperty({ type: ItemDto })
   @ValidateNested()       //Báo cho class-validator rằng trường này là object con cần validate theo class của nó.Nếu thiếu, object sẽ bị coi là một property bình thường → ValidationPipe sẽ loại bỏ vì trong kia k có field nào tên item.
@@ -94,7 +94,7 @@ export class AddUserItemRequestDto {
 export class AddMultipleItemsRequestDto {
   // @ApiProperty({ example: 1 })
   // @IsInt()
-  // user_id: number;
+  // userId: number;
 
   @ApiProperty({ type: [ItemDto] })
   @IsArray()
@@ -133,7 +133,7 @@ export class UserIdRequestDto {
   @ApiProperty({ example: 1 })
   @Type(() => Number)
   @IsInt()
-  user_id: number;
+  userId: number;
 }
 
 export class GetItemsByItemUuidsRequestDto {

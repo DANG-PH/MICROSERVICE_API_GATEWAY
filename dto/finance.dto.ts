@@ -8,7 +8,7 @@ export class FinanceDto {
   id: number;
 
   @ApiProperty({ example: 2, description: 'ID người dùng thực hiện giao dịch' })
-  user_id: number;
+  userId: number;
 
   @ApiProperty({
     example: 'NAP',
@@ -23,32 +23,12 @@ export class FinanceDto {
   create_at: string;
 }
 
-// ===== CREATE REQUEST =====
-export class CreateFinanceRequestDto {
-  @ApiProperty({ example: 2, description: 'ID người dùng thực hiện giao dịch' })
-  @IsInt()
-  user_id: number;
-
-  @ApiProperty({
-    example: 'NAP',
-    description: 'Loại giao dịch: NAP (nạp tiền) hoặc RUT (rút tiền)',
-  })
-  @IsString()
-  @IsNotEmpty()
-  type: string;
-
-  @ApiProperty({ example: 10000, description: 'Số tiền giao dịch (VNĐ)' })
-  @IsNumber()
-  @Min(10000)
-  amount: number;
-}
-
 // ===== GET BY USER =====
 export class GetFinanceByUserRequestDto {
   @ApiProperty({ example: 2, description: 'ID người dùng cần xem lịch sử giao dịch' })
   @Type(() => Number)
   @IsInt()
-  user_id: number;
+  userId: number;
 }
 
 // ===== EMPTY =====

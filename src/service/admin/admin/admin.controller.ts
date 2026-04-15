@@ -118,35 +118,35 @@ export class AdminController {
   }
 
   // Gọi sang item-service
-  @Post('add-item')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
-  @ApiBody({ type:  AddUserItemRequestDto })
-  async addItem(@Body() body: AddUserItemRequestDto) {
-    return this.itemService.handleAddItem(body);
-  }
+  // @Post('add-item')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Thêm 1 item cho user bất kì (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
+  // @ApiBody({ type:  AddUserItemRequestDto })
+  // async addItem(@Body() body: AddUserItemRequestDto) {
+  //   return this.itemService.handleAddItem(body);
+  // }
 
-  @Put('update-item')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
-  @ApiBody({ type:  ItemDto })
-  async updateItem(@Body() body: ItemDto) {
-    return this.itemService.handleUpdateItem(body);
-  }
+  // @Put('update-item')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Update thông tin của item bất kì ( có thể ghi đè toàn bộ ) (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
+  // @ApiBody({ type:  ItemDto })
+  // async updateItem(@Body() body: ItemDto) {
+  //   return this.itemService.handleUpdateItem(body);
+  // }
 
-  @Delete('delete-item')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
-  @ApiBody({ type:  ItemIdRequestDto })
-  async deleteItem(@Body() body: ItemIdRequestDto) {
-    return this.itemService.handleDeleteItem(body);
-  }
+  // @Delete('delete-item')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Xóa item bất kì theo id của item đó (ADMIN)(WEB) (Quản lí item) (CHƯA DÙNG)' })
+  // @ApiBody({ type:  ItemIdRequestDto })
+  // async deleteItem(@Body() body: ItemIdRequestDto) {
+  //   return this.itemService.handleDeleteItem(body);
+  // }
 
   // Gọi sang đệ tử service
   @Post('create-de-tu')
@@ -184,23 +184,23 @@ export class AdminController {
   }
 
   // Gọi sang admin service
-  @Get('account-sell-by-partner')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN)(WEB) (Quản lí acc đăng bán của partner) (CHƯA DÙNG)' })
-  async getAccountsByPartner(@Query() query: PaginationByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
-    return this.partnerService.handleGetAccountsByPartner(
-      {
-        partner_id: query.partner_id,
-        paginationRequest: {
-          page: query.page || "1",
-          itemPerPage: query.itemPerPage || "10",
-          search: query.search || ""
-        }
-      }
-    );
-  }
+  // @Get('account-sell-by-partner')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN)(WEB) (Quản lí acc đăng bán của partner) (CHƯA DÙNG)' })
+  // async getAccountsByPartner(@Query() query: PaginationByPartnerRequestDto): Promise<ListAccountSellResponseDto> {
+  //   return this.partnerService.handleGetAccountsByPartner(
+  //     {
+  //       partner_id: query.partner_id,
+  //       paginationRequest: {
+  //         page: query.page || "1",
+  //         itemPerPage: query.itemPerPage || "10",
+  //         search: query.search || ""
+  //       }
+  //     }
+  //   );
+  // }
 
   @Get('all-account-buyer')
   @ApiBearerAuth()

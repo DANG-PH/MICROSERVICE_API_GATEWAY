@@ -212,7 +212,7 @@ export class BuyAccountRequestDto {
   // @ApiProperty({ example: 1, description: 'ID Người mua để check tiền' })
   // @IsNumber()
   // @IsNotEmpty()
-  // user_id: number;
+  // userId: number;
 }
 
 // ===== EMPTY =====

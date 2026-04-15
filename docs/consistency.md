@@ -808,7 +808,7 @@ ALTER TABLE wallet ADD COLUMN version BIGINT DEFAULT 0;
 -- Write: chỉ apply nếu version vẫn là 5
 UPDATE wallet
 SET balance = balance - 50, version = version + 1
-WHERE user_id = 1 AND version = 5;
+WHERE userId = 1 AND version = 5;
 -- rowCount = 0 → version đã thay đổi → conflict → retry
 ```
 
@@ -829,12 +829,12 @@ PUT /resource/123
 async function updateWithRetry(userId, amount, maxRetries = 3) {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     const { balance, version } = await db.query(
-      'SELECT balance, version FROM wallet WHERE user_id = $1', [userId]
+      'SELECT balance, version FROM wallet WHERE userId = $1', [userId]
     );
 
     const result = await db.query(
       `UPDATE wallet SET balance = $1, version = $2
-       WHERE user_id = $3 AND version = $4`,
+       WHERE userId = $3 AND version = $4`,
       [balance + amount, version + 1, userId, version]
     );
 
@@ -861,9 +861,9 @@ async function updateWithRetry(userId, amount, maxRetries = 3) {
 BEGIN;
 
 -- Lock row cho đến khi transaction kết thúc
-SELECT * FROM wallet WHERE user_id = 1 FOR UPDATE;
+SELECT * FROM wallet WHERE userId = 1 FOR UPDATE;
 
-UPDATE wallet SET balance = balance - 50 WHERE user_id = 1;
+UPDATE wallet SET balance = balance - 50 WHERE userId = 1;
 
 COMMIT; -- Lock released
 ```
@@ -1083,17 +1083,17 @@ Nguy hiểm: user thấy 130, có thể rút tiền, trigger business rule sai
 ```sql
 -- Event B đến (expectedVersion=1, DB version=0)
 UPDATE wallet SET balance=130, version=2
-WHERE user_id=1 AND version=1;
+WHERE userId=1 AND version=1;
 -- 0 rows → reject → retry sau
 
 -- Event A đến (expectedVersion=0)
 UPDATE wallet SET balance=50, version=1
-WHERE user_id=1 AND version=0;
+WHERE userId=1 AND version=0;
 -- 1 row ✅
 
 -- Event B retry (expectedVersion=1, DB version=1)
 UPDATE wallet SET balance=80, version=2
-WHERE user_id=1 AND version=1;
+WHERE userId=1 AND version=1;
 -- 1 row ✅ — balance: 80, user không bao giờ thấy 130
 ```
 
@@ -1507,11 +1507,11 @@ if (balance >= amount) {
 // ĐÚNG: Strong consistency cho financial
 await db.transaction(async (tx) => {
   const { balance } = await tx.query(
-    'SELECT balance FROM wallet WHERE user_id = $1 FOR UPDATE', [userId]
+    'SELECT balance FROM wallet WHERE userId = $1 FOR UPDATE', [userId]
   );
   if (balance < amount) throw new InsufficientFundsError();
   await tx.query(
-    'UPDATE wallet SET balance = balance - $1 WHERE user_id = $2', [amount, userId]
+    'UPDATE wallet SET balance = balance - $1 WHERE userId = $2', [amount, userId]
   );
 });
 ```

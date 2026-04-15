@@ -245,7 +245,7 @@ const inputAmount = amount; // Lấy từ Casso, không từ nội dung chuyển
 
 await this.updateMoney(request);
 await this.financeService.createFinanceRecord({
-  user_id: userId,
+  userId: userId,
   type: "NAP",
   amount: inputAmount
 });

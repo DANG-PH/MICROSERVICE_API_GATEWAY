@@ -51,7 +51,7 @@ export class PartnerController {
   }
 
   @Get('confirm-sell')
-  @ApiOperation({ summary: 'Confirm đăng bán account qua email link' })
+  @ApiOperation({ summary: '(CLIENT WEB KHÔNG DÙNG) Confirm đăng bán account qua email link' })
   async confirmSell(
     @Query('token') token: string,
     @Res() res: ResExpress
@@ -128,15 +128,15 @@ export class PartnerController {
     return this.partnerService.handleGetAccountById(param);
   }
 
-  @Patch('mark-account-sell')
-  @ApiBearerAuth()
-  @Roles(Role.PARTNER, Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Đánh dấu acc bất kì đã bán (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
-  @ApiBody({ type: UpdateAccountStatusRequestDto })
-  async markAccountAsSold(@Body() body: UpdateAccountStatusRequestDto): Promise<AccountResponseDto> {
-    return this.partnerService.handleMarkAccountAsSold(body);
-  }
+  // @Patch('mark-account-sell')
+  // @ApiBearerAuth()
+  // @Roles(Role.PARTNER, Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Đánh dấu acc bất kì đã bán (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
+  // @ApiBody({ type: UpdateAccountStatusRequestDto })
+  // async markAccountAsSold(@Body() body: UpdateAccountStatusRequestDto): Promise<AccountResponseDto> {
+  //   return this.partnerService.handleMarkAccountAsSold(body);
+  // }
 
   @Post('buy-account-sell')
   @ApiBearerAuth()
@@ -148,7 +148,7 @@ export class PartnerController {
     const userId = req.user.userId;
     const username = req.user.username;
     const request = {
-      user_id: userId,
+      userId: userId,
       username: username,
       ...body
     }

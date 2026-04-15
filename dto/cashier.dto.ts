@@ -19,7 +19,7 @@ export class WithdrawDto implements Withdraw {
 
   @ApiProperty({ example: 2, description: 'ID người dùng yêu cầu rút tiền' })
   @Type(() => Number)
-  user_id: number;
+  userId: number;
 
   @ApiProperty({ example: 10000, description: 'Số tiền rút (VNĐ)' })
   amount: number;
@@ -63,7 +63,7 @@ export class CreateWithdrawRequestDto {
   // @ApiProperty({ example: 2, description: 'ID người dùng gửi yêu cầu rút tiền' })
   // @Type(() => Number)
   // @IsInt()
-  // user_id: number;
+  // userId: number;
 
   @ApiProperty({ example: 10000, description: 'Số tiền muốn rút (VNĐ)' })
   @IsNumber()
@@ -84,14 +84,6 @@ export class CreateWithdrawRequestDto {
   @IsString()
   @IsNotEmpty()
   bank_owner: string;
-}
-
-// ===== GET BY USER =====
-export class GetWithdrawsByUserRequestDto {
-  @ApiProperty({ example: 2, description: 'ID người dùng cần xem lịch sử rút tiền' })
-  @Type(() => Number)
-  @IsInt()
-  user_id: number;
 }
 
 // ===== UPDATE STATUS (Admin duyệt hoặc từ chối) =====

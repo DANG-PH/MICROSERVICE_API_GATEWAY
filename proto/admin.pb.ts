@@ -67,7 +67,7 @@ export interface ListPostResponse {
 
 export interface Withdraw {
   id: number;
-  user_id: number;
+  userId: number;
   amount: number;
   bank_name: string;
   bank_number: string;
@@ -81,7 +81,7 @@ export interface Withdraw {
 }
 
 export interface CreateWithdrawRequestt {
-  user_id: number;
+  userId: number;
   amount: number;
   bank_name: string;
   bank_number: string;
@@ -89,7 +89,7 @@ export interface CreateWithdrawRequestt {
 }
 
 export interface GetWithdrawsByUserRequest {
-  user_id: number;
+  userId: number;
 }
 
 export interface UpdateWithdrawStatusRequest {
@@ -171,7 +171,7 @@ export interface UpdateAccountStatusRequest {
 
 export interface BuyAccountRequest {
   id: number;
-  user_id: number;
+  userId: number;
   username: string;
 }
 

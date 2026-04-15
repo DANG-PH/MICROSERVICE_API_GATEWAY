@@ -1,6 +1,6 @@
 import { Controller, Post, Body, UseGuards, Patch, Req, Inject, Get, Query, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody,ApiBearerAuth } from '@nestjs/swagger';
-import { WithdrawResponseDto, EmptyDto, ListWithdrawResponseDto, CreateWithdrawRequestDto, GetWithdrawsByUserRequestDto, UpdateWithdrawStatusRequestDto } from 'dto/cashier.dto';
+import { WithdrawResponseDto, EmptyDto, ListWithdrawResponseDto, CreateWithdrawRequestDto, UpdateWithdrawStatusRequestDto } from 'dto/cashier.dto';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
@@ -24,7 +24,7 @@ export class CashierController {
     const userId = req.user.userId;
     const request = {
       ...body,
-      user_id: userId
+      userId: userId
     }
     return this.cashierService.handleCreateWithdrawRequest(request);
   }
@@ -36,7 +36,7 @@ export class CashierController {
   @ApiOperation({ summary: 'Người dùng xem lịch sử rút tiền của bản thân (USER)(WEB) (CHƯA DÙNG)' })
   async getWithdrawsByUser(@Req() req: any): Promise<ListWithdrawResponseDto> {
     const userId = req.user.userId;
-    return this.cashierService.handleGetWithdrawsByUser({user_id: userId});
+    return this.cashierService.handleGetWithdrawsByUser({userId: userId});
   }
 
   @Get('all-withdraw')

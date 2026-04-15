@@ -131,12 +131,12 @@ def increment_view_count(article_id):
 
 ```python
 # UNSAFE
-def book_last_seat(flight_id, user_id):
+def book_last_seat(flight_id, userId):
     seats = db.query("SELECT available FROM flights WHERE id = ?", flight_id)
     if seats.available > 0:                         # CHECK
         # <-- 10ms window: ai đó cũng vừa pass check này -->
         db.execute("UPDATE flights SET available = available - 1 WHERE id = ?", flight_id)  # ACT
-        create_booking(flight_id, user_id)
+        create_booking(flight_id, userId)
 ```
 
 **Xuất hiện ở:** Inventory check before purchase, balance check before transfer, slot availability.
@@ -615,8 +615,8 @@ with db.connect() as conn:
         )
 
         conn.execute(
-            "INSERT INTO orders (product_id, quantity, user_id) VALUES (%s, %s, %s)",
-            (product_id, requested, user_id)
+            "INSERT INTO orders (product_id, quantity, userId) VALUES (%s, %s, %s)",
+            (product_id, requested, userId)
         )
     # Commit — DB detect serialization conflict và abort nếu cần
 ```
@@ -688,8 +688,8 @@ r.hsetnx("user:123:session", "token", "abc123")
 **Rate limiting với atomic INCR:**
 
 ```python
-def is_rate_limited(user_id: str, limit: int = 100, window: int = 60) -> bool:
-    key = f"rate_limit:{user_id}:{int(time.time() // window)}"
+def is_rate_limited(userId: str, limit: int = 100, window: int = 60) -> bool:
+    key = f"rate_limit:{userId}:{int(time.time() // window)}"
     pipe = r.pipeline()
     pipe.incr(key)
     pipe.expire(key, window)
@@ -1583,11 +1583,11 @@ Bạn đang gặp race condition ở đâu?
 
 ```python
 # ❌ WRONG: Application-level check
-def buy_product(product_id, user_id):
+def buy_product(product_id, userId):
     product = Product.get(product_id)
     if product.stock > 0:           # 1000 users cùng pass đây
         product.stock -= 1           # Lost update
-        create_order(product_id, user_id)
+        create_order(product_id, userId)
 ```
 
 **Giải pháp: Redis Lua + async DB write:**
@@ -1607,7 +1607,7 @@ end
 """
 reserve_script = redis_client.register_script(RESERVE_LUA)
 
-def buy_product(product_id: int, user_id: int) -> dict:
+def buy_product(product_id: int, userId: int) -> dict:
     # Step 1: Atomic reserve in Redis (fast path)
     remaining = reserve_script(
         keys=[f"stock:{product_id}"],
@@ -1618,7 +1618,7 @@ def buy_product(product_id: int, user_id: int) -> dict:
         return {"success": False, "reason": "out_of_stock"}
 
     # Step 2: Async write to DB (slow path, guaranteed stock reserved)
-    order_queue.enqueue(create_order_job, product_id, user_id)
+    order_queue.enqueue(create_order_job, product_id, userId)
     return {"success": True}
 ```
 

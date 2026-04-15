@@ -89,7 +89,7 @@ Lý do không chọn PostgreSQL cho các service này: PostgreSQL tốt hơn cho
 ### Lưu ý vận hành
 
 - Luôn dùng **InnoDB** engine (không dùng MyISAM — không hỗ trợ transaction và foreign key).
-- Index trên các cột thường dùng trong `WHERE`, `JOIN`, `ORDER BY` — đặc biệt `status`, `user_id`, `created_at`.
+- Index trên các cột thường dùng trong `WHERE`, `JOIN`, `ORDER BY` — đặc biệt `status`, `userId`, `created_at`.
 - Cẩn thận với `ALTER TABLE` trên bảng lớn — dùng `pt-online-schema-change` hoặc `gh-ost` trong production.
 - Enable slow query log (`long_query_time = 1`) để phát hiện query chậm sớm.
 
@@ -969,10 +969,10 @@ Lệnh cho database cho biết **nó sẽ thực thi câu query như thế nào*
 
 ```sql
 -- EXPLAIN: kế hoạch ước tính (không chạy query thật)
-EXPLAIN SELECT * FROM orders WHERE user_id = 123;
+EXPLAIN SELECT * FROM orders WHERE userId = 123;
 
 -- EXPLAIN ANALYZE: chạy query thật và so sánh ước tính vs thực tế
-EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 123;
+EXPLAIN ANALYZE SELECT * FROM orders WHERE userId = 123;
 ```
 
 Dùng để debug query chậm: xem database có dùng index không, hay đang scan toàn bộ bảng (Seq Scan). Nếu thấy "Seq Scan" trên bảng lớn → cần thêm index.

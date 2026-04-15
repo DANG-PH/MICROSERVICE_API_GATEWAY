@@ -802,8 +802,8 @@ export class WsGateway {
 
     this.queueClient.emit('swap', {
       offers: [
-        { itemUuids: offerMe,    swap_user_id: body.withUserId },
-        { itemUuids: offerOther, swap_user_id: userId },
+        { itemUuids: offerMe,    swap_userId: body.withUserId },
+        { itemUuids: offerOther, swap_userId: userId },
       ],
     });
 

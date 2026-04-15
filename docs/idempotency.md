@@ -690,16 +690,16 @@ Thay vì INSERT, dùng UPSERT: nếu record đã tồn tại thì UPDATE thay v�
 
 ```sql
 -- PostgreSQL: INSERT ON CONFLICT DO UPDATE
-INSERT INTO user_preferences (user_id, theme, language, updated_at)
+INSERT INTO user_preferences (userId, theme, language, updated_at)
 VALUES ($1, $2, $3, NOW())
-ON CONFLICT (user_id)
+ON CONFLICT (userId)
 DO UPDATE SET
     theme = EXCLUDED.theme,
     language = EXCLUDED.language,
     updated_at = NOW();
 
 -- MySQL: INSERT ... ON DUPLICATE KEY UPDATE
-INSERT INTO user_preferences (user_id, theme, language)
+INSERT INTO user_preferences (userId, theme, language)
 VALUES (?, ?, ?)
 ON DUPLICATE KEY UPDATE
     theme = VALUES(theme),
