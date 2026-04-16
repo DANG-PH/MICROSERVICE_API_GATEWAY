@@ -104,12 +104,47 @@ export class PartnerController {
   @ApiBearerAuth()
   @Roles(Role.PARTNER, Role.ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Xem tất cả acc đang/đã bán của 1 partner/admin nhất định (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
+  @ApiOperation({ summary: 'Partner xem acc đã bán chính mình, admin xem all hoặc 1 partner cụ thể (ADMIN/PARTNER)(WEB) (ĐÃ DÙNG)' })
   async getAccountsByPartner(@Query() query: PaginationByPartnerRequestDto, @Req() req: any): Promise<ListAccountSellResponseDto> {
-    const id = req.user.id;
+    const { userId, role } = req.user;
+
+    // PATTERN: Context-aware endpoint — cùng 1 endpoint, behavior khác nhau tùy role
+    //
+    // TÁCH 2 ENDPOINT hay GỘP 1:
+    // - Gộp 1 khi: chỉ khác nhau ở filter/input (WHERE clause) → như endpoint này
+    // - Tách 2 khi:
+    //   + Response shape khác nhau (role A trả về nhiều field hơn role B)
+    //   + Business logic xử lý khác nhau hoàn toàn (không chỉ là filter)
+    //   + Nhiều hơn 2-3 role với behavior khác nhau → gộp sẽ rối
+    //   + Security nhạy cảm — muốn tường minh, không muốn nhầm lẫn giữa các role
+    //
+    // KHI NÀO DÙNG CASL + ABAC:
+    // - KHÔNG cần khi rule đơn giản kiểu "role A xem của mình, role B xem tất cả"
+    // - CẦN khi quyền phụ thuộc vào attribute của resource/user, ví dụ:
+    //   + Manager chỉ xem acc của team mình
+    //   + Admin chỉ xem acc của region mình quản lý
+    //   + User bị suspend thì chỉ đọc, không sửa được
+    //
+    // KHI NÀO DÙNG CASL + ABAC vs TÁCH 2 ENDPOINT:
+    // - Dùng CASL + ABAC khi:
+    //   + Nhiều role, nhiều resource, rule phức tạp → tập trung logic ở 1 chỗ
+    //   + Quyền thay đổi thường xuyên → chỉ sửa ở ability factory, không đụng controller
+    //   + Cần reuse rule ở nhiều endpoint khác nhau
+    // - Dùng tách 2 endpoint khi:
+    //   + Rule đơn giản nhưng logic/response khác nhau hoàn toàn
+    //   + Team nhỏ, không muốn overhead của CASL
+    //   + Muốn tường minh từng endpoint cho dễ đọc, dễ maintain
+
+    // Admin có thể truyền partner_id qua query để xem của người khác
+    // Nếu không truyền thì xem tất cả (partner_id = undefined)
+    // Partner chỉ được xem của chính mình
+    const partnerId = role === Role.ADMIN 
+      ? query.partner_id  // Admin: lấy từ query hoặc xem all
+      : userId;           // Partner: luôn là id của chính họ
+
     return this.partnerService.handleGetAccountsByPartner(
       {
-        partner_id: id,
+        partner_id: partnerId,
         paginationRequest: {
           page: query.page || "1",
           itemPerPage: query.itemPerPage || "10",

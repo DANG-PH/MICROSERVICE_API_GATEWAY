@@ -135,11 +135,11 @@ export class PaginationRequestDto {
 }
 
 export class PaginationByPartnerRequestDto extends PaginationRequestDto {
-  @ApiProperty({ example: 1 })
+  @ApiPropertyOptional({ example: 1, description: 'Partner id bất kì (Chỉ ADMIN có thể xem) (optional)' })
   @Type(() => Number)
   @IsNumber()
   @IsNotEmpty()
-  partner_id: number;
+  partner_id?: number;
 }
 
 export class PaginationResponseDto implements PaginationResponse {
