@@ -173,13 +173,14 @@ service PartnerService {
 
 message AccountSell {
   int32 id = 1;
-  string url = 2;
-  string description = 3;
-  double price = 4;
-  string status = 5; // ACTIVE hoặc SOLD
-  int32 partner_id = 6;
-  int32 buyer_id = 7;
-  string createdAt = 8;
+  string username = 2;
+  string url = 3;
+  string description = 4;
+  double price = 5;
+  string status = 6; // ACTIVE hoặc SOLD
+  int32 partner_id = 7;
+  int32 buyer_id = 8;
+  string createdAt = 9;
 }
 
 // --- REQUESTS ---

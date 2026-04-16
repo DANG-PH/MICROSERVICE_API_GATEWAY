@@ -111,6 +111,7 @@ export interface ListWithdrawResponse {
 
 export interface AccountSell {
   id: number;
+  username: string;
   url: string;
   description: string;
   price: number;

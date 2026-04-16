@@ -8,6 +8,9 @@ export class AccountSellDto {
   @ApiProperty({ example: 1 })
   id: number;
 
+  @ApiProperty({ example: 'accgame1', description: 'Tên tài khoản game' })
+  username: string;
+
   @ApiProperty({ example: 'https://cdn3.upanh.info/upload/server-sw3/images/Qu%E1%BB%91c%20t%E1%BA%BF%20ph%E1%BB%A5%20n%E1%BB%AF/Nick/Nick%20So%20Sinh%20Co%20D%E1%BB%87%20T%E1%BB%AD.jpg', description: 'URL ảnh minh họa hoặc link acc' })
   url: string;
 
