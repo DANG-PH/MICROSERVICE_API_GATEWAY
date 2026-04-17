@@ -89,14 +89,16 @@ export class AuthController {
     metadata.set('platform', platform);
     
     const response = await this.authService.handleLoginWithGoogle(body, metadata);
-    if (response.register) {
-      const userRequest = {
-        id: response.auth_id, 
-        gameName: "GOOGLE USER "+response.auth_id
-      };
+
+    // Cách dưới sẽ lỗi nếu server crash, xem logic handleRegisterGoogle auth để biết logic mới
+    // if (response.register) {
+    //   const userRequest = {
+    //     id: response.auth_id, 
+    //     gameName: "GOOGLE USER "+response.auth_id
+    //   };
   
-      const userResult = await this.userService.handleRegister(userRequest);
-    }
+    //   const userResult = await this.userService.handleRegister(userRequest);
+    // }
 
     return response;
   }
