@@ -49,20 +49,24 @@ export class AuthController {
   @ApiBody({ type:  RegisterRequest })
   async register(@Body() body: RegisterRequest, @Req() req: RequestWithUser) {
     const authResult = await this.authService.handleRegister(body); 
-    if (!authResult.success) {
-      return { success: false, message: 'Đăng ký auth thất bại' };
-    }
-    const userRequest = {
-      id: authResult.auth_id, 
-      gameName: body.gameName,
-    };
 
-    const userResult = await this.userService.handleRegister(userRequest);
+    // Cách dưới sẽ lỗi nếu server crash, xem logic handleRegister auth để biết logic mới
+    // if (!authResult.success) {
+    //   return { success: false, message: 'Đăng ký auth thất bại' };
+    // }
+    // const userRequest = {
+    //   id: authResult.auth_id, 
+    //   gameName: body.gameName,
+    // };
 
-    return {
-      auth: authResult,
-      user: userResult,
-    };
+    // const userResult = await this.userService.handleRegister(userRequest);
+
+    // return {
+    //   auth: authResult,
+    //   user: userResult,
+    // };
+
+    return authResult;
   }
 
   @Post('login')
