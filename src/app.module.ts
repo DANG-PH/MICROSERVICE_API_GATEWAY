@@ -29,6 +29,7 @@ import { WsModule } from './service/ws-for-game/ws.module';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { GameDataModule } from './service/game-data/game-data.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ServerModule,
     OpenaiModule,
     WsModule,
+    GameDataModule,
     EventEmitterModule.forRoot(), 
   ],
   controllers: [AppController],

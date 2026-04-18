@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package game_data;
+
+// ===== SERVICE DEFINITION =====
+service GameDataService {
+  // Map base
+  rpc GetAllMap (Empty) returns (GetAllMapResponse);
+  rpc ThemMap (ThemMapRequest) returns (MapBase);
+  rpc SuaMap (SuaMapRequest) returns (MapBase);
+  rpc XoaMap (XoaMapRequest) returns (Empty);
+  rpc GetNpcTheoMap (GetNpcTheoMapRequest) returns (GetNpcTheoMapResponse);
+
+  // Npc base
+  rpc GetAllNpcBase (Empty) returns (GetAllNpcBaseResponse);
+  rpc ThemNpcBase (ThemNpcBaseRequest) returns (NpcBase);
+  rpc SuaNpcBase (SuaNpcBaseRequest) returns (NpcBase);
+  rpc XoaNpcBase (XoaNpcBaseRequest) returns (Empty);
+
+  // Npc spawn
+  rpc ThemNpcSpawn (ThemNpcSpawnRequest) returns (NpcSpawn);
+  rpc SuaNpcSpawn (SuaNpcSpawnRequest) returns (NpcSpawn);
+  rpc XoaNpcSpawn (XoaNpcSpawnRequest) returns (Empty);
+}
+
+// ===== COMMON =====
+message Empty {}
+
+// ===== MAP BASE =====
+message MapBase {
+  int32  id  = 1;
+  string ten = 2;
+}
+
+message GetAllMapResponse {
+  repeated MapBase maps = 1;
+}
+
+message ThemMapRequest {
+  string ten = 1;
+}
+
+message SuaMapRequest {
+  int32  id  = 1;
+  string ten = 2;
+}
+
+message XoaMapRequest {
+  int32 id = 1;
+}
+
+// ===== NPC BASE =====
+message NpcBase {
+  int32  id   = 1;
+  string ten  = 2;
+  string loai = 3; // NGUOI, CAYDAU, RUONGDO, DUIGA
+}
+
+message GetAllNpcBaseResponse {
+  repeated NpcBase npcs = 1;
+}
+
+message ThemNpcBaseRequest {
+  string ten  = 1;
+  string loai = 2;
+}
+
+message SuaNpcBaseRequest {
+  int32  id   = 1;
+  string ten  = 2;
+  string loai = 3;
+}
+
+message XoaNpcBaseRequest {
+  int32 id = 1;
+}
+
+// ===== NPC SPAWN =====
+message NpcSpawn {
+  int32  id          = 1;
+  int32  npc_base_id = 2;
+  string ten_npc     = 3; // join từ npc_base để client khỏi query thêm
+  string loai_npc    = 4;
+  int32  map_id      = 5;
+  string ten_map     = 6; // join từ map_base
+  float  x           = 7;
+  float  y           = 8;
+  bool   is_active   = 9;
+}
+
+message GetNpcTheoMapRequest {
+  int32 map_id = 1;
+}
+
+message GetNpcTheoMapResponse {
+  repeated NpcSpawn npcs = 1;
+}
+
+message ThemNpcSpawnRequest {
+  int32 npc_base_id = 1;
+  int32 map_id      = 2;
+  float x           = 3;
+  float y           = 4;
+  bool  is_active   = 5;
+}
+
+message SuaNpcSpawnRequest {
+  int32 id        = 1;
+  int32 map_id    = 2;
+  float x         = 3;
+  float y         = 4;
+  bool  is_active = 5;
+}
+
+message XoaNpcSpawnRequest {
+  int32 id = 1;
+}
