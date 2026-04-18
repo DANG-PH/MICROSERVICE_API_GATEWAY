@@ -64,6 +64,7 @@ export class GameDataController {
   @Get('map/npcs')
   @ApiOperation({ summary: 'Lấy danh sách NPC spawn theo map (ADMIN)(WEB)' })
   @ApiQuery({ name: 'map_id', type: Number })
+  @UseGuards()
   async getNpcTheoMap(@Query() query: GetNpcTheoMapRequestDto): Promise<GetNpcTheoMapResponseDto> {
     return this.gameDataService.handleGetNpcTheoMap(query);
   }
