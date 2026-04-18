@@ -25,9 +25,6 @@ import {
 } from '../../../dto/game-data.dto';
 
 @ApiTags('Api Game Data')
-@ApiBearerAuth()
-@Roles(Role.ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('game-data')
 export class GameDataController {
   constructor(private readonly gameDataService: GameDataService) {}
@@ -35,12 +32,18 @@ export class GameDataController {
   // ===== MAP BASE =====
 
   @Get('map')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Lấy tất cả map (ADMIN)(WEB)' })
   async getAllMap(): Promise<GetAllMapResponseDto> {
     return this.gameDataService.handleGetAllMap();
   }
 
   @Post('map')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Thêm map mới (ADMIN)(WEB)' })
   @ApiBody({ type: ThemMapRequestDto })
   async themMap(@Body() body: ThemMapRequestDto): Promise<MapBaseDto> {
@@ -48,6 +51,9 @@ export class GameDataController {
   }
 
   @Patch('map')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({ summary: 'Sửa map (ADMIN)(WEB)' })
   @ApiBody({ type: SuaMapRequestDto })
   async suaMap(@Body() body: SuaMapRequestDto): Promise<MapBaseDto> {
@@ -55,6 +61,9 @@ export class GameDataController {
   }
 
   @Delete('map')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Xóa map (ADMIN)(WEB)' })
   @ApiQuery({ name: 'id', type: Number })
   async xoaMap(@Query() query: XoaMapRequestDto): Promise<void> {
@@ -72,12 +81,18 @@ export class GameDataController {
   // ===== NPC BASE =====
 
   @Get('npc-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Lấy tất cả NPC base (ADMIN)(WEB)' })
   async getAllNpcBase(): Promise<GetAllNpcBaseResponseDto> {
     return this.gameDataService.handleGetAllNpcBase();
   }
 
   @Post('npc-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Thêm NPC base mới (ADMIN)(WEB)' })
   @ApiBody({ type: ThemNpcBaseRequestDto })
   async themNpcBase(@Body() body: ThemNpcBaseRequestDto): Promise<NpcBaseDto> {
@@ -85,6 +100,9 @@ export class GameDataController {
   }
 
   @Patch('npc-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Sửa NPC base (ADMIN)(WEB)' })
   @ApiBody({ type: SuaNpcBaseRequestDto })
   async suaNpcBase(@Body() body: SuaNpcBaseRequestDto): Promise<NpcBaseDto> {
@@ -92,6 +110,9 @@ export class GameDataController {
   }
 
   @Delete('npc-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Xóa NPC base (ADMIN)(WEB)' })
   @ApiQuery({ name: 'id', type: Number })
   async xoaNpcBase(@Query() query: XoaNpcBaseRequestDto): Promise<void> {
@@ -101,6 +122,9 @@ export class GameDataController {
   // ===== NPC SPAWN =====
 
   @Post('npc-spawn')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Thêm NPC spawn vào map (ADMIN)(WEB)' })
   @ApiBody({ type: ThemNpcSpawnRequestDto })
   async themNpcSpawn(@Body() body: ThemNpcSpawnRequestDto): Promise<NpcSpawnDto> {
@@ -108,6 +132,9 @@ export class GameDataController {
   }
 
   @Patch('npc-spawn')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Sửa NPC spawn (ADMIN)(WEB)' })
   @ApiBody({ type: SuaNpcSpawnRequestDto })
   async suaNpcSpawn(@Body() body: SuaNpcSpawnRequestDto): Promise<NpcSpawnDto> {
@@ -115,6 +142,9 @@ export class GameDataController {
   }
 
   @Delete('npc-spawn')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)  
   @ApiOperation({ summary: 'Xóa NPC spawn (ADMIN)(WEB)' })
   @ApiQuery({ name: 'id', type: Number })
   async xoaNpcSpawn(@Query() query: XoaNpcSpawnRequestDto): Promise<void> {
