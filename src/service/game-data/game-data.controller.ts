@@ -22,6 +22,12 @@ import {
   SuaNpcSpawnRequestDto,
   XoaNpcSpawnRequestDto,
   NpcSpawnDto,
+  GetShopTheoNpcRequestDto,
+  GetShopTheoNpcResponseDto,
+  ThemShopItemRequestDto,
+  NpcShopItemDto,
+  SuaShopItemRequestDto,
+  XoaShopItemRequestDto,
 } from '../../../dto/game-data.dto';
 
 @ApiTags('Api Game Data')
@@ -40,35 +46,35 @@ export class GameDataController {
     return this.gameDataService.handleGetAllMap();
   }
 
-  @Post('map')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Thêm map mới (ADMIN)(WEB)' })
-  @ApiBody({ type: ThemMapRequestDto })
-  async themMap(@Body() body: ThemMapRequestDto): Promise<MapBaseDto> {
-    return this.gameDataService.handleThemMap(body);
-  }
+  // @Post('map')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Thêm map mới (ADMIN)(WEB)' })
+  // @ApiBody({ type: ThemMapRequestDto })
+  // async themMap(@Body() body: ThemMapRequestDto): Promise<MapBaseDto> {
+  //   return this.gameDataService.handleThemMap(body);
+  // }
 
-  @Patch('map')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @ApiOperation({ summary: 'Sửa map (ADMIN)(WEB)' })
-  @ApiBody({ type: SuaMapRequestDto })
-  async suaMap(@Body() body: SuaMapRequestDto): Promise<MapBaseDto> {
-    return this.gameDataService.handleSuaMap(body);
-  }
+  // @Patch('map')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
+  // @ApiOperation({ summary: 'Sửa map (ADMIN)(WEB)' })
+  // @ApiBody({ type: SuaMapRequestDto })
+  // async suaMap(@Body() body: SuaMapRequestDto): Promise<MapBaseDto> {
+  //   return this.gameDataService.handleSuaMap(body);
+  // }
 
-  @Delete('map')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)  
-  @ApiOperation({ summary: 'Xóa map (ADMIN)(WEB)' })
-  @ApiQuery({ name: 'id', type: Number })
-  async xoaMap(@Query() query: XoaMapRequestDto): Promise<void> {
-    await this.gameDataService.handleXoaMap(query);
-  }
+  // @Delete('map')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)  
+  // @ApiOperation({ summary: 'Xóa map (ADMIN)(WEB)' })
+  // @ApiQuery({ name: 'id', type: Number })
+  // async xoaMap(@Query() query: XoaMapRequestDto): Promise<void> {
+  //   await this.gameDataService.handleXoaMap(query);
+  // }
 
   @Get('map/npcs')
   @ApiOperation({ summary: 'Lấy danh sách NPC spawn theo map (ADMIN)(WEB)' })
@@ -89,35 +95,35 @@ export class GameDataController {
     return this.gameDataService.handleGetAllNpcBase();
   }
 
-  @Post('npc-base')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)  
-  @ApiOperation({ summary: 'Thêm NPC base mới (ADMIN)(WEB)' })
-  @ApiBody({ type: ThemNpcBaseRequestDto })
-  async themNpcBase(@Body() body: ThemNpcBaseRequestDto): Promise<NpcBaseDto> {
-    return this.gameDataService.handleThemNpcBase(body);
-  }
+  // @Post('npc-base')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)  
+  // @ApiOperation({ summary: 'Thêm NPC base mới (ADMIN)(WEB)' })
+  // @ApiBody({ type: ThemNpcBaseRequestDto })
+  // async themNpcBase(@Body() body: ThemNpcBaseRequestDto): Promise<NpcBaseDto> {
+  //   return this.gameDataService.handleThemNpcBase(body);
+  // }
 
-  @Patch('npc-base')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)  
-  @ApiOperation({ summary: 'Sửa NPC base (ADMIN)(WEB)' })
-  @ApiBody({ type: SuaNpcBaseRequestDto })
-  async suaNpcBase(@Body() body: SuaNpcBaseRequestDto): Promise<NpcBaseDto> {
-    return this.gameDataService.handleSuaNpcBase(body);
-  }
+  // @Patch('npc-base')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)  
+  // @ApiOperation({ summary: 'Sửa NPC base (ADMIN)(WEB)' })
+  // @ApiBody({ type: SuaNpcBaseRequestDto })
+  // async suaNpcBase(@Body() body: SuaNpcBaseRequestDto): Promise<NpcBaseDto> {
+  //   return this.gameDataService.handleSuaNpcBase(body);
+  // }
 
-  @Delete('npc-base')
-  @ApiBearerAuth()
-  @Roles(Role.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)  
-  @ApiOperation({ summary: 'Xóa NPC base (ADMIN)(WEB)' })
-  @ApiQuery({ name: 'id', type: Number })
-  async xoaNpcBase(@Query() query: XoaNpcBaseRequestDto): Promise<void> {
-    await this.gameDataService.handleXoaNpcBase(query);
-  }
+  // @Delete('npc-base')
+  // @ApiBearerAuth()
+  // @Roles(Role.ADMIN)
+  // @UseGuards(JwtAuthGuard, RolesGuard)  
+  // @ApiOperation({ summary: 'Xóa NPC base (ADMIN)(WEB)' })
+  // @ApiQuery({ name: 'id', type: Number })
+  // async xoaNpcBase(@Query() query: XoaNpcBaseRequestDto): Promise<void> {
+  //   await this.gameDataService.handleXoaNpcBase(query);
+  // }
 
   // ===== NPC SPAWN =====
 
@@ -149,5 +155,43 @@ export class GameDataController {
   @ApiQuery({ name: 'id', type: Number })
   async xoaNpcSpawn(@Query() query: XoaNpcSpawnRequestDto): Promise<void> {
     await this.gameDataService.handleXoaNpcSpawn(query);
+  }
+
+  // ===== NPC SHOP ITEM =====
+  @Get('npc-shop')
+  @ApiOperation({ summary: 'Lấy danh sách item shop theo NPC (PUBLIC)' })
+  @ApiQuery({ name: 'npc_base_id', type: Number })
+  async getShopTheoNpc(@Query() query: GetShopTheoNpcRequestDto): Promise<GetShopTheoNpcResponseDto> {
+    return this.gameDataService.handleGetShopTheoNpc(query);
+  }
+
+  @Post('npc-shop')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Thêm item vào shop NPC (ADMIN)(WEB)' })
+  @ApiBody({ type: ThemShopItemRequestDto })
+  async themShopItem(@Body() body: ThemShopItemRequestDto): Promise<NpcShopItemDto> {
+    return this.gameDataService.handleThemShopItem(body);
+  }
+
+  @Patch('npc-shop')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Sửa item trong shop NPC (ADMIN)(WEB)' })
+  @ApiBody({ type: SuaShopItemRequestDto })
+  async suaShopItem(@Body() body: SuaShopItemRequestDto): Promise<NpcShopItemDto> {
+    return this.gameDataService.handleSuaShopItem(body);
+  }
+
+  @Delete('npc-shop')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Xóa item khỏi shop NPC (ADMIN)(WEB)' })
+  @ApiQuery({ name: 'id', type: Number })
+  async xoaShopItem(@Query() query: XoaShopItemRequestDto): Promise<void> {
+    await this.gameDataService.handleXoaShopItem(query);
   }
 }

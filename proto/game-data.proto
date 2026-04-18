@@ -21,6 +21,12 @@ service GameDataService {
   rpc ThemNpcSpawn (ThemNpcSpawnRequest) returns (NpcSpawn);
   rpc SuaNpcSpawn (SuaNpcSpawnRequest) returns (NpcSpawn);
   rpc XoaNpcSpawn (XoaNpcSpawnRequest) returns (Empty);
+
+  // Npc shop item
+  rpc GetShopTheoNpc (GetShopTheoNpcRequest) returns (GetShopTheoNpcResponse);
+  rpc ThemShopItem   (ThemShopItemRequest)   returns (NpcShopItem);
+  rpc SuaShopItem    (SuaShopItemRequest)    returns (NpcShopItem);
+  rpc XoaShopItem    (XoaShopItemRequest)    returns (Empty);
 }
 
 // ===== COMMON =====
@@ -113,5 +119,47 @@ message SuaNpcSpawnRequest {
 }
 
 message XoaNpcSpawnRequest {
+  int32 id = 1;
+}
+
+// ===== NPC SHOP ITEM =====
+message NpcShopItem {
+  int32  id          = 1;
+  int32  npc_base_id = 2;
+  string ten_npc     = 3; // join từ npc_base
+  string tenItem     = 4;
+  int64  gia         = 5;
+  string loaiTien    = 6; // VANG | NGOC
+  string tab         = 7; // AO_QUAN | PHU_KIEN | DAC_BIET
+  bool   is_active   = 8;
+}
+
+message GetShopTheoNpcRequest {
+  int32 npc_base_id = 1;
+}
+
+message GetShopTheoNpcResponse {
+  repeated NpcShopItem items = 1;
+}
+
+message ThemShopItemRequest {
+  int32  npc_base_id = 1;
+  string tenItem     = 2;
+  int64  gia         = 3;
+  string loaiTien    = 4;
+  string tab         = 5;
+  bool   is_active   = 6;
+}
+
+message SuaShopItemRequest {
+  int32  id        = 1;
+  string tenItem   = 2;
+  int64  gia       = 3;
+  string loaiTien  = 4;
+  string tab       = 5;
+  bool   is_active = 6;
+}
+
+message XoaShopItemRequest {
   int32 id = 1;
 }

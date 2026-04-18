@@ -204,3 +204,121 @@ export class XoaNpcSpawnRequestDto {
   @IsInt()
   id: number;
 }
+
+// ===== NPC SHOP ITEM =====
+
+export enum LoaiTien {
+  VANG = 'VANG',
+  NGOC = 'NGOC',
+}
+
+export enum TabShop {
+  AO_QUAN  = 'AO_QUAN',
+  PHU_KIEN = 'PHU_KIEN',
+  DAC_BIET = 'DAC_BIET',
+}
+
+export class NpcShopItemDto {
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ example: 5 })
+  @IsInt()
+  npc_base_id: number;
+
+  @ApiProperty({ example: 'admin_thanhle' })
+  @IsString()
+  ten_npc: string;
+
+  @ApiProperty({ example: 'Bông tai Porata' })
+  @IsString()
+  tenItem: string;
+
+  @ApiProperty({ example: 1000 })
+  @IsNumber()
+  gia: number;
+
+  @ApiProperty({ example: LoaiTien.VANG, enum: LoaiTien })
+  @IsEnum(LoaiTien)
+  loaiTien: string;
+
+  @ApiProperty({ example: TabShop.DAC_BIET, enum: TabShop })
+  @IsEnum(TabShop)
+  tab: string;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  is_active: boolean;
+}
+
+export class GetShopTheoNpcRequestDto {
+  @ApiProperty({ example: 5, description: 'ID của NPC base cần lấy shop' })
+  @Type(() => Number)
+  @IsInt()
+  npc_base_id: number;
+}
+
+export class GetShopTheoNpcResponseDto {
+  @ApiProperty({ type: () => [NpcShopItemDto] })
+  items: NpcShopItemDto[];
+}
+
+export class ThemShopItemRequestDto {
+  @ApiProperty({ example: 5, description: 'ID của NPC base' })
+  @IsInt()
+  npc_base_id: number;
+
+  @ApiProperty({ example: 'Bông tai Porata', description: 'Tên item — khớp với client' })
+  @IsString()
+  tenItem: string;
+
+  @ApiProperty({ example: 1000, description: 'Giá bán' })
+  @IsNumber()
+  gia: number;
+
+  @ApiProperty({ example: LoaiTien.NGOC, enum: LoaiTien, description: 'Loại tiền' })
+  @IsEnum(LoaiTien)
+  loaiTien: string;
+
+  @ApiProperty({ example: TabShop.DAC_BIET, enum: TabShop, description: 'Tab hiển thị trong shop' })
+  @IsEnum(TabShop)
+  tab: string;
+
+  @ApiProperty({ example: true, description: 'Trạng thái active' })
+  @IsBoolean()
+  is_active: boolean;
+}
+
+export class SuaShopItemRequestDto {
+  @ApiProperty({ example: 1, description: 'ID của shop item cần sửa' })
+  @IsInt()
+  id: number;
+
+  @ApiProperty({ example: 'Bông tai Porata' })
+  @IsString()
+  tenItem: string;
+
+  @ApiProperty({ example: 2000 })
+  @IsNumber()
+  gia: number;
+
+  @ApiProperty({ example: LoaiTien.VANG, enum: LoaiTien })
+  @IsEnum(LoaiTien)
+  loaiTien: string;
+
+  @ApiProperty({ example: TabShop.DAC_BIET, enum: TabShop })
+  @IsEnum(TabShop)
+  tab: string;
+
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  is_active: boolean;
+}
+
+export class XoaShopItemRequestDto {
+  @ApiProperty({ example: 1, description: 'ID của shop item cần xóa' })
+  @Type(() => Number)
+  @IsInt()
+  id: number;
+}

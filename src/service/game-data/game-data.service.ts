@@ -21,6 +21,12 @@ import {
   ThemNpcSpawnRequest,
   SuaNpcSpawnRequest,
   XoaNpcSpawnRequest,
+  GetShopTheoNpcRequest,
+  GetShopTheoNpcResponse,
+  NpcShopItem,
+  ThemShopItemRequest,
+  SuaShopItemRequest,
+  XoaShopItemRequest,
 } from 'proto/game-data.pb';
 import { grpcCall } from 'src/helpers/grpc.helper';
 
@@ -89,5 +95,22 @@ export class GameDataService {
 
   async handleXoaNpcSpawn(req: XoaNpcSpawnRequest): Promise<Empty> {
     return grpcCall(GameDataService.name, this.gameDataGrpcService.xoaNpcSpawn(req));
+  }
+
+  // ===== NPC SHOP ITEM =====
+  async handleGetShopTheoNpc(req: GetShopTheoNpcRequest): Promise<GetShopTheoNpcResponse> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.getShopTheoNpc(req));
+  }
+
+  async handleThemShopItem(req: ThemShopItemRequest): Promise<NpcShopItem> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.themShopItem(req));
+  }
+
+  async handleSuaShopItem(req: SuaShopItemRequest): Promise<NpcShopItem> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.suaShopItem(req));
+  }
+
+  async handleXoaShopItem(req: XoaShopItemRequest): Promise<Empty> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.xoaShopItem(req));
   }
 }

@@ -108,6 +108,51 @@ export interface XoaNpcSpawnRequest {
   id: number;
 }
 
+/** ===== NPC SHOP ITEM ===== */
+export interface NpcShopItem {
+  id: number;
+  npc_base_id: number;
+  /** join từ npc_base */
+  ten_npc: string;
+  tenItem: string;
+  gia: number;
+  /** VANG | NGOC */
+  loaiTien: string;
+  /** AO_QUAN | PHU_KIEN | DAC_BIET */
+  tab: string;
+  is_active: boolean;
+}
+
+export interface GetShopTheoNpcRequest {
+  npc_base_id: number;
+}
+
+export interface GetShopTheoNpcResponse {
+  items: NpcShopItem[];
+}
+
+export interface ThemShopItemRequest {
+  npc_base_id: number;
+  tenItem: string;
+  gia: number;
+  loaiTien: string;
+  tab: string;
+  is_active: boolean;
+}
+
+export interface SuaShopItemRequest {
+  id: number;
+  tenItem: string;
+  gia: number;
+  loaiTien: string;
+  tab: string;
+  is_active: boolean;
+}
+
+export interface XoaShopItemRequest {
+  id: number;
+}
+
 export const GAME_DATA_PACKAGE_NAME = "game_data";
 
 /** ===== SERVICE DEFINITION ===== */
@@ -123,6 +168,8 @@ export interface GameDataServiceClient {
 
   xoaMap(request: XoaMapRequest, metadata?: Metadata): Observable<Empty>;
 
+  getNpcTheoMap(request: GetNpcTheoMapRequest, metadata?: Metadata): Observable<GetNpcTheoMapResponse>;
+
   /** Npc base */
 
   getAllNpcBase(request: Empty, metadata?: Metadata): Observable<GetAllNpcBaseResponse>;
@@ -135,13 +182,21 @@ export interface GameDataServiceClient {
 
   /** Npc spawn */
 
-  getNpcTheoMap(request: GetNpcTheoMapRequest, metadata?: Metadata): Observable<GetNpcTheoMapResponse>;
-
   themNpcSpawn(request: ThemNpcSpawnRequest, metadata?: Metadata): Observable<NpcSpawn>;
 
   suaNpcSpawn(request: SuaNpcSpawnRequest, metadata?: Metadata): Observable<NpcSpawn>;
 
   xoaNpcSpawn(request: XoaNpcSpawnRequest, metadata?: Metadata): Observable<Empty>;
+
+  /** Npc shop item */
+
+  getShopTheoNpc(request: GetShopTheoNpcRequest, metadata?: Metadata): Observable<GetShopTheoNpcResponse>;
+
+  themShopItem(request: ThemShopItemRequest, metadata?: Metadata): Observable<NpcShopItem>;
+
+  suaShopItem(request: SuaShopItemRequest, metadata?: Metadata): Observable<NpcShopItem>;
+
+  xoaShopItem(request: XoaShopItemRequest, metadata?: Metadata): Observable<Empty>;
 }
 
 /** ===== SERVICE DEFINITION ===== */
@@ -157,6 +212,8 @@ export interface GameDataServiceController {
 
   xoaMap(request: XoaMapRequest, metadata?: Metadata): Observable<Empty>;
 
+  getNpcTheoMap(request: GetNpcTheoMapRequest, metadata?: Metadata): Observable<GetNpcTheoMapResponse>;
+
   /** Npc base */
 
   getAllNpcBase(request: Empty, metadata?: Metadata): Observable<GetAllNpcBaseResponse>;
@@ -169,13 +226,21 @@ export interface GameDataServiceController {
 
   /** Npc spawn */
 
-  getNpcTheoMap(request: GetNpcTheoMapRequest, metadata?: Metadata): Observable<GetNpcTheoMapResponse>;
-
   themNpcSpawn(request: ThemNpcSpawnRequest, metadata?: Metadata): Observable<NpcSpawn>;
 
   suaNpcSpawn(request: SuaNpcSpawnRequest, metadata?: Metadata): Observable<NpcSpawn>;
 
   xoaNpcSpawn(request: XoaNpcSpawnRequest, metadata?: Metadata): Observable<Empty>;
+
+  /** Npc shop item */
+
+  getShopTheoNpc(request: GetShopTheoNpcRequest, metadata?: Metadata): Observable<GetShopTheoNpcResponse>;
+
+  themShopItem(request: ThemShopItemRequest, metadata?: Metadata): Observable<NpcShopItem>;
+
+  suaShopItem(request: SuaShopItemRequest, metadata?: Metadata): Observable<NpcShopItem>;
+
+  xoaShopItem(request: XoaShopItemRequest, metadata?: Metadata): Observable<Empty>;
 }
 
 export function GameDataServiceControllerMethods() {
@@ -185,14 +250,18 @@ export function GameDataServiceControllerMethods() {
       "themMap",
       "suaMap",
       "xoaMap",
+      "getNpcTheoMap",
       "getAllNpcBase",
       "themNpcBase",
       "suaNpcBase",
       "xoaNpcBase",
-      "getNpcTheoMap",
       "themNpcSpawn",
       "suaNpcSpawn",
       "xoaNpcSpawn",
+      "getShopTheoNpc",
+      "themShopItem",
+      "suaShopItem",
+      "xoaShopItem",
     ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
