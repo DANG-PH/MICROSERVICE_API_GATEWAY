@@ -4,6 +4,8 @@ import { join } from 'path';
 import { GAME_DATA_PACKAGE_NAME } from 'proto/game-data.pb';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
+import { GameDataController } from './game-data.controller';
+import { GameDataService } from './game-data.service';
 
 @Module({
   imports: [
@@ -14,7 +16,7 @@ import { RolesGuard } from 'src/security/guard/role.guard';
         options: {
           package: GAME_DATA_PACKAGE_NAME,
           protoPath: join(process.cwd(), 'proto/game-data.proto'),
-          url: process.env.ITEM_URL,
+          url: process.env.GAME_DATA_URL,
           loader: {
                 keepCase: true,
                 objects: true,
@@ -24,8 +26,8 @@ import { RolesGuard } from 'src/security/guard/role.guard';
       },
     ]),
   ],
-  controllers: [],
-  providers: [JwtStrategy,RolesGuard],
-  exports: []
+  controllers: [GameDataController],
+  providers: [JwtStrategy,RolesGuard, GameDataService],
+  exports: [GameDataService]
 })
 export class GameDataModule {}
