@@ -112,13 +112,14 @@ export interface XoaNpcSpawnRequest {
 export interface NpcShopItem {
   id: number;
   npc_base_id: number;
-  /** join từ npc_base */
   ten_npc: string;
-  tenItem: string;
+  item_base_id: number;
+  /** ← join từ item_base */
+  ten_item: string;
+  /** ← join từ item_base */
+  ma_item: string;
   gia: number;
-  /** VANG | NGOC */
   loaiTien: string;
-  /** AO_QUAN | PHU_KIEN | DAC_BIET */
   tab: string;
   is_active: boolean;
 }
@@ -133,7 +134,7 @@ export interface GetShopTheoNpcResponse {
 
 export interface ThemShopItemRequest {
   npc_base_id: number;
-  tenItem: string;
+  item_base_id: number;
   gia: number;
   loaiTien: string;
   tab: string;
@@ -142,7 +143,7 @@ export interface ThemShopItemRequest {
 
 export interface SuaShopItemRequest {
   id: number;
-  tenItem: string;
+  item_base_id: number;
   gia: number;
   loaiTien: string;
   tab: string;
@@ -150,6 +151,43 @@ export interface SuaShopItemRequest {
 }
 
 export interface XoaShopItemRequest {
+  id: number;
+}
+
+/** ===== ITEM BASE ===== */
+export interface ItemBase {
+  id: number;
+  ten: string;
+  ma: string;
+}
+
+export interface GetAllItemBaseRequest {
+}
+
+export interface GetAllItemBaseResponse {
+  items: ItemBase[];
+}
+
+export interface ThemItemBaseRequest {
+  ten: string;
+  ma: string;
+}
+
+export interface ThemItemBaseResponse {
+  item: ItemBase | undefined;
+}
+
+export interface SuaItemBaseRequest {
+  id: number;
+  ten: string;
+  ma: string;
+}
+
+export interface SuaItemBaseResponse {
+  item: ItemBase | undefined;
+}
+
+export interface XoaItemBaseRequest {
   id: number;
 }
 
@@ -187,6 +225,16 @@ export interface GameDataServiceClient {
   suaNpcSpawn(request: SuaNpcSpawnRequest, metadata?: Metadata): Observable<NpcSpawn>;
 
   xoaNpcSpawn(request: XoaNpcSpawnRequest, metadata?: Metadata): Observable<Empty>;
+
+  /** Item base */
+
+  getAllItemBase(request: GetAllItemBaseRequest, metadata?: Metadata): Observable<GetAllItemBaseResponse>;
+
+  themItemBase(request: ThemItemBaseRequest, metadata?: Metadata): Observable<ThemItemBaseResponse>;
+
+  suaItemBase(request: SuaItemBaseRequest, metadata?: Metadata): Observable<SuaItemBaseResponse>;
+
+  xoaItemBase(request: XoaItemBaseRequest, metadata?: Metadata): Observable<Empty>;
 
   /** Npc shop item */
 
@@ -232,6 +280,16 @@ export interface GameDataServiceController {
 
   xoaNpcSpawn(request: XoaNpcSpawnRequest, metadata?: Metadata): Observable<Empty>;
 
+  /** Item base */
+
+  getAllItemBase(request: GetAllItemBaseRequest, metadata?: Metadata): Observable<GetAllItemBaseResponse>;
+
+  themItemBase(request: ThemItemBaseRequest, metadata?: Metadata): Observable<ThemItemBaseResponse>;
+
+  suaItemBase(request: SuaItemBaseRequest, metadata?: Metadata): Observable<SuaItemBaseResponse>;
+
+  xoaItemBase(request: XoaItemBaseRequest, metadata?: Metadata): Observable<Empty>;
+
   /** Npc shop item */
 
   getShopTheoNpc(request: GetShopTheoNpcRequest, metadata?: Metadata): Observable<GetShopTheoNpcResponse>;
@@ -258,6 +316,10 @@ export function GameDataServiceControllerMethods() {
       "themNpcSpawn",
       "suaNpcSpawn",
       "xoaNpcSpawn",
+      "getAllItemBase",
+      "themItemBase",
+      "suaItemBase",
+      "xoaItemBase",
       "getShopTheoNpc",
       "themShopItem",
       "suaShopItem",

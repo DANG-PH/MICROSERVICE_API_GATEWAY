@@ -28,6 +28,11 @@ import {
   NpcShopItemDto,
   SuaShopItemRequestDto,
   XoaShopItemRequestDto,
+  GetAllItemBaseResponseDto,
+  ThemItemBaseRequestDto,
+  SuaItemBaseRequestDto,
+  XoaItemBaseRequestDto,
+  ItemBaseDto,
 } from '../../../dto/game-data.dto';
 
 @ApiTags('Api Game Data')
@@ -193,5 +198,45 @@ export class GameDataController {
   @ApiQuery({ name: 'id', type: Number })
   async xoaShopItem(@Query() query: XoaShopItemRequestDto): Promise<void> {
     await this.gameDataService.handleXoaShopItem(query);
+  }
+
+  // ===== ITEM BASE =====
+  @Get('item-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Lấy tất cả item base (ADMIN)(WEB)' })
+  async getAllItemBase(): Promise<GetAllItemBaseResponseDto> {
+    return this.gameDataService.handleGetAllItemBase();
+  }
+
+  @Post('item-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Thêm item base mới (ADMIN)(WEB)' })
+  @ApiBody({ type: ThemItemBaseRequestDto })
+  async themItemBase(@Body() body: ThemItemBaseRequestDto): Promise<ItemBaseDto> {
+    return this.gameDataService.handleThemItemBase(body);
+  }
+
+  @Patch('item-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Sửa item base (ADMIN)(WEB)' })
+  @ApiBody({ type: SuaItemBaseRequestDto })
+  async suaItemBase(@Body() body: SuaItemBaseRequestDto): Promise<ItemBaseDto> {
+    return this.gameDataService.handleSuaItemBase(body);
+  }
+
+  @Delete('item-base')
+  @ApiBearerAuth()
+  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiOperation({ summary: 'Xóa item base (ADMIN)(WEB)' })
+  @ApiQuery({ name: 'id', type: Number })
+  async xoaItemBase(@Query() query: XoaItemBaseRequestDto): Promise<void> {
+    await this.gameDataService.handleXoaItemBase(query);
   }
 }

@@ -27,6 +27,14 @@ import {
   ThemShopItemRequest,
   SuaShopItemRequest,
   XoaShopItemRequest,
+  GetAllItemBaseResponse,
+  ThemItemBaseRequest,
+  ThemItemBaseResponse,
+  SuaItemBaseRequest,
+  SuaItemBaseResponse,
+  XoaItemBaseRequest,
+  ItemBase,
+
 } from 'proto/game-data.pb';
 import { grpcCall } from 'src/helpers/grpc.helper';
 
@@ -112,5 +120,25 @@ export class GameDataService {
 
   async handleXoaShopItem(req: XoaShopItemRequest): Promise<Empty> {
     return grpcCall(GameDataService.name, this.gameDataGrpcService.xoaShopItem(req));
+  }
+
+  // ===== ITEM BASE =====
+
+  async handleGetAllItemBase(): Promise<GetAllItemBaseResponse> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.getAllItemBase({}));
+  }
+
+  async handleThemItemBase(req: ThemItemBaseRequest): Promise<ItemBase> {
+    const res: ThemItemBaseResponse = await grpcCall(GameDataService.name, this.gameDataGrpcService.themItemBase(req));
+    return res.item;
+  }
+
+  async handleSuaItemBase(req: SuaItemBaseRequest): Promise<ItemBase> {
+    const res: SuaItemBaseResponse = await grpcCall(GameDataService.name, this.gameDataGrpcService.suaItemBase(req));
+    return res.item;
+  }
+
+  async handleXoaItemBase(req: XoaItemBaseRequest): Promise<Empty> {
+    return grpcCall(GameDataService.name, this.gameDataGrpcService.xoaItemBase(req));
   }
 }

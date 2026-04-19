@@ -22,6 +22,12 @@ service GameDataService {
   rpc SuaNpcSpawn (SuaNpcSpawnRequest) returns (NpcSpawn);
   rpc XoaNpcSpawn (XoaNpcSpawnRequest) returns (Empty);
 
+  // Item base
+  rpc GetAllItemBase (GetAllItemBaseRequest) returns (GetAllItemBaseResponse);
+  rpc ThemItemBase (ThemItemBaseRequest) returns (ThemItemBaseResponse);
+  rpc SuaItemBase (SuaItemBaseRequest) returns (SuaItemBaseResponse);
+  rpc XoaItemBase (XoaItemBaseRequest) returns (Empty);
+
   // Npc shop item
   rpc GetShopTheoNpc (GetShopTheoNpcRequest) returns (GetShopTheoNpcResponse);
   rpc ThemShopItem   (ThemShopItemRequest)   returns (NpcShopItem);
@@ -124,14 +130,16 @@ message XoaNpcSpawnRequest {
 
 // ===== NPC SHOP ITEM =====
 message NpcShopItem {
-  int32  id          = 1;
-  int32  npc_base_id = 2;
-  string ten_npc     = 3; // join từ npc_base
-  string tenItem     = 4;
-  int64  gia         = 5;
-  string loaiTien    = 6; // VANG | NGOC
-  string tab         = 7; // AO_QUAN | PHU_KIEN | DAC_BIET
-  bool   is_active   = 8;
+  int32  id           = 1;
+  int32  npc_base_id  = 2;
+  string ten_npc      = 3;
+  int32  item_base_id = 4;  
+  string ten_item     = 5;  // ← join từ item_base
+  string ma_item      = 6;  // ← join từ item_base
+  int64  gia          = 7;
+  string loaiTien     = 8;
+  string tab          = 9;
+  bool   is_active    = 10;
 }
 
 message GetShopTheoNpcRequest {
@@ -143,23 +151,59 @@ message GetShopTheoNpcResponse {
 }
 
 message ThemShopItemRequest {
-  int32  npc_base_id = 1;
-  string tenItem     = 2;
-  int64  gia         = 3;
-  string loaiTien    = 4;
-  string tab         = 5;
-  bool   is_active   = 6;
+  int32  npc_base_id  = 1;
+  int32  item_base_id = 2;  
+  int64  gia          = 3;
+  string loaiTien     = 4;
+  string tab          = 5;
+  bool   is_active    = 6;
 }
 
 message SuaShopItemRequest {
-  int32  id        = 1;
-  string tenItem   = 2;
-  int64  gia       = 3;
-  string loaiTien  = 4;
-  string tab       = 5;
-  bool   is_active = 6;
+  int32  id           = 1;
+  int32  item_base_id = 2;  
+  int64  gia          = 3;
+  string loaiTien     = 4;
+  string tab          = 5;
+  bool   is_active    = 6;
 }
 
 message XoaShopItemRequest {
+  int32 id = 1;
+}
+
+// ===== ITEM BASE =====
+message ItemBase {
+  int32  id  = 1;
+  string ten = 2;
+  string ma  = 3;
+}
+
+message GetAllItemBaseRequest {}
+
+message GetAllItemBaseResponse {
+  repeated ItemBase items = 1;
+}
+
+message ThemItemBaseRequest {
+  string ten = 1;
+  string ma  = 2;
+}
+
+message ThemItemBaseResponse {
+  ItemBase item = 1;
+}
+
+message SuaItemBaseRequest {
+  int32  id  = 1;
+  string ten = 2;
+  string ma  = 3;
+}
+
+message SuaItemBaseResponse {
+  ItemBase item = 1;
+}
+
+message XoaItemBaseRequest {
   int32 id = 1;
 }
