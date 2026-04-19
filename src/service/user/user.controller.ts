@@ -30,7 +30,7 @@ export class UserController {
 
     if (platform === 'game') {
       // Game luôn lấy từ DB - cần data chính xác
-      console.log("Game lấy data profile")
+      // console.log("Game lấy data profile")
       return this.userService.handleProfile({ id: userId });
     }
 
@@ -41,7 +41,7 @@ export class UserController {
 
     const data = await this.userService.handleProfile({ id: userId });
     // Chưa có invalidate on write thì 2 phút cache là sweet pot
-    await this.redis.set(key, JSON.stringify(data), 'EX', 120); // TTL 
+    this.redis.set(key, JSON.stringify(data), 'EX', 120); // TTL, Fire and Forget 
     return data;
   }
 
