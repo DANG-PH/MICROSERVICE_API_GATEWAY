@@ -404,7 +404,7 @@ export class WsGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { tmpId:number, item: Item }
   ) {
-    console.log('Received add-item:', JSON.stringify(body)); 
+    // console.log('Received add-item:', JSON.stringify(body)); 
     const { userId } = client.data.user;
 
     if (!body.item) {

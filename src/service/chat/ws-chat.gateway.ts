@@ -92,7 +92,7 @@ export class WsChatGateway {
       }
     }
 
-    console.log(`ACTIVE_CHAT:${body.roomId}`)
+    // console.log(`ACTIVE_CHAT:${body.roomId}`)
     // Join active chat mới
     client.join(`ACTIVE_CHAT:${body.roomId}`);
   }

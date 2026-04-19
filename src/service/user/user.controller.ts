@@ -26,7 +26,23 @@ export class UserController {
   @ApiOperation({ summary: 'User xem profile của chính mình (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async profile(@Req() req: any) {
     const userId = req.user.userId;
-    return this.userService.handleProfile({id: userId});
+    const platform = req.user.platform; // lấy từ JWT
+
+    if (platform === 'game') {
+      // Game luôn lấy từ DB - cần data chính xác
+      console.log("Game lấy data profile")
+      return this.userService.handleProfile({ id: userId });
+    }
+
+    // Web: lazy cache, case này no lock is fine (cùng lắm 2-3 req hit db, k gây ra vấn đề quá lớn)
+    const key = `profile:${userId}`;
+    const cache = await this.redis.get(key);
+    if (cache) return JSON.parse(cache);
+
+    const data = await this.userService.handleProfile({ id: userId });
+    // Chưa có invalidate on write thì 2 phút cache là sweet pot
+    await this.redis.set(key, JSON.stringify(data), 'EX', 120); // TTL 
+    return data;
   }
 
   @Put('save-game')
@@ -145,7 +161,6 @@ export class UserController {
   @ApiOperation({ summary: 'User lấy item web của bản thân (USER)(GAME/WEB) (ĐÃ DÙNG)' })
   async getItemWeb(@Req() req: any) {
     const userId = req.user.userId;
-    console.log(userId)
     return this.userService.handleGetItemWeb({id: userId});
   }
 
