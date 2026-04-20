@@ -1,8 +1,10 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { catchError, throwError } from 'rxjs';
 import { status as grpcStatus } from '@grpc/grpc-js';
 import { firstValueFrom, lastValueFrom, Observable } from 'rxjs';
 import { winstonLogger } from 'src/logger/logger.config'; 
+import { getBreakerFor } from './circuit-breaker.registry';
+import { BrokenCircuitError, IsolatedCircuitError } from 'cockatiel';
 
 // Parse lỗi gRPC sang Http
 export function grpcToHttp(code: number | null) {
@@ -36,9 +38,34 @@ export async function grpcCall<T>(serviceName = 'UnknownService',obs: Observable
       if (httpStatus >= 500) {
         winstonLogger.error({ message, service: serviceName, admin: process.env.ADMIN_TEST });
       }
+      // trả về Observable<never> chứa error
+      // pipe() nhận Observable này, tiếp tục chain
       return throwError(() => new HttpException(parsed.message, httpStatus));
     })
   );
 
-  return useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped);
+  // CB lấy theo serviceName — mỗi service có breaker riêng.
+  // Nếu CB đang OPEN hoặc ISOLATED: throw BrokenCircuitError ngay,
+  // không execute callback, không gọi gRPC gì cả.
+  const breaker = getBreakerFor(serviceName);
+
+  try {
+    return await breaker.execute(() =>
+      useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped)
+    );
+    // → firstValueFrom(wrapped) subscribe Observable đó
+    // → Observable emit error → firstValueFrom reject với HttpException
+    // → breaker.execute() nhận reject → throw HttpException ra ngoài
+    // → catch (err) bắt được ← lúc này mới throw thật
+  } catch (err) {
+    // CB đang OPEN hoặc ISOLATED — service tạm thời không khả dụng
+    // Trả 503 thay vì 500 để client biết đây là vấn đề tạm thời, không phải lỗi logic
+    if (err instanceof BrokenCircuitError || err instanceof IsolatedCircuitError) {
+      throw new HttpException(
+        'Service temporarily unavailable, please try again later',
+        HttpStatus.SERVICE_UNAVAILABLE, // 503
+      );
+    }
+    throw err; // lỗi thực từ service → throw lên bình thường
+  }
 }

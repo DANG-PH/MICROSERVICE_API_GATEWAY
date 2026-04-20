@@ -15,6 +15,8 @@ import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { RedisIoAdapter } from './redis-io.adapter';
 import { XssSanitizePipe } from './pipes/xss-sanitize.pipe';
 import { GlobalExceptionFilter } from './filters/http-exception.filter';
+import { initCbRedisSync } from './helpers/cb-redis-sync';
+import { getBreakerFor } from './helpers/circuit-breaker.registry';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -100,6 +102,12 @@ async function bootstrap() {
 
   await app.listen(Number(process.env.PORT), '0.0.0.0');
   console.log(bold(green(`🚀 Server Dashboard: http://${process.env.SERVER_DASHBOARD_URL}`)));
+
+  // Gọi SAU app.listen() — đảm bảo tất cả module đã init xong
+  // trước khi bắt đầu nhận sync event từ các instance khác.
+  // Nếu gọi trước listen(): getBreakerFor() có thể được gọi
+  // khi registry chưa sẵn sàng.
+  initCbRedisSync(getBreakerFor);
 }
 bootstrap();
 

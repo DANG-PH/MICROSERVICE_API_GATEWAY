@@ -12,10 +12,14 @@
 4. [Khi nào nên dùng](#4-khi-nào-nên-dùng)
 5. [Tác hại và rủi ro nếu dùng sai](#5-tác-hại-và-rủi-ro-nếu-dùng-sai)
 6. [Implement trong NestJS + gRPC](#6-implement-trong-nestjs--grpc)
-7. [Case thực tế: MMORPG Backend](#7-case-thực-tế-mmorpg-backend)
-8. [Những gì được upgrade khi thêm CB](#8-những-gì-được-upgrade-khi-thêm-cb)
-9. [Tips và best practices](#9-tips-và-best-practices)
-10. [Các config quan trọng cần tuning](#10-các-config-quan-trọng-cần-tuning)
+7. [CB vs Bulkhead vs Timeout](#7-cb-vs-bulkhead-vs-timeout)
+8. [PM2 Cluster: vấn đề in-memory và giải pháp Redis Pub/Sub](#8-pm2-cluster-vấn-đề-in-memory-và-giải-pháp-redis-pubsub)
+9. [Graceful Degradation](#9-graceful-degradation)
+10. [Testing Circuit Breaker](#10-testing-circuit-breaker)
+11. [Case thực tế: MMORPG Backend](#11-case-thực-tế-mmorpg-backend)
+12. [Những gì được upgrade khi thêm CB](#12-những-gì-được-upgrade-khi-thêm-cb)
+13. [Tips và best practices](#13-tips-và-best-practices)
+14. [Các config quan trọng cần tuning](#14-các-config-quan-trọng-cần-tuning)
 
 ---
 
@@ -70,7 +74,7 @@ CB giải quyết cả hai vấn đề bằng cách ngắt mạch sớm và cho 
 
 ---
 
-## 3. Ba trạng thái hoạt động
+## 3. Bốn trạng thái hoạt động
 
 ```
                     failure count >= threshold
@@ -87,13 +91,36 @@ CB giải quyết cả hai vấn đề bằng cách ngắt mạch sớm và cho 
          └──────── success ────────────────────────┘
                                     │
                     failure ────────┘ (quay lại OPEN)
+
+         breaker.isolate() ──────────────────▶ ISOLATED
+                                                  │
+                                           handle.dispose()
+                                                  │
+                                                  ▼
+                                               CLOSED
 ```
 
-| State | Hành vi | Khi nào |
-|---|---|---|
-| **CLOSED** | Request đi qua bình thường, CB đếm failure | Mặc định |
-| **OPEN** | Reject tất cả request ngay lập tức, không gọi service | Khi failure >= threshold |
-| **HALF-OPEN** | Cho 1 request thử qua để kiểm tra recovery | Sau `halfOpenAfter` ms |
+| State | Hành vi | Khi nào | Tự recover |
+|---|---|---|---|
+| **CLOSED** | Request đi qua bình thường, CB đếm failure | Mặc định | — |
+| **OPEN** | Reject tất cả request ngay lập tức | Khi failure >= threshold | ✅ Sau `halfOpenAfter` ms |
+| **HALF-OPEN** | Cho 1 request thử qua để kiểm tra recovery | Sau `halfOpenAfter` ms | ✅ Tự CLOSED nếu success |
+| **ISOLATED** | Reject tất cả request ngay lập tức | Bị force từ bên ngoài qua `isolate()` | ❌ Phải gọi `handle.dispose()` |
+
+### OPEN vs ISOLATED — khác nhau ở điểm nào
+
+```
+OPEN:
+  CB tự trip sau N lần fail thực tế
+  → tự chuyển sang HALF-OPEN sau halfOpenAfter ms
+  → tự xác nhận recovery qua 1 request thật
+
+ISOLATED:
+  Bị force bởi code bên ngoài (ví dụ: Redis Pub/Sub sync)
+  → không tự recover, phải gọi handle.dispose() thủ công
+  → dùng khi instance không có failure count thực tế
+    nhưng cần ngắt mạch vì instance khác đã biết service down
+```
 
 ### Timeline ví dụ thực tế
 
@@ -365,7 +392,582 @@ export class HealthController {
 
 ---
 
-## 7. Case thực tế: MMORPG Backend
+## 7. CB vs Bulkhead vs Timeout
+
+Ba pattern này hay bị nhầm lẫn vì đều liên quan đến fault tolerance. Chúng giải quyết **các vấn đề khác nhau** và thường dùng kết hợp.
+
+| Pattern | Giải quyết vấn đề gì | Cơ chế |
+|---|---|---|
+| **Timeout** | Một request chờ quá lâu | Hủy request sau N giây |
+| **Bulkhead** | Một service ngốn hết tài nguyên | Giới hạn concurrent request tới mỗi service |
+| **Circuit Breaker** | Service liên tục fail → cascade failure | Ngắt mạch sau N lần fail liên tiếp |
+
+### Timeout
+
+```typescript
+// Giải quyết: request đơn lẻ bị treo
+// Không giải quyết: 1000 request cùng treo (mỗi cái chờ đủ 30s rồi mới fail)
+const result = await Promise.race([
+  grpcCall('AuthService', obs),
+  new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+]);
+```
+
+Timeout cần thiết nhưng không đủ — nếu 1000 request cùng timeout sau 5s, server vẫn bị block 5s × 1000 = 5000 giây tổng cộng.
+
+### Bulkhead
+
+```typescript
+// Giải quyết: một service chậm không được chiếm hết thread pool
+// Ví dụ: giới hạn tối đa 20 concurrent call tới inventory-service
+import { BulkheadPolicy, bulkhead } from 'cockatiel';
+
+const inventoryBulkhead = bulkhead(20); // max 20 concurrent
+const result = await inventoryBulkhead.execute(() =>
+  grpcCall('InventoryService', obs)
+);
+// Request thứ 21 bị reject ngay thay vì queue chờ
+```
+
+### Ba layer kết hợp — production-grade
+
+```
+Request
+  │
+  ▼
+[Bulkhead] — giới hạn concurrent, bảo vệ thread pool
+  │
+  ▼
+[Circuit Breaker] — ngắt mạch nếu service liên tục fail
+  │
+  ▼
+[Timeout] — timeout từng request đơn lẻ
+  │
+  ▼
+  gRPC call
+```
+
+```typescript
+// Kết hợp cả ba trong grpcCall
+const bulkheadPolicy = bulkhead(20, 5); // max 20 concurrent, queue 5
+const retryPolicy = retry(handleWhen(...), { maxAttempts: 2 });
+
+return bulkheadPolicy.execute(() =>
+  breaker.execute(() =>
+    retryPolicy.execute(() =>
+      firstValueFrom(obs.pipe(...))
+    )
+  )
+);
+```
+
+---
+
+## 8. PM2 Cluster + Multi-VPS: vấn đề in-memory và giải pháp Redis Pub/Sub
+
+### Vấn đề
+
+Mỗi PM2 instance là một process độc lập với RAM riêng. CB state là biến in-memory — không shared giữa các process:
+
+```
+VPS 1 PM2-0  →  CB[AuthService]: OPEN     ✂ chặn request  (instance tự trip)
+VPS 1 PM2-1  →  CB[AuthService]: CLOSED   → vẫn gọi auth-service đang chết
+VPS 2 PM2-0  →  CB[AuthService]: CLOSED   → vẫn gọi auth-service đang chết
+VPS 2 PM2-1  →  CB[AuthService]: CLOSED   → vẫn gọi auth-service đang chết
+```
+
+75% traffic vẫn hit service đang down. CB chỉ hiệu quả ở 1 trong 4 instance.
+
+### Tại sao không lưu state thẳng vào Redis
+
+`breaker.execute()` được gọi **mỗi request**. Nếu state nằm ở Redis:
+
+```
+❌ Sai — check Redis mỗi request:
+  Request → await redis.get('cb:AuthService')  (1-5ms network) → check → gọi gRPC
+
+  Vấn đề 1: thêm 1-5ms vào mỗi request — không chấp nhận được với hệ thống real-time
+  Vấn đề 2: Redis down → CB không check được → CB trở thành SPOF
+  Vấn đề 3: phải tự viết lại toàn bộ logic cockatiel (reference counting,
+            ConsecutiveBreaker, halfOpenAfter timer...) — reinvent the wheel
+```
+
+### Giải pháp đúng: in-memory check + Redis Pub/Sub đồng bộ
+
+```
+✅ Đúng — tách hot path và cold path:
+
+  Hot path (mỗi request, hàng nghìn/giây):
+    Request → breaker.execute() → check this.state (RAM, 0ms) → gọi gRPC
+
+  Cold path (khi state thay đổi, vài lần/giờ):
+    CB trip → publish lên Redis → các instance nhận → update state local
+```
+
+Dùng nguyên cockatiel không sửa gì. Redis chỉ để broadcast — không ảnh hưởng latency.
+
+### Flow đồng bộ giữa 4 instance
+
+```
+t=0ms   VPS1-PM2-0: auth-service fail lần 5 → CB OPEN
+          → onStateChange fired → publishCbState('AuthService', Open)
+          → Redis publish lên channel 'mmorpg:circuit-breaker:state'
+
+t=3ms   VPS1-PM2-1 nhận message → breaker.isolate() → CB: ISOLATED
+t=3ms   VPS2-PM2-0 nhận message → breaker.isolate() → CB: ISOLATED
+t=3ms   VPS2-PM2-1 nhận message → breaker.isolate() → CB: ISOLATED
+
+t=3ms   Tất cả 4 instance đều chặn request ✅
+
+t=10s   VPS1-PM2-0: CB HALF-OPEN → thử 1 request → auth-service đã recover
+          → CB CLOSED → publishCbState('AuthService', Closed)
+
+t=10s+3ms  VPS1-PM2-1 nhận Closed → handle.dispose() → CB: ISOLATED → CLOSED
+t=10s+3ms  VPS2-PM2-0 nhận Closed → handle.dispose() → CB: ISOLATED → CLOSED
+t=10s+3ms  VPS2-PM2-1 nhận Closed → handle.dispose() → CB: ISOLATED → CLOSED
+```
+
+### Tại sao instance nhận event bị ISOLATED thay vì OPEN
+
+Instance B không có failure count thực tế — nó chỉ nghe A nói "service đang chết". Nếu để B tự recover độc lập như OPEN (sau halfOpenAfter tự thử):
+
+```
+t=10s  A vào HALF-OPEN, thử 1 request → fail → OPEN lại → publish Open
+       B cũng tự HALF-OPEN → thử gọi service → fail → trip → publish Open
+       C cũng tự HALF-OPEN → thử gọi service → fail → trip → publish Open
+       → A nhận Open từ B, C → xử lý thừa
+       → B nhận Open từ A, C → cross-publish chéo nhau
+       → state machine lộn xộn, noise không kiểm soát được
+```
+
+ISOLATED không tự recover → B, C, D im lặng hoàn toàn. Chỉ A có ground truth, chỉ A tự recover, chỉ A publish Closed → B, C, D mới release.
+
+### Trade-off: worst case khi Redis down
+
+```
+A: OPEN → CLOSED → publish Closed → Redis down → event MẤT
+B, C, D vẫn ISOLATED mãi mãi dù service đã sống
+→ 3/4 instance chặn traffic vô thời hạn
+```
+
+Fix: safety timeout với jitter — mỗi instance tự dispose() sau 60-90s nếu không nhận được Closed event.
+
+### Vấn đề thundering herd nếu không có jitter
+
+Nếu tất cả instance cùng timeout 60s:
+
+```
+t=60s  B timeout → dispose → CLOSED → gọi service → fail → trip → publish Open
+       C timeout → dispose → CLOSED → gọi service → fail → trip → publish Open
+       D timeout → dispose → CLOSED → gọi service → fail → trip → publish Open
+       → 3 instance cùng gọi service, cùng fail, cùng publish Open
+       → cross-publish noise, reference counter tăng không kiểm soát
+```
+
+Fix: jitter tính từ INSTANCE_ID (UUID) → mỗi instance timeout ở thời điểm khác nhau trong khoảng 60-90s. Instance nào timeout trước thử một mình, nếu service vẫn chết thì publish Open → các instance khác reset timeout thêm 60s.
+
+### Implementation — cb-redis-sync.ts
+
+```typescript
+import Redis from 'ioredis';
+import { CircuitState, CircuitBreakerPolicy } from 'cockatiel';
+import { randomUUID } from 'crypto';
+
+const CB_CHANNEL = 'mmorpg:circuit-breaker:state';
+
+// UUID random — không cần config .env, unique mỗi lần process khởi động
+const INSTANCE_ID = randomUUID();
+
+const ISOLATED_TIMEOUT_MS = 60_000;
+
+// Jitter từ INSTANCE_ID: 0-30s thêm vào base timeout
+// → mỗi instance timeout ở thời điểm khác nhau → tránh thundering herd
+const jitter = (parseInt(INSTANCE_ID.slice(0, 2), 16) / 255) * 30_000;
+const ISOLATED_TIMEOUT_WITH_JITTER = ISOLATED_TIMEOUT_MS + jitter;
+
+// 2 connection riêng — Redis không cho phép 1 connection vừa PUB vừa SUB
+const pub = new Redis(process.env.REDIS_URL ?? '');
+const sub = pub.duplicate();
+
+// Lưu isolate handle + timeoutId để dispose() đúng cách
+// isolate() dùng reference counting — phải dispose đúng handle mới release được
+const isolateHandles = new Map<string, {
+  handle: { dispose: () => void };
+  timeoutId: ReturnType<typeof setTimeout>;
+}>();
+
+export function initCbRedisSync(
+  getBreakerFor: (name: string) => CircuitBreakerPolicy,
+): void {
+  sub.subscribe(CB_CHANNEL, (err) => {
+    if (err) { console.error(`[CB Sync] Failed to subscribe: ${err.message}`); return; }
+    console.log(`[CB Sync] Subscribed — instance: ${INSTANCE_ID}`);
+  });
+
+  sub.on('message', (_channel, raw) => {
+    let msg: { service: string; state: CircuitState; fromInstance: string };
+    try { msg = JSON.parse(raw); } catch { return; }
+
+    if (msg.fromInstance === INSTANCE_ID) return; // bỏ qua event của chính mình
+
+    const breaker = getBreakerFor(msg.service);
+
+    if (msg.state === CircuitState.Open) {
+      // Dọn handle cũ trước (tránh reference counter leak)
+      const existing = isolateHandles.get(msg.service);
+      if (existing) {
+        clearTimeout(existing.timeoutId);
+        existing.handle.dispose();
+      }
+
+      const handle = breaker.isolate();
+
+      // Safety net: tự release nếu Closed event bị mất (Redis down...)
+      const timeoutId = setTimeout(() => {
+        const current = isolateHandles.get(msg.service);
+        if (current) {
+          current.handle.dispose();
+          isolateHandles.delete(msg.service);
+          console.warn(`[CB Sync] [${msg.service}] Safety timeout — releasing isolation`);
+        }
+      }, ISOLATED_TIMEOUT_WITH_JITTER);
+
+      isolateHandles.set(msg.service, { handle, timeoutId });
+
+    } else if (msg.state === CircuitState.Closed) {
+      const existing = isolateHandles.get(msg.service);
+      if (existing) {
+        clearTimeout(existing.timeoutId); // hủy safety timeout
+        existing.handle.dispose();        // ISOLATED → CLOSED
+        isolateHandles.delete(msg.service);
+      }
+    }
+  });
+
+  process.on('SIGTERM', () => { pub.quit(); sub.quit(); });
+  process.on('SIGINT',  () => { pub.quit(); sub.quit(); });
+}
+
+export function publishCbState(service: string, state: CircuitState): void {
+  pub.publish(CB_CHANNEL, JSON.stringify({
+    service, state, fromInstance: INSTANCE_ID, timestamp: Date.now(),
+  })).catch(err => console.warn(`[CB Sync] Failed to publish: ${err.message}`));
+}
+```
+
+### Implementation — circuit-breaker.registry.ts
+
+```typescript
+import { circuitBreaker, CircuitBreakerPolicy, CircuitState, ConsecutiveBreaker, handleWhen } from 'cockatiel';
+import { HttpException } from '@nestjs/common';
+import { publishCbState } from './cb-redis-sync';
+
+const breakerRegistry = new Map<string, CircuitBreakerPolicy>();
+
+const STATE_LABEL: Record<CircuitState, string> = {
+  [CircuitState.Closed]:   'CLOSED',
+  [CircuitState.Open]:     'OPEN',
+  [CircuitState.HalfOpen]: 'HALF-OPEN',
+  [CircuitState.Isolated]: 'ISOLATED',
+};
+
+export function getBreakerFor(serviceName: string): CircuitBreakerPolicy {
+  if (!breakerRegistry.has(serviceName)) {
+    const breaker = circuitBreaker(
+      handleWhen((err: unknown) => err instanceof HttpException && err.getStatus() >= 500),
+      { halfOpenAfter: 10_000, breaker: new ConsecutiveBreaker(5) },
+    );
+
+    breaker.onStateChange(state => {
+      const logFn = state === CircuitState.Open ? console.error : console.log;
+      logFn(`[CB] [${serviceName}] → ${STATE_LABEL[state]}`);
+
+      // Chỉ broadcast Open và Closed — 2 event cần sync toàn cluster
+      // Không broadcast HalfOpen (nội bộ) và Isolated (do Redis sync set, tránh vòng lặp)
+      if (state === CircuitState.Open || state === CircuitState.Closed) {
+        publishCbState(serviceName, state);
+      }
+    });
+
+    breakerRegistry.set(serviceName, breaker);
+  }
+  return breakerRegistry.get(serviceName)!;
+}
+
+export function getAllBreakerStates(): Record<string, string> {
+  const result: Record<string, string> = {};
+  breakerRegistry.forEach((breaker, name) => { result[name] = STATE_LABEL[breaker.state]; });
+  return result;
+}
+
+export { breakerRegistry };
+```
+
+### Implementation — grpcCall với CB
+
+```typescript
+import { getBreakerFor } from 'src/common/resilience/circuit-breaker.registry';
+
+export async function grpcCall<T>(
+  serviceName = 'UnknownService',
+  obs: Observable<T>,
+  useLastValue = false,
+  metadata?,
+): Promise<T> {
+  const wrapped = obs.pipe(
+    catchError(err => {
+      const parsed = parseGrpcError(err);
+      const httpStatus = grpcToHttp(parsed?.code ?? null);
+      if (httpStatus >= 500) {
+        winstonLogger.error({ message: `🆘 HTTP ${httpStatus}: ${parsed?.message}`, service: serviceName });
+      }
+      // Throw HttpException để CB nhận và đếm failure (chỉ khi >= 500)
+      return throwError(() => new HttpException(parsed?.message, httpStatus));
+    }),
+  );
+
+  // breaker.execute() check state trước (0ms, in-memory):
+  //   CLOSED   → chạy fn bình thường
+  //   OPEN     → throw BrokenCircuitError ngay, không gọi gRPC
+  //   ISOLATED → throw IsolatedCircuitError ngay, không gọi gRPC
+  const breaker = getBreakerFor(serviceName);
+  return breaker.execute(() =>
+    useLastValue ? lastValueFrom(wrapped) : firstValueFrom(wrapped)
+  );
+}
+```
+
+### Khởi động trong main.ts
+
+```typescript
+import { initCbRedisSync } from 'src/common/resilience/cb-redis-sync';
+import { getBreakerFor } from 'src/common/resilience/circuit-breaker.registry';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  // ... setup
+  await app.listen(3000);
+
+  // Gọi SAU listen() — đảm bảo tất cả module đã init xong
+  initCbRedisSync(getBreakerFor);
+}
+```
+
+---
+
+## 9. Graceful Degradation
+
+Khi CB OPEN, thay vì trả lỗi cứng, có thể trả **fallback response** tùy loại operation.
+
+### Phân loại operation
+
+| Loại | Ví dụ | Fallback phù hợp |
+|---|---|---|
+| **Read** | Lấy danh sách shop items | Cache cũ, empty list |
+| **Write** | Mua item, transfer tiền | Không fallback, báo lỗi rõ |
+| **Saga** | buyAccountSaga | Không fallback, compensate |
+| **Non-critical** | Log activity, analytics | Silent drop |
+
+### Detect CB OPEN error
+
+```typescript
+import { BrokenCircuitError } from 'cockatiel';
+
+// BrokenCircuitError được throw khi CB đang OPEN
+// Phân biệt với lỗi thực từ service
+try {
+  return await grpcCall('ShopService', this.shopClient.getItems(dto));
+} catch (err) {
+  if (err instanceof BrokenCircuitError) {
+    // CB đang OPEN — service có thể đang recover
+    // Đây không phải lỗi của request, không nên log như lỗi thường
+    return this.getFallback(dto);
+  }
+  throw err; // lỗi thực từ service → throw lên
+}
+```
+
+### Read operation — trả cache
+
+```typescript
+async getShopItems(dto: GetShopDto) {
+  try {
+    const items = await grpcCall('ShopService', this.shopClient.getItems(dto));
+    // Cập nhật cache mỗi khi gọi thành công
+    await this.redis.set(`shop:items:${dto.shopId}`, JSON.stringify(items), 'EX', 300);
+    return items;
+  } catch (err) {
+    if (err instanceof BrokenCircuitError) {
+      // CB OPEN → trả cache
+      const cached = await this.redis.get(`shop:items:${dto.shopId}`);
+      if (cached) return JSON.parse(cached);
+      return { items: [], message: 'Shop temporarily unavailable, showing cached data' };
+    }
+    throw err;
+  }
+}
+```
+
+### Write operation — báo lỗi rõ, không silent fail
+
+```typescript
+async buyItem(dto: BuyItemDto) {
+  try {
+    return await grpcCall('InventoryService', this.inventoryClient.buy(dto));
+  } catch (err) {
+    if (err instanceof BrokenCircuitError) {
+      // KHÔNG fallback — tiền thật, không thể giả vờ thành công
+      throw new ServiceUnavailableException(
+        'Payment service is temporarily unavailable. Please try again in a moment.'
+      );
+    }
+    throw err;
+  }
+}
+```
+
+### Non-critical operation — silent drop
+
+```typescript
+async logPlayerActivity(dto: ActivityDto) {
+  try {
+    await grpcCall('LogService', this.logClient.record(dto));
+  } catch (err) {
+    if (err instanceof BrokenCircuitError) {
+      // Log service down không ảnh hưởng gameplay
+      // Drop silently, không throw
+      winstonLogger.warn({ message: 'Activity log dropped — LogService CB OPEN' });
+      return;
+    }
+    throw err;
+  }
+}
+```
+
+---
+
+## 10. Testing Circuit Breaker
+
+Testing CB là phần hay bị bỏ qua nhất. Có 3 level cần test.
+
+### Level 1: Unit test — verify CB trip đúng ngưỡng
+
+```typescript
+// circuit-breaker.registry.spec.ts
+import { getBreakerFor } from './circuit-breaker.registry';
+import { BrokenCircuitError } from 'cockatiel';
+import { HttpException, HttpStatus } from '@nestjs/common';
+
+describe('CircuitBreaker Registry', () => {
+  it('should trip after 5 consecutive 500 errors', async () => {
+    const breaker = getBreakerFor('TestService_' + Date.now()); // unique key để tránh state leak
+
+    const failingCall = () =>
+      breaker.execute(() => {
+        throw new HttpException('Internal error', HttpStatus.INTERNAL_SERVER_ERROR);
+      });
+
+    // 5 lần fail liên tiếp
+    for (let i = 0; i < 5; i++) {
+      await expect(failingCall()).rejects.toThrow();
+    }
+
+    // Lần thứ 6 phải bị CB chặn ngay
+    await expect(failingCall()).rejects.toThrow(BrokenCircuitError);
+  });
+
+  it('should NOT trip on 4xx errors', async () => {
+    const breaker = getBreakerFor('TestService_4xx_' + Date.now());
+
+    const clientErrorCall = () =>
+      breaker.execute(() => {
+        throw new HttpException('Not found', HttpStatus.NOT_FOUND);
+      });
+
+    // 10 lần 404 — CB không được trip
+    for (let i = 0; i < 10; i++) {
+      await expect(clientErrorCall()).rejects.toThrow(HttpException);
+    }
+
+    // CB vẫn CLOSED — lần tiếp theo vẫn throw HttpException, không phải BrokenCircuitError
+    await expect(clientErrorCall()).rejects.toThrow(HttpException);
+    await expect(clientErrorCall()).rejects.not.toThrow(BrokenCircuitError);
+  });
+});
+```
+
+### Level 2: Integration test — verify fallback behavior
+
+```typescript
+// shop.service.spec.ts
+import { BrokenCircuitError } from 'cockatiel';
+
+describe('ShopService - CB fallback', () => {
+  it('should return cached data when CB is open', async () => {
+    // Arrange: mock gRPC call throw BrokenCircuitError
+    jest.spyOn(grpcCallUtil, 'grpcCall').mockRejectedValue(new BrokenCircuitError());
+    jest.spyOn(redis, 'get').mockResolvedValue(JSON.stringify([{ id: 1, name: 'Sword' }]));
+
+    // Act
+    const result = await shopService.getShopItems({ shopId: '1' });
+
+    // Assert: trả về cache thay vì throw
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].name).toBe('Sword');
+  });
+
+  it('should throw ServiceUnavailableException for write ops when CB is open', async () => {
+    jest.spyOn(grpcCallUtil, 'grpcCall').mockRejectedValue(new BrokenCircuitError());
+
+    await expect(shopService.buyItem({ itemId: '1', userId: 'u1' }))
+      .rejects.toThrow(ServiceUnavailableException);
+  });
+});
+```
+
+### Level 3: E2E / chaos test — simulate service down
+
+```typescript
+// Dùng trong staging environment, không dùng production
+describe('CB E2E — chaos test', () => {
+  it('should protect gateway when auth-service is down', async () => {
+    // 1. Force CB của AuthService vào OPEN
+    const breaker = getBreakerFor('AuthService');
+    breaker.isolate(); // force OPEN
+
+    // 2. Gửi request cần auth
+    const response = await request(app.getHttpServer())
+      .get('/profile')
+      .set('Authorization', 'Bearer valid-token');
+
+    // 3. Expect 503, không phải timeout
+    expect(response.status).toBe(503);
+    expect(response.body.message).toContain('temporarily unavailable');
+
+    // 4. Release CB
+    // CB tự recover sau halfOpenAfter
+  });
+});
+```
+
+### Lưu ý quan trọng khi test
+
+```typescript
+// ❌ Sai — dùng chung serviceName giữa các test → state leak
+getBreakerFor('AuthService') // test A set OPEN
+getBreakerFor('AuthService') // test B nhận CB đã OPEN từ test A
+
+// ✅ Đúng — unique key cho mỗi test
+getBreakerFor('AuthService_' + Date.now())
+getBreakerFor('AuthService_' + Math.random())
+
+// Hoặc reset registry trong beforeEach
+beforeEach(() => breakerRegistry.clear());
+```
+
+---
+
+## 11. Case thực tế: MMORPG Backend
 
 ### Kiến trúc hiện tại
 
@@ -455,7 +1057,7 @@ Tổng thời gian downtime thực tế: 25s. Không có cascade failure.
 
 ---
 
-## 8. Những gì được upgrade khi thêm CB
+## 12. Những gì được upgrade khi thêm CB
 
 ### 8.1 Reliability
 
@@ -482,7 +1084,7 @@ Với MMORPG backend chạy 24/7 thực tế:
 
 ---
 
-## 9. Tips và best practices
+## 13. Tips và best practices
 
 ### 9.1 Đừng log khi CB đang OPEN — chỉ log khi state thay đổi
 
@@ -580,7 +1182,7 @@ Không có con số "đúng" cho tất cả hệ thống. Nguyên tắc:
 
 ---
 
-## 10. Các config quan trọng cần tuning
+## 14. Các config quan trọng cần tuning
 
 | Config | Default recommend | Giải thích |
 |---|---|---|
