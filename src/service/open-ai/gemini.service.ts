@@ -17,10 +17,19 @@ export class GeminiService implements OnModuleInit {
 
   // Model dùng để generate text (có fallback khi 429)
   private readonly CHAT_MODELS = [
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
+    // Gemini 2.0 — stable, ít 503, lên đầu
     'gemini-2.0-flash',
-    'gemini-flash-latest',
+    'gemini-2.0-flash-001',   // pinned version, ổn định hơn alias
+    'gemini-2.0-flash-lite',
+    'gemini-2.0-flash-lite-001',
+
+    // Gemini 2.5 — mạnh hơn nhưng hay 503
+    'gemini-2.5-flash-lite',  // lite trước vì ít bị overload hơn
+    'gemini-2.5-flash',
+
+    // Gemini 3.x preview — thử cuối nếu tất cả trên fail
+    'gemini-3-flash-preview',
+    'gemini-3.1-flash-lite-preview',
   ];
 
   // Model dùng để embed — chỉ 1 model, không cần fallback
