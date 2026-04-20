@@ -16,7 +16,7 @@ export class OpenAIController {
   @Post('ask') 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'User hỏi thông tin, AI trả lời (USER)(GAME/WEB) (CHƯA DÙNG)' })
+  @ApiOperation({ summary: 'Hỏi AI về tài liệu dự án (RAG)' })
   @ApiBody({ type:  AskAiRequest })
   async ask(@Body() body: AskAiRequest) {
     if (!body.tinNhan) return "Không thể xử lí tin nhắn của bạn";
