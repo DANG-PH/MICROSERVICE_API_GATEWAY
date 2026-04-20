@@ -5,6 +5,7 @@ import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
+import { getAllBreakerStates } from './helpers/circuit-breaker.registry';
 // import { PlayerManagerService } from './service/admin/player_manager/player_manager.service';
 
 @Controller()
@@ -32,6 +33,31 @@ export class AppController {
     const data = await versionRes.json();
     version = data.version || version;
     jarUrl = data.jar || jarUrl;
+
+    // Lấy CB states để hiển thị trong server info page
+    const cbStates = getAllBreakerStates();
+    const cbEntries = Object.entries(cbStates);
+
+    // Render từng service thành 1 row trong bảng
+    // Màu tag theo state: CLOSED=green, OPEN=đỏ, HALF-OPEN=vàng, ISOLATED=tím
+    const cbStateTag = (state: string) => {
+      const map: Record<string, string> = {
+        'CLOSED':    'tag-green',
+        'OPEN':      'tag-red',
+        'HALF-OPEN': 'tag-gold',
+        'ISOLATED':  'tag-purple',
+      };
+      return map[state] ?? 'tag-blue';
+    };
+
+    const cbRows = cbEntries.length === 0
+      ? `<tr><td colspan="2" style="color:rgba(255,255,255,0.3);font-size:12px;">Chưa có service nào được gọi</td></tr>`
+      : cbEntries.map(([service, state]) => `
+          <tr>
+            <td>${service}</td>
+            <td><span class="tag ${cbStateTag(state)}">${state}</span></td>
+          </tr>
+        `).join('');
 
     return `
       <!DOCTYPE html>
@@ -132,6 +158,8 @@ export class AppController {
           .tag-green  { background: rgba(87,255,128,0.1); border: 1px solid rgba(87,255,128,0.3); color: #80FFAA; }
           .tag-blue   { background: rgba(100,180,255,0.12); border: 1px solid rgba(100,180,255,0.3); color: #90CCFF; }
           .tag-purple { background: rgba(180,100,255,0.12); border: 1px solid rgba(180,100,255,0.3); color: #CC99FF; }
+          /* Tag đỏ cho CB OPEN — trạng thái nguy hiểm cần highlight rõ */
+          .tag-red    { background: rgba(255,60,60,0.2); border: 1px solid rgba(255,60,60,0.45); color: #FF8080; }
           .tech-grid  { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
           .download-btn {
             display: inline-flex; align-items: center; gap: 6px;
@@ -195,6 +223,13 @@ export class AppController {
                 <tr><td>Runtime</td><td><span class="tag tag-green">Node.js</span></td></tr>
                 <tr><td>Docs</td><td><a href="${swaggerUrl}" target="_blank">Swagger UI ↗</a></td></tr>
                 <tr><td>Dashboard</td><td><a href="'https://api.ngocrongdark.com/server/dashboard'" target="_blank">Dashboard ↗</a></td></tr>
+              </table>
+
+              <!-- Circuit Breaker status — hiển thị state của từng downstream service -->
+              <!-- Lazy init: chỉ xuất hiện sau khi service được gọi lần đầu -->
+              <div class="section-title">⚡ Circuit Breakers</div>
+              <table>
+                ${cbRows}
               </table>
             </div>
 
@@ -269,10 +304,26 @@ export class AppController {
   }
 
   @Get('health')
+  @ApiOperation({ summary: 'Health check cho CI/CD' })
   async healthCheck() {
+    return { success: true };
+  }
+
+  @Get('health/circuit-breakers')
+  @ApiOperation({ summary: 'Circuit Breaker states của tất cả downstream service' })
+  async circuitBreakerHealth() {
+    const breakers = getAllBreakerStates();
+
+    // degraded khi có service OPEN hoặc ISOLATED
+    // → monitoring/alerting tool có thể poll endpoint này
+    const hasOpenBreaker = Object.values(breakers).some(
+      state => state === 'OPEN' || state === 'ISOLATED'
+    );
+
     return {
-      success: true
+      status: hasOpenBreaker ? 'degraded' : 'ok',
+      circuitBreakers: breakers,
+      timestamp: new Date().toISOString(),
     };
   }
 }
-
