@@ -25,7 +25,7 @@ export class GeminiService implements OnModuleInit {
 
   // Model dùng để embed — chỉ 1 model, không cần fallback
   // vì embedding không tốn quota như generation
-  private readonly EMBED_MODEL = 'text-embedding-004';
+  private readonly EMBED_MODEL = 'embedding-001';
 
   // Path đến PDF tài liệu và file cache embeddings
   private readonly PDF_PATH = path.join(process.cwd(), 'docs', 'project.pdf');
