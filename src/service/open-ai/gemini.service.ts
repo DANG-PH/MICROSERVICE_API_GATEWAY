@@ -107,50 +107,61 @@ export class GeminiService implements OnModuleInit {
    * 6. Cache kết quả
    */
   async chatCompletion(prompt: string) {
-    const cacheKey = `ai:${this.hashKey(prompt)}`;
-    const cached = await this.cacheManager.get<string>(cacheKey);
-    if (cached) return { message: cached };
+    try {
+      const cacheKey = `ai:${this.hashKey(prompt)}`;
 
-    // Bước 2: embed câu hỏi
-    const queryEmbedding = await this.embedText(prompt);
+      // Redis có thể chết → catch để không crash cả request
+      const cached = await this.cacheManager.get<string>(cacheKey).catch(() => null);
+      if (cached) return { message: cached };
 
-    // Bước 3: retrieve
-    const relevantChunks = this.vectorStore.search(queryEmbedding, 4);
-    const context = relevantChunks.join('\n\n---\n\n');
+      // embedText có thể 404, 429, network error
+      let queryEmbedding: number[];
+      try {
+        queryEmbedding = await this.embedText(prompt);
+      } catch (err: any) {
+        this.logger.error('[RAG] embedText failed:', err.message);
+        return { message: 'Không thể xử lý câu hỏi lúc này, thử lại sau.' };
+      }
 
-    // Bước 4: build prompt
-    const systemPrompt =
-      process.env.TRAIN_AI_GEMINI ??
-      'Bạn là trợ lý dự án. Trả lời ngắn gọn, đủ ý, không dài dòng.';
+      const relevantChunks = this.vectorStore.search(queryEmbedding, 4);
+      const context = relevantChunks.join('\n\n---\n\n');
 
-    const ragPrompt = `
-${systemPrompt}
+      const systemPrompt =
+        process.env.TRAIN_AI_GEMINI ??
+        'Bạn là trợ lý dự án. Trả lời ngắn gọn, đủ ý, không dài dòng.';
 
-Tài liệu dự án liên quan đến câu hỏi:
----
-${context}
----
+      const ragPrompt = `
+        ${systemPrompt}
 
-Câu hỏi của user: ${prompt}
+        Tài liệu dự án liên quan đến câu hỏi:
+        ---
+        ${context}
+        ---
 
-Hướng dẫn trả lời:
-- Chỉ dựa vào tài liệu phía trên để trả lời
-- Nếu tài liệu không đề cập, nói rõ: "Tài liệu không có thông tin về vấn đề này"
-- Không bịa thêm thông tin ngoài tài liệu
-- Trả lời ngắn gọn, bullet points nếu nhiều ý
-    `.trim();
+        Câu hỏi của user: ${prompt}
 
-    // Bước 5: gọi LLM
-    const result = await this.generateWithFallback(ragPrompt);
-    if (!result) {
-      return { message: 'AI đang quá tải. Vui lòng thử lại sau ~1 phút.' };
+        Hướng dẫn trả lời:
+        - Chỉ dựa vào tài liệu phía trên để trả lời
+        - Nếu tài liệu không đề cập, nói rõ: "Tài liệu không có thông tin về vấn đề này"
+        - Không bịa thêm thông tin ngoài tài liệu
+        - Trả lời ngắn gọn, bullet points nếu nhiều ý
+      `.trim();
+
+      const result = await this.generateWithFallback(ragPrompt);
+      if (!result) {
+        return { message: 'AI đang quá tải. Vui lòng thử lại sau ~1 phút.' };
+      }
+
+      const message = result.response.text();
+
+      await this.cacheManager.set(cacheKey, message, 300 * 1000).catch(() => null);
+
+      return { message };
+
+    } catch (err: any) {
+      this.logger.error('[RAG] chatCompletion unexpected error:', err.message);
+      return { message: 'Có lỗi xảy ra, vui lòng thử lại.' };
     }
-
-    const message = result.response.text();
-
-    // Bước 6: cache 5 phút
-    await this.cacheManager.set(cacheKey, message, 300 * 1000);
-    return { message };
   }
 
   /**
@@ -173,11 +184,9 @@ Hướng dẫn trả lời:
         const model = this.genAI.getGenerativeModel({ model: modelName });
         return await model.generateContent(prompt);
       } catch (err: any) {
-        if (err?.status === 429) {
-          this.logger.warn(`[RAG] ${modelName} quota exceeded, trying next...`);
-          continue;
-        }
-        throw err;
+        // Catch tất cả lỗi
+        this.logger.warn(`[RAG] ${modelName} failed (${err?.status ?? err?.message}), trying next...`);
+        continue;
       }
     }
     return null;
