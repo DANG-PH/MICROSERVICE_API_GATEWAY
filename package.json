@@ -73,6 +73,7 @@
     "swagger-ui-express": "^5.0.1",
     "ts-morph": "^27.0.2",
     "typeorm": "^0.3.27",
+    "unpdf": "^1.6.0",
     "winston": "^3.18.3",
     "winston-mongodb": "^7.0.1",
     "winston-transport": "^4.9.0"

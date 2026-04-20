@@ -1,20 +1,28 @@
-// pdf-parse là CommonJS module không có default export chuẩn
-// dùng require thay vì import để tránh lỗi TypeScript
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pdfParse = require('pdf-parse');
 import fs from 'fs';
+import { extractText, getDocumentProxy } from 'unpdf';
 
 /**
- * Đọc PDF và cắt thành các chunks nhỏ.
+ * Đọc file PDF và cắt thành các chunks nhỏ để phục vụ RAG pipeline.
  *
- * @param filePath  Đường dẫn đến file PDF
- * @param chunkSize Số từ mỗi chunk (default 500)
- * @param overlap   Số từ overlap giữa 2 chunk liền kề (default 50)
+ * @param filePath  Đường dẫn tuyệt đối đến file PDF
+ * @param chunkSize Số từ tối đa mỗi chunk (default 500)
+ * @param overlap   Số từ lặp lại giữa 2 chunk liền kề (default 50)
+ * @returns         Mảng string, mỗi phần tử là 1 chunk text
  *
- * Tại sao overlap?
- * Nếu câu quan trọng nằm ở ranh giới giữa chunk_1 và chunk_2,
- * không có overlap thì câu đó bị cắt đứt, mất ngữ nghĩa.
- * Overlap đảm bảo câu đó xuất hiện đầy đủ trong ít nhất 1 chunk.
+ * Tại sao cắt thành chunks thay vì embed cả file?
+ * Embed cả PDF thành 1 vector → vector đại diện cho "toàn bộ tài liệu",
+ * mất đi chi tiết từng đoạn. Khi search sẽ không biết phần nào liên quan.
+ * Cắt nhỏ → mỗi chunk có vector riêng → search trả về đúng đoạn cần thiết.
+ *
+ * Tại sao cần overlap?
+ * Nếu câu quan trọng nằm ngay ranh giới giữa chunk_1 và chunk_2,
+ * không có overlap thì câu đó bị cắt đứt, mất ngữ nghĩa ở cả 2 chunk.
+ * Overlap đảm bảo câu đó xuất hiện đầy đủ trong ít nhất 1 trong 2 chunk.
+ *
+ * Ví dụ với chunkSize=10, overlap=2:
+ *   chunk_1: [từ 1  ... từ 10]
+ *   chunk_2: [từ 9  ... từ 18]  ← từ 9-10 lặp lại
+ *   chunk_3: [từ 17 ... từ 26]  ← từ 17-18 lặp lại
  */
 export async function chunkPdf(
   filePath: string,
@@ -22,19 +30,27 @@ export async function chunkPdf(
   overlap = 50,
 ): Promise<string[]> {
   const buffer = fs.readFileSync(filePath);
-  const { text } = await pdfParse(buffer);
 
-  // Tách theo whitespace để đếm "từ"
-  // Với tài liệu kỹ thuật tiếng Việt/Anh lẫn lộn thì đây đủ dùng
+  // unpdf dùng pdfjs-dist bên trong nhưng bọc lại API gọn hơn,
+  // không có vấn đề CJS/ESM hay .default như pdf-parse
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+
+  // filter(Boolean) loại bỏ chuỗi rỗng phát sinh khi có nhiều space liên tiếp.
+  // Với tài liệu kỹ thuật tiếng Việt/Anh lẫn lộn, split theo whitespace đủ dùng —
+  // không cần tokenizer phức tạp hơn vì embedding model tự xử lý ngữ nghĩa.
   const words = text.split(/\s+/).filter(Boolean);
 
   const chunks: string[] = [];
   let i = 0;
 
+  // Mỗi vòng lặp tạo 1 chunk từ vị trí i đến i + chunkSize.
+  // Bước nhảy là (chunkSize - overlap) thay vì chunkSize
+  // để 2 chunk liền kề có overlap từ chung nhau.
   while (i < words.length) {
     const chunk = words.slice(i, i + chunkSize).join(' ');
     chunks.push(chunk);
-    i += chunkSize - overlap; // tiến lên chunkSize - overlap từ
+    i += chunkSize - overlap;
   }
 
   return chunks;
