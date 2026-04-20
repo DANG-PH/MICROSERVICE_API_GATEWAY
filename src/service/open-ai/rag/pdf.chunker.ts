@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { extractText, getDocumentProxy } from 'unpdf';
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'; 
 
 /**
  * Đọc file PDF và cắt thành các chunks nhỏ để phục vụ RAG pipeline.
@@ -31,15 +31,28 @@ export async function chunkPdf(
 ): Promise<string[]> {
   const buffer = fs.readFileSync(filePath);
 
-  // unpdf dùng pdfjs-dist bên trong nhưng bọc lại API gọn hơn,
-  // không có vấn đề CJS/ESM hay .default như pdf-parse
-  const pdf = await getDocumentProxy(new Uint8Array(buffer));
-  const { text } = await extractText(pdf, { mergePages: true });
+  const pdf = await pdfjsLib.getDocument({
+    data: new Uint8Array(buffer),
+    useWorkerFetch: false,
+    isEvalSupported: false,
+    useSystemFonts: true,
+  }).promise;
 
+  const pages: string[] = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const content = await page.getTextContent();
+    const pageText = content.items
+      .map((item: any) => ('str' in item ? item.str : ''))
+      .join(' ');
+    pages.push(pageText);
+  }
+
+  const fullText = pages.join(' ');
   // filter(Boolean) loại bỏ chuỗi rỗng phát sinh khi có nhiều space liên tiếp.
   // Với tài liệu kỹ thuật tiếng Việt/Anh lẫn lộn, split theo whitespace đủ dùng —
   // không cần tokenizer phức tạp hơn vì embedding model tự xử lý ngữ nghĩa.
-  const words = text.split(/\s+/).filter(Boolean);
+  const words = fullText.split(/\s+/).filter(Boolean);
 
   const chunks: string[] = [];
   let i = 0;
