@@ -30,6 +30,7 @@ import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { GameDataModule } from './service/game-data/game-data.module';
+import { JwtDecodeMiddleware } from './middleware/jwt-decode.middleware';
 
 @Module({
   imports: [
@@ -71,7 +72,7 @@ import { GameDataModule } from './service/game-data/game-data.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware, RateLimitMiddleware).forRoutes('*');
+    consumer.apply(JwtDecodeMiddleware, LoggerMiddleware, RateLimitMiddleware).forRoutes('*');
   }
 }
 
