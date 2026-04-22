@@ -7,6 +7,7 @@ import {
 } from 'cockatiel';
 import { HttpException } from '@nestjs/common';
 import { publishCbState } from './cb-redis-sync';
+import { DiscordAlert } from 'src/shared/discord.alert';
 
 /**
  * CB phải được SHARE giữa tất cả lần gọi tới cùng 1 service.
@@ -58,8 +59,12 @@ export function getBreakerFor(serviceName: string): CircuitBreakerPolicy {
        * (isolate() call từ message nhận được). Nếu broadcast lại sẽ tạo
        * vòng lặp: A isolate B → B publish Isolated → A nhận → A isolate → ...
        */
-      if (state === CircuitState.Open || state === CircuitState.Closed) {
+      if (state === CircuitState.Open) {
         publishCbState(serviceName, state);
+        DiscordAlert.cbOpen({ serviceName, pid: process.pid });
+      } else if (state === CircuitState.Closed) {
+        publishCbState(serviceName, state);
+        DiscordAlert.cbClosed({ serviceName, pid: process.pid });
       }
     });
 
