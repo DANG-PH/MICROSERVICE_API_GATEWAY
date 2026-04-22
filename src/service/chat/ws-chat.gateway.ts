@@ -6,7 +6,6 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WsJwtGuard } from 'src/security/guard/ws-jwt.guard';
 import { UseGuards } from '@nestjs/common';
 import Redis from 'ioredis';
 import { Inject } from '@nestjs/common';
@@ -16,7 +15,6 @@ import { SocialNetworkService } from '../social_network/social-network.service';
 import { group } from 'console';
 import { AuthService } from '../auth/auth.service';
 
-@UseGuards(WsJwtGuard)
 @WebSocketGateway({
   namespace: '/ws-chat',
 })
