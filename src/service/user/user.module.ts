@@ -6,7 +6,6 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtStrategy } from 'src/security/JWT/jwt.strategy';
 import { RolesGuard } from 'src/security/guard/role.guard';
-import { WsModule } from '../ws-for-game/ws.module';
 import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 
 @Module({
@@ -27,7 +26,17 @@ import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
         },
       },
     ]),
-    forwardRef(() => WsModule)
+    ClientsModule.register([
+      {
+          name: String(process.env.RABBIT_GAME_SERVICE),
+          transport: Transport.RMQ,
+          options: {
+          urls: [String(process.env.RABBIT_URL)],
+          queue: process.env.RABBIT_GAME_QUEUE,
+          queueOptions: { durable: true },
+          },
+      },
+    ]),
   ],
   controllers: [UserController],
   providers: [UserService,JwtStrategy,JwtAuthGuard,RolesGuard],

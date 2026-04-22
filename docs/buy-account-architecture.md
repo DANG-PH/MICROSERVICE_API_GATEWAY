@@ -1681,7 +1681,7 @@ private async handleSagaFailure(event: OutboxEvent, error: unknown): Promise<voi
         attempt: sagaState.attempt,
       });
 
-      // TODO: gửi alert thực sự
+      // gửi alert
       await this.notificationService.alert({
         level: 'critical',
         title: `Saga FAILED: ${event.id}`,

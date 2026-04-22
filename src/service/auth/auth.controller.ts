@@ -31,6 +31,7 @@ import { WsChatGateway } from '../chat/ws-chat.gateway';
 import { SocialNetworkService } from '../social_network/social-network.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('auth')
 @ApiTags('Api Auth') 
@@ -41,7 +42,8 @@ export class AuthController {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private wsChatGateway: WsChatGateway,
     private readonly socialService: SocialNetworkService,
-    private eventEmitter: EventEmitter2
+    // private eventEmitter: EventEmitter2
+    @Inject(String(process.env.RABBIT_GAME_SERVICE)) private readonly gameClient: ClientProxy,
   ) {}
 
   @Post('register')
@@ -179,7 +181,7 @@ export class AuthController {
     metadata.set('platform', platform);
     const result = await this.authService.handleChangePassword(request, metadata);
     if (result.success) {
-      this.eventEmitter.emit('auth.revoke_all_token', req.user.userId);
+      this.gameClient.emit('auth.revoke_all_token', { userId: req.user.userId });
     }
     return result;
   }

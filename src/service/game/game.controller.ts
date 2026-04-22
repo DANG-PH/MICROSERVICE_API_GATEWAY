@@ -3,9 +3,9 @@ import { JwtAuthGuard } from 'src/security/JWT/jwt-auth.guard';
 import { Controller, Post, UseGuards, Req, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { WsGateway } from './ws.gateway';
 import Redis from 'ioredis';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ClientProxy } from '@nestjs/microservices';
 
 const PLAY_SCRIPT = `
   local key = KEYS[1]
@@ -28,9 +28,9 @@ export class GameController {
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly wsGateway: WsGateway,
     private eventEmitter: EventEmitter2,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
+    @Inject(String(process.env.RABBIT_GAME_SERVICE)) private readonly gameClient: ClientProxy,
   ) {}
 
   @Post('play')
@@ -53,11 +53,7 @@ export class GameController {
 
     if (oldSessionId) {
       // Kick bằng userId, adapter tự tìm đúng server
-      // Dùng emitter thay vì gọi trực tiếp vì:
-      // K cần kết quả ngay
-      // K cần chờ đợi để chạy dòng tiếp theo
-      // Xử lí bất đồng bộ cùng process
-      this.eventEmitter.emit('auth.kick_socket', userId);
+      this.gameClient.emit('auth.kick_socket', { userId: userId });
     }
 
     return { success: true, gameSessionId };

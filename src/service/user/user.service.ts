@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import type { ClientGrpc } from '@nestjs/microservices';
+import type { ClientGrpc, ClientProxy } from '@nestjs/microservices';
 import {
   RegisterRequest,
   RegisterResponse,
@@ -39,8 +39,9 @@ export class UserService {
 
   constructor(
     @Inject(USER_PACKAGE_NAME) private readonly client: ClientGrpc,
-    private eventEmitter: EventEmitter2,
+    // private eventEmitter: EventEmitter2,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
+    @Inject(String(process.env.RABBIT_GAME_SERVICE)) private readonly gameClient: ClientProxy,
   ) {}
 
   onModuleInit() {
@@ -80,10 +81,12 @@ export class UserService {
   async handleAddVangWeb(req: AddBalanceRequest ) {
     const result = await grpcCall(UserService.name,this.userGrpcService.addVangNapTuWeb(req));
     if (result.vangNapTuWeb && result.ngocNapTuWeb) {
-      this.eventEmitter.emit('user.nap_tien', {
-        userId: req.id,
-        type: LoaiNapTien.VANG,
-        amount: req.amount
+      this.gameClient.emit('user.nap_tien', {
+        event: {
+          userId: req.id,
+          type: LoaiNapTien.VANG,
+          amount: req.amount
+        }
       });
     }
     return result;
@@ -92,10 +95,12 @@ export class UserService {
   async handleAddNgocWeb(req: AddBalanceRequest ) {
     const result = await grpcCall(UserService.name,this.userGrpcService.addNgocNapTuWeb(req));
     if (result.vangNapTuWeb && result.ngocNapTuWeb) {
-      this.eventEmitter.emit('user.nap_tien', {
-        userId: req.id,
-        type: LoaiNapTien.NGOC,
-        amount: req.amount
+      this.gameClient.emit('user.nap_tien', {
+        event: {
+          userId: req.id,
+          type: LoaiNapTien.NGOC,
+          amount: req.amount
+        }
       });
     }
     return result;
@@ -108,11 +113,13 @@ export class UserService {
   async handleAddItemWeb(req: AddItemRequest ) {
     const result = await grpcCall(UserService.name,this.userGrpcService.addItemWeb(req));
     if (result.message) {
-      this.eventEmitter.emit('user.nap_tien', {
-        userId: req.id,
-        type: LoaiNapTien.ITEM,
-        itemId: req.itemId,
-        quantity: 1
+      this.gameClient.emit('user.nap_tien', {
+        event: {
+          userId: req.id,
+          type: LoaiNapTien.ITEM,
+          itemId: req.itemId,
+          quantity: 1
+        }
       });
     }
     return result;

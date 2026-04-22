@@ -25,7 +25,7 @@ import { OpenaiModule } from './service/open-ai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SocialNetworkModule } from './service/social_network/social_network.module';
 import { WsChatModule } from './service/chat/ws-chat.module';
-import { WsModule } from './service/ws-for-game/ws.module';
+import { GameModule } from './service/game/game.module';
 import { TemporaryBanGuard } from './security/guard/temporary-ban.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -58,7 +58,7 @@ import { JwtDecodeMiddleware } from './middleware/jwt-decode.middleware';
     PartnerModule,
     ServerModule,
     OpenaiModule,
-    WsModule,
+    GameModule,
     GameDataModule,
     EventEmitterModule.forRoot(), 
   ],

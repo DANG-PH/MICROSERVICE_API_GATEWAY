@@ -6,7 +6,6 @@ import {UseItemAdminRequestDto,AddItemAdminRequestDto,UserDto,UpdateBalanceReque
 import { Roles } from 'src/security/decorators/role.decorator';
 import { Role } from 'src/enums/role.enum';
 import { RolesGuard } from 'src/security/guard/role.guard';
-import { WsGateway } from '../ws-for-game/ws.gateway';
 import { LoaiNapTien } from 'src/enums/nap.enum';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import Redis from 'ioredis';
@@ -16,7 +15,6 @@ import Redis from 'ioredis';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private wsGateway: WsGateway,
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 

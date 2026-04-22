@@ -8,9 +8,23 @@ import { ItemModule } from 'src/service/item/item.module';
 import { DeTuModule } from 'src/service/detu/detu.module';
 import { PayModule } from 'src/service/pay/pay/pay.module';
 import { PartnerModule } from '../partner/partner.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [AuthModule, UserModule, ItemModule, DeTuModule, PayModule, PartnerModule],
+  imports: [
+    ClientsModule.register([
+      {
+          name: String(process.env.RABBIT_GAME_SERVICE),
+          transport: Transport.RMQ,
+          options: {
+          urls: [String(process.env.RABBIT_URL)],
+          queue: process.env.RABBIT_GAME_QUEUE,
+          queueOptions: { durable: true },
+          },
+      },
+    ]),
+    AuthModule, UserModule, ItemModule, DeTuModule, PayModule, PartnerModule
+  ],
   controllers: [AdminController],
   providers: [JwtStrategy,RolesGuard]
 })

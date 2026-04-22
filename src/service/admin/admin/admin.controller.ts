@@ -36,6 +36,7 @@ import {
 import { PartnerService } from '../partner/partner.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { randomUUID } from 'crypto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Controller('admin')
 @ApiTags('Api Admin') 
@@ -48,7 +49,8 @@ export class AdminController {
     private itemService: ItemService,
     private payService: PayService,
     private partnerService: PartnerService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    @Inject(String(process.env.RABBIT_GAME_SERVICE)) private readonly gameClient: ClientProxy,
   ) {}
 
   // Gọi sang auth-service
@@ -71,7 +73,7 @@ export class AdminController {
   async banUser(@Body() body: BanUserRequestDto): Promise<BanUserResponseDto> {
     const result = await this.authService.handleBanUser(body);
     if (result.success) {
-      this.eventEmitter.emit('auth.revoke_all_token', result.userId);
+      this.gameClient.emit('auth.revoke_all_token', { userId: result.userId });
     } 
     return result;
   }

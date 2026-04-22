@@ -9,7 +9,6 @@ import { RolesGuard } from 'src/security/guard/role.guard';
 import { UserModule } from 'src/service/user/user.module';
 import { SocialNetworkModule } from '../social_network/social_network.module';
 import { WsChatModule } from '../chat/ws-chat.module';
-import { WsModule } from '../ws-for-game/ws.module';
 
 @Global()
 @Module({
@@ -30,10 +29,20 @@ import { WsModule } from '../ws-for-game/ws.module';
         },
       },
     ]),
+    ClientsModule.register([
+      {
+          name: String(process.env.RABBIT_GAME_SERVICE),
+          transport: Transport.RMQ,
+          options: {
+          urls: [String(process.env.RABBIT_URL)],
+          queue: process.env.RABBIT_GAME_QUEUE,
+          queueOptions: { durable: true },
+          },
+      },
+    ]),
     UserModule,
     forwardRef(() => SocialNetworkModule) ,
     forwardRef(() => WsChatModule),
-    WsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService,JwtStrategy,RolesGuard],
