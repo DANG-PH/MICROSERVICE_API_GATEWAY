@@ -755,7 +755,7 @@ Byte đầu của HANDSHAKE chứa `PROTOCOL_VERSION uint16`. Server check, mism
 [float32]    timeChoHienBay
 [float32]    lechDauX
 [float32]    lechDauY
-... (lechThanX/Y, lechChanX/Y, frameVanBay, dangMangVanBay, tenVanBay, rong, cao, avatar)
+... (lechThanX/Y, lechChanX/Y, dangMangVanBay, tenVanBay, rong, cao, avatar)
 ```
 
 Total ~80-150 bytes (tùy length string). So với JSON ~400-600 bytes → giảm 3-5x.

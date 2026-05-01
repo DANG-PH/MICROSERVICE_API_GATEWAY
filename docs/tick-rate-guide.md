@@ -649,7 +649,6 @@ Mỗi PlayerSync:
 ... (các string field khác)
 [4 bytes]  timeChoHienBay (float32)
 ... (các float field khác)
-[2 bytes]  frameVanBay (uint16)
 [1 byte]   dangMangVanBay (bool)
 [2+N bytes] tenVanBay
 [4 bytes]  rong (float32)
@@ -1307,7 +1306,7 @@ Giải pháp: dirty bitmask
   const (
       DirtyPosition   uint32 = 1 << 0  // x, y thay đổi
       DirtyAnimation  uint32 = 1 << 1  // trangthai, dir, dau, than, chan
-      DirtyVehicle    uint32 = 1 << 2  // tenVanBay, frameVanBay, ...
+      DirtyVehicle    uint32 = 1 << 2  // tenVanBay,
       DirtyAppearance uint32 = 1 << 3  // avatar, rong, cao
   )
 
